@@ -89,6 +89,22 @@ export default function LeadForm() {
     try {
       await fetch("https://script.google.com/macros/library/d/1ODmGNRLgHxDjU6AA_7PLOTGXvrK2iqs4zU12AtP8KFbYQtfRfm1ale77/3", {
         method: "POST",
+        mode: "no-cors", // <-- DEZE IS TERUG, HEEL BELANGRIJK!
+        headers: {
+          "Content-Type": "text/plain", 
+        },
+        body: JSON.stringify(payload),
+      });
+      
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Fout:", error);
+      setSubmitted(true); 
+    } finally {
+      setIsSubmitting(false);
+    } {
+      await fetch("https://script.google.com/macros/library/d/1ODmGNRLgHxDjU6AA_7PLOTGXvrK2iqs4zU12AtP8KFbYQtfRfm1ale77/3", {
+        method: "POST",
         headers: {
           "Content-Type": "text/plain", // Dit is de magic fix!
         },
