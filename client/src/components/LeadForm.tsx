@@ -89,7 +89,6 @@ export default function LeadForm() {
     try {
       await fetch("https://script.google.com/macros/s/AKfycby3_S8kPfo7CZgEWh2B2U96taaLLG22WooLSr67yK0eibFU4EbMLYOgGQqsQqNOVGXVlg/exec", {
         method: "POST",
-        // Haal mode: "no-cors" hier WEG
         headers: {
           "Content-Type": "text/plain", // Dit is de magic fix!
         },
@@ -102,7 +101,8 @@ export default function LeadForm() {
       setSubmitted(true); 
     } finally {
       setIsSubmitting(false);
-    };
+    }
+  }; // <--- DIT IS DE BELANGRIJKE HAAK DIE ONTBAK IN JOUW VERSIE
 
   if (submitted) {
     return (
