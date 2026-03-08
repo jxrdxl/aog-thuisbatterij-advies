@@ -87,7 +87,7 @@ export default function LeadForm() {
     };
 
     try {
-      await fetch("https://script.google.com/macros/s/AKfycby3_S8kPfo7CZgEWh2B2U96taaLLG22WooLSr67yK0eibFU4EbMLYOgGQqsQqNOVGXVlg/exec", {
+      await fetch("https://script.google.com/macros/library/d/1ODmGNRLgHxDjU6AA_7PLOTGXvrK2iqs4zU12AtP8KFbYQtfRfm1ale77/3", {
         method: "POST",
         headers: {
           "Content-Type": "text/plain", // Dit is de magic fix!
