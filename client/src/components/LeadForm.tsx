@@ -87,26 +87,22 @@ export default function LeadForm() {
     };
 
     try {
-      // Stuur de data naar jouw Google Sheet URL
       await fetch("https://script.google.com/macros/s/AKfycby3_S8kPfo7CZgEWh2B2U96taaLLG22WooLSr67yK0eibFU4EbMLYOgGQqsQqNOVGXVlg/exec", {
         method: "POST",
-        mode: "no-cors", // Belangrijk om blockeringen van Google te voorkomen
+        // Haal mode: "no-cors" hier WEG
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "text/plain", // Dit is de magic fix!
         },
         body: JSON.stringify(payload),
       });
       
-      // Als de fetch succesvol is afgevuurd, toon bedankpagina
       setSubmitted(true);
     } catch (error) {
-      console.error("Fout bij het versturen naar Google Sheets:", error);
-      // We zetten hem toch op true (soms geeft no-cors een valse error in de console)
+      console.error("Fout:", error);
       setSubmitted(true); 
     } finally {
       setIsSubmitting(false);
-    }
-  };
+    };
 
   if (submitted) {
     return (
