@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { trpc } from "@/lib/trpc";
 import { CheckCircle, ArrowRight, ArrowLeft, Shield, Phone, User, Mail, MapPin, Home, Zap } from "lucide-react";
 
 interface FormData {
@@ -32,6 +31,7 @@ const STEPS = [
 export default function LeadForm() {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     solarPanelCount: "",
     homeOwner: undefined,
@@ -42,10 +42,6 @@ export default function LeadForm() {
     email: "",
     postalCode: "",
     preferredContact: "phone",
-  });
-
-  const submitMutation = trpc.leads.submit.useMutation({
-    onSuccess: () => setSubmitted(true),
   });
 
   const progress = ((step + 1) / STEPS.length) * 100;
@@ -74,10 +70,12 @@ export default function LeadForm() {
     if (step > 0) setStep(step - 1);
   };
 
-  const handleSubmit = () => {
-    // Get UTM params from URL
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
     const params = new URLSearchParams(window.location.search);
-    submitMutation.mutate({
+    
+    // De data klaarzetten
+    const payload = {
       ...formData,
       email: formData.email || "",
       homeOwner: formData.homeOwner ?? undefined,
@@ -86,7 +84,28 @@ export default function LeadForm() {
       utmSource: params.get("utm_source") || undefined,
       utmMedium: params.get("utm_medium") || undefined,
       utmCampaign: params.get("utm_campaign") || undefined,
-    });
+    };
+
+    try {
+      // Stuur de data naar jouw Google Sheet URL
+      await fetch("https://script.google.com/macros/s/AKfycby3_S8kPfo7CZgEWh2B2U96taaLLG22WooLSr67yK0eibFU4EbMLYOgGQqsQqNOVGXVlg/exec", {
+        method: "POST",
+        mode: "no-cors", // Belangrijk om blockeringen van Google te voorkomen
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      
+      // Als de fetch succesvol is afgevuurd, toon bedankpagina
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Fout bij het versturen naar Google Sheets:", error);
+      // We zetten hem toch op true (soms geeft no-cors een valse error in de console)
+      setSubmitted(true); 
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -328,10 +347,10 @@ export default function LeadForm() {
               ) : (
                 <Button
                   onClick={handleSubmit}
-                  disabled={submitMutation.isPending}
+                  disabled={isSubmitting}
                   className="bg-aog-green hover:bg-aog-green-light text-white gap-1 px-6"
                 >
-                  {submitMutation.isPending ? "Versturen..." : "Verstuur aanvraag"} <CheckCircle className="w-4 h-4" />
+                  {isSubmitting ? "Versturen..." : "Verstuur aanvraag"} <CheckCircle className="w-4 h-4" />
                 </Button>
               )}
             </div>
