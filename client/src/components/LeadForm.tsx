@@ -87,7 +87,7 @@ export default function LeadForm() {
     };
 
     try {
-      await fetch("https://script.google.com/macros/s/AKfycby3_S8kPfo7CZgEWh2B2U96taaLLG22WooLSr67yK0eibFU4EbMLYOgGQqsQqNOVGXVlg/exec", {
+      await fetch("https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec", {
         method: "POST",
         mode: "no-cors",
         headers: {
