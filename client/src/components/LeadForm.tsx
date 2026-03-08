@@ -87,26 +87,11 @@ export default function LeadForm() {
     };
 
     try {
-      await fetch("https://script.google.com/macros/library/d/1ODmGNRLgHxDjU6AA_7PLOTGXvrK2iqs4zU12AtP8KFbYQtfRfm1ale77/3", {
+      await fetch("https://script.google.com/macros/s/AKfycby3_S8kPfo7CZgEWh2B2U96taaLLG22WooLSr67yK0eibFU4EbMLYOgGQqsQqNOVGXVlg/exec", {
         method: "POST",
-        mode: "no-cors", // <-- DEZE IS TERUG, HEEL BELANGRIJK!
+        mode: "no-cors",
         headers: {
-          "Content-Type": "text/plain", 
-        },
-        body: JSON.stringify(payload),
-      });
-      
-      setSubmitted(true);
-    } catch (error) {
-      console.error("Fout:", error);
-      setSubmitted(true); 
-    } finally {
-      setIsSubmitting(false);
-    } {
-      await fetch("https://script.google.com/macros/library/d/1ODmGNRLgHxDjU6AA_7PLOTGXvrK2iqs4zU12AtP8KFbYQtfRfm1ale77/3", {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/plain", // Dit is de magic fix!
+          "Content-Type": "text/plain",
         },
         body: JSON.stringify(payload),
       });
@@ -118,7 +103,7 @@ export default function LeadForm() {
     } finally {
       setIsSubmitting(false);
     }
-  }; // <--- DIT IS DE BELANGRIJKE HAAK DIE ONTBAK IN JOUW VERSIE
+  };
 
   if (submitted) {
     return (
