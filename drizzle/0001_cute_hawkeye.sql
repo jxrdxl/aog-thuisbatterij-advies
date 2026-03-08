@@ -1,0 +1,22 @@
+CREATE TABLE `leads` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`name` varchar(255) NOT NULL,
+	`phone` varchar(32) NOT NULL,
+	`email` varchar(320),
+	`postalCode` varchar(10),
+	`solarPanelCount` varchar(20),
+	`currentProvider` varchar(100),
+	`homeOwner` boolean,
+	`annualIncome` varchar(50),
+	`preferredContact` varchar(50),
+	`estimatedSavings` int,
+	`source` varchar(100) DEFAULT 'website',
+	`utmSource` varchar(255),
+	`utmMedium` varchar(255),
+	`utmCampaign` varchar(255),
+	`status` enum('new','contacted','qualified','appointment','closed','lost') NOT NULL DEFAULT 'new',
+	`notes` text,
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT `leads_id` PRIMARY KEY(`id`)
+);

@@ -1,10 +1,12 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { z } from "zod";
+import { createLead, getLeads } from "./db";
+import { notifyOwner } from "./_core/notification";
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -17,12 +19,67 @@ export const appRouter = router({
     }),
   }),
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  leads: router({
+    submit: publicProcedure
+      .input(
+        z.object({
+          name: z.string().min(1, "Naam is verplicht"),
+          phone: z.string().min(8, "Telefoonnummer is verplicht"),
+          email: z.string().email("Ongeldig e-mailadres").optional().or(z.literal("")),
+          postalCode: z.string().optional(),
+          solarPanelCount: z.string().optional(),
+          currentProvider: z.string().optional(),
+          homeOwner: z.boolean().optional(),
+          annualIncome: z.string().optional(),
+          preferredContact: z.string().optional(),
+          estimatedSavings: z.number().optional(),
+          source: z.string().optional(),
+          utmSource: z.string().optional(),
+          utmMedium: z.string().optional(),
+          utmCampaign: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const lead = await createLead({
+          name: input.name,
+          phone: input.phone,
+          email: input.email || undefined,
+          postalCode: input.postalCode,
+          solarPanelCount: input.solarPanelCount,
+          currentProvider: input.currentProvider,
+          homeOwner: input.homeOwner,
+          annualIncome: input.annualIncome,
+          preferredContact: input.preferredContact,
+          estimatedSavings: input.estimatedSavings,
+          source: input.source || "website",
+          utmSource: input.utmSource,
+          utmMedium: input.utmMedium,
+          utmCampaign: input.utmCampaign,
+        });
+
+        // Notify owner about new lead
+        try {
+          await notifyOwner({
+            title: `Nieuwe lead: ${input.name}`,
+            content: `Telefoon: ${input.phone}\nPanelen: ${input.solarPanelCount || "Onbekend"}\nPostcode: ${input.postalCode || "Onbekend"}\nBron: ${input.source || "website"}`,
+          });
+        } catch (e) {
+          console.warn("[Notification] Failed to notify owner:", e);
+        }
+
+        return {
+          success: true,
+          leadId: lead?.id,
+        };
+      }),
+
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        return [];
+      }
+      return getLeads();
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

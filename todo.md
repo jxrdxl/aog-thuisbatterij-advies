@@ -1,0 +1,25 @@
+# Project TODO
+
+- [x] Design system: color palette, typography, global CSS theming (green/blue energy theme)
+- [x] Database schema: leads table for form submissions
+- [x] Hero section with countdown timer to Jan 1, 2027 and urgent messaging
+- [x] Interactive savings calculator (input solar panels → personalized cost projection)
+- [x] Multi-step lead capture form (6 questions, Warmtefonds eligibility)
+- [x] Trust signals section (Financieel Dagblad, RTL Nieuws, NOS, Consumentenbond, Rijksoverheid)
+- [x] WhatsApp Business integration (click-to-chat button)
+- [x] Mobile-first responsive design optimized for Facebook/Instagram ad traffic
+- [x] Value propositions section (€240 free report, €1,645 savings, 0% financing)
+- [x] FAQ accordion section (common objections about home batteries)
+- [x] Social proof section (anonymized testimonials and success stories)
+- [x] Sticky CTA buttons visible during scroll
+- [x] Backend tRPC routes for lead submission and storage
+- [x] Vitest tests for backend lead submission
+- [x] SEO meta tags and Open Graph tags
+- [x] Upload static assets to CDN
+- [x] How It Works section (4 steps)
+- [x] Urgency banner section
+- [x] Final CTA section
+- [x] Footer with contact info and links
+- [x] Header with scroll-aware transparency
+- [x] UTM parameter tracking on form submissions
+- [x] Owner notification on new lead
