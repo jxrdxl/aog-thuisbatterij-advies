@@ -7,6 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, ArrowRight, ArrowLeft, Shield, Phone, User, Mail, MapPin, Home, Zap } from "lucide-react";
 
+// Declaratie voor Meta Pixel (om TypeScript fouten te voorkomen)
+declare global {
+  interface Window {
+    fbq: any;
+  }
+}
+
 interface FormData {
   solarPanelCount: string;
   homeOwner: boolean | undefined;
@@ -63,6 +70,12 @@ export default function LeadForm() {
   };
 
   const handleNext = () => {
+    // BLOKKADE VOOR HUURDERS
+    if (step === 1 && formData.homeOwner === false) {
+      alert("Helaas, het adviesrapport en de financiering vanuit het Warmtefonds zijn uitsluitend beschikbaar voor woningeigenaren.");
+      return; 
+    }
+    
     if (step < STEPS.length - 1) setStep(step + 1);
   };
 
@@ -74,7 +87,6 @@ export default function LeadForm() {
     setIsSubmitting(true);
     const params = new URLSearchParams(window.location.search);
     
-    // De data klaarzetten
     const payload = {
       ...formData,
       email: formData.email || "",
@@ -87,6 +99,7 @@ export default function LeadForm() {
     };
 
     try {
+      // 1. Verstuur naar Google Sheets
       await fetch("https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec", {
         method: "POST",
         mode: "no-cors",
@@ -95,6 +108,11 @@ export default function LeadForm() {
         },
         body: JSON.stringify(payload),
       });
+      
+      // 2. Trigger Meta Pixel Lead Event
+      if (typeof window.fbq !== 'undefined') {
+        window.fbq('track', 'Lead');
+      }
       
       setSubmitted(true);
     } catch (error) {
