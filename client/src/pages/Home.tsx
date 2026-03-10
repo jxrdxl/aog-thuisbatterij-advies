@@ -1,19 +1,20 @@
-import { useRef } from "react";
+import { useRef, Suspense, lazy } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, CheckCircle, Zap, TrendingDown, Star, Phone, MessageCircle } from "lucide-react";
-import CountdownTimer from "@/components/CountdownTimer";
-import SavingsCalculator from "@/components/SavingsCalculator";
-import LeadForm from "@/components/LeadForm";
-import TrustSignals from "@/components/TrustSignals";
-import ValuePropositions from "@/components/ValuePropositions";
-import FAQ from "@/components/FAQ";
-import Testimonials from "@/components/Testimonials";
-import WhatsAppButton from "@/components/WhatsAppButton";
-import StickyCta from "@/components/StickyCta";
-import HowItWorks from "@/components/HowItWorks";
-import UrgencyBanner from "@/components/UrgencyBanner";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+
+const CountdownTimer = lazy(() => import("@/components/CountdownTimer"));
+const SavingsCalculator = lazy(() => import("@/components/SavingsCalculator"));
+const LeadForm = lazy(() => import("@/components/LeadForm"));
+const TrustSignals = lazy(() => import("@/components/TrustSignals"));
+const ValuePropositions = lazy(() => import("@/components/ValuePropositions"));
+const FAQ = lazy(() => import("@/components/FAQ"));
+const Testimonials = lazy(() => import("@/components/Testimonials"));
+const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
+const StickyCta = lazy(() => import("@/components/StickyCta"));
+const HowItWorks = lazy(() => import("@/components/HowItWorks"));
+const UrgencyBanner = lazy(() => import("@/components/UrgencyBanner"));
+const Footer = lazy(() => import("@/components/Footer"));
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029246277/Kr7KprZignQsPbEATC3CRd/solar-house_a519113a.jpg";
 
@@ -37,6 +38,8 @@ export default function Home() {
             alt="Huis met zonnepanelen in Nederland"
             className="w-full h-full object-cover scale-105 animate-slow-zoom"
             loading="eager"
+            fetchPriority="high"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-900/70 to-slate-900/90" />
         </div>
@@ -109,31 +112,33 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Trust Signals / News Ticker */}
-      <TrustSignals />
+      <Suspense fallback={<div className="h-20" />}>
+        {/* Trust Signals / News Ticker */}
+        <TrustSignals />
 
-      {/* How It Works */}
-      <HowItWorks />
+        {/* How It Works */}
+        <HowItWorks />
 
-      {/* Savings Calculator */}
-      <SavingsCalculator onCtaClick={scrollToForm} />
+        {/* Savings Calculator */}
+        <SavingsCalculator onCtaClick={scrollToForm} />
 
-      {/* Value Propositions */}
-      <ValuePropositions />
+        {/* Value Propositions */}
+        <ValuePropositions />
 
-      {/* Lead Form Section */}
-      <div ref={formRef}>
-        <LeadForm />
-      </div>
+        {/* Lead Form Section */}
+        <div ref={formRef}>
+          <LeadForm />
+        </div>
 
-      {/* Testimonials */}
-      <Testimonials />
+        {/* Testimonials */}
+        <Testimonials />
 
-      {/* Urgency Banner */}
-      <UrgencyBanner />
+        {/* Urgency Banner */}
+        <UrgencyBanner />
 
-      {/* FAQ */}
-      <FAQ />
+        {/* FAQ */}
+        <FAQ />
+      </Suspense>
 
       {/* Final CTA */}
       <section className="py-24 sm:py-32 bg-slate-900 text-white relative overflow-hidden">
@@ -183,12 +188,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <Footer />
+      <Suspense fallback={null}>
+        {/* Footer */}
+        <Footer />
 
-      {/* Floating elements */}
-      <WhatsAppButton />
-      <StickyCta />
+        {/* Floating elements */}
+        <WhatsAppButton />
+        <StickyCta />
+      </Suspense>
 
       <style>{`
         @keyframes slow-zoom {

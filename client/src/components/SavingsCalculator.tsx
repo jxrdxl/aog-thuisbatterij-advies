@@ -2,7 +2,12 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Sun, TrendingDown, TrendingUp, Zap, ArrowRight, Info, AlertTriangle } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import React, { Suspense } from "react";
+
+const TooltipProvider = React.lazy(() => import("@/components/ui/tooltip").then(m => ({ default: m.TooltipProvider })));
+const Tooltip = React.lazy(() => import("@/components/ui/tooltip").then(m => ({ default: m.Tooltip })));
+const TooltipTrigger = React.lazy(() => import("@/components/ui/tooltip").then(m => ({ default: m.TooltipTrigger })));
+const TooltipContent = React.lazy(() => import("@/components/ui/tooltip").then(m => ({ default: m.TooltipContent })));
 
 interface CalculatorResult {
   annualProduction: number;
@@ -87,12 +92,14 @@ export default function SavingsCalculator({ onCtaClick }: { onCtaClick: () => vo
                   <div className="w-10 h-10 rounded-xl bg-aog-orange/10 flex items-center justify-center">
                     <Sun className="w-5 h-5 text-aog-orange" />
                   </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger><Info className="w-4 h-4 text-muted-foreground" /></TooltipTrigger>
-                      <TooltipContent><p className="w-64">Gebaseerd op 310 kWh per paneel per jaar (NL gemiddelde).</p></TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Suspense fallback={<Info className="w-4 h-4 text-muted-foreground" />}>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger><Info className="w-4 h-4 text-muted-foreground" /></TooltipTrigger>
+                        <TooltipContent><p className="w-64">Gebaseerd op 310 kWh per paneel per jaar (NL gemiddelde).</p></TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Suspense>
                 </div>
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Jaaropwekking</p>
                 <p className="text-3xl font-black text-foreground">{result.annualProduction.toLocaleString("nl-NL")} <span className="text-lg font-medium text-muted-foreground">kWh</span></p>
@@ -108,12 +115,14 @@ export default function SavingsCalculator({ onCtaClick }: { onCtaClick: () => vo
                   <div className="w-10 h-10 rounded-xl bg-aog-red/10 flex items-center justify-center">
                     <TrendingDown className="w-5 h-5 text-aog-red" />
                   </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger><AlertTriangle className="w-4 h-4 text-aog-red/50" /></TooltipTrigger>
-                      <TooltipContent><p className="w-64">Huidige gemiddelde terugleverkosten bij energieleveranciers (~€0,115/kWh).</p></TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <Suspense fallback={<AlertTriangle className="w-4 h-4 text-aog-red/50" />}>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger><AlertTriangle className="w-4 h-4 text-aog-red/50" /></TooltipTrigger>
+                        <TooltipContent><p className="w-64">Huidige gemiddelde terugleverkosten bij energieleveranciers (~€0,115/kWh).</p></TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </Suspense>
                 </div>
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Huidige terugleverkosten</p>
                 <p className="text-3xl font-black text-aog-red">€{result.currentFeedbackCost.toLocaleString("nl-NL")} <span className="text-lg font-medium text-aog-red/60">/jaar</span></p>
