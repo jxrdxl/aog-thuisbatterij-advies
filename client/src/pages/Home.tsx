@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Shield, CheckCircle } from "lucide-react";
+import { ArrowRight, Shield, CheckCircle, Zap, TrendingDown, Star, Phone, MessageCircle } from "lucide-react";
 import CountdownTimer from "@/components/CountdownTimer";
 import SavingsCalculator from "@/components/SavingsCalculator";
 import LeadForm from "@/components/LeadForm";
@@ -25,7 +25,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col selection:bg-aog-green/30">
       <Header />
 
       {/* HERO SECTION */}
@@ -34,83 +34,77 @@ export default function Home() {
         <div className="absolute inset-0">
           <img
             src={HERO_BG}
-            alt="Huis met zonnepanelen"
-            className="w-full h-full object-cover"
+            alt="Huis met zonnepanelen in Nederland"
+            className="w-full h-full object-cover scale-105 animate-slow-zoom"
             loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/70 to-slate-900/90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-900/70 to-slate-900/90" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container text-center pt-20 pb-10">
+        <div className="relative z-10 container text-center pt-24 pb-16">
           {/* Badge */}
-          <div className="inline-flex items-center gap-1.5 bg-aog-green/20 backdrop-blur-sm border border-aog-green/30 text-aog-green-light text-xs sm:text-sm font-semibold px-4 py-1.5 rounded-full mb-6">
-            <Shield className="w-4 h-4" /> Warmtefonds Initiatief · Onafhankelijk
+          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs sm:text-sm font-black px-5 py-2 rounded-full mb-8 animate-slide-up shadow-xl">
+            <Shield className="w-4 h-4 text-aog-green" /> 
+            <span className="uppercase tracking-widest">Warmtefonds Initiatief · Onafhankelijk</span>
           </div>
 
           {/* Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-4 max-w-4xl mx-auto">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6 max-w-5xl mx-auto animate-slide-up [animation-delay:100ms] text-balance">
             Wat kosten uw zonnepanelen u{" "}
-            <span className="relative">
-              <span className="text-aog-orange">straks in 2027?</span>
-              <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
-                <path d="M2 6C50 2 150 2 198 6" stroke="oklch(0.70 0.18 60)" strokeWidth="3" strokeLinecap="round" />
+            <span className="relative inline-block">
+              <span className="text-aog-orange italic">straks in 2027?</span>
+              <svg className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 8" fill="none" preserveAspectRatio="none">
+                <path d="M2 6C50 2 150 2 198 6" stroke="oklch(0.70 0.18 60)" strokeWidth="4" strokeLinecap="round" />
               </svg>
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p className="text-lg sm:text-2xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed animate-slide-up [animation-delay:200ms]">
             De salderingsregeling verdwijnt per <strong className="text-white">1 januari 2027</strong>.
             Heeft u zonnepanelen? Dan gaat u waarschijnlijk <strong className="text-aog-orange">€1.400+ extra per jaar</strong> betalen.
             Ontdek hoe een thuisbatterij dit voorkomt.
           </p>
 
           {/* Countdown */}
-          <div className="mb-8">
-            <p className="text-xs text-white/50 uppercase tracking-wider mb-3 font-medium">Saldering verdwijnt over</p>
+          <div className="mb-12 animate-slide-up [animation-delay:300ms]">
+            <p className="text-xs font-black text-white/40 uppercase tracking-[0.3em] mb-4">SALDERING VERDWIJNT OVER</p>
             <CountdownTimer />
           </div>
 
-          {/* CTA */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+          {/* CTA Group */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 animate-slide-up [animation-delay:400ms]">
             <Button
               size="lg"
               onClick={scrollToForm}
-              className="bg-aog-green hover:bg-aog-green-light text-white font-bold text-base px-8 h-14 rounded-xl shadow-lg animate-pulse-glow w-full sm:w-auto"
+              className="bg-aog-green hover:bg-aog-green-light text-white font-black text-lg px-10 h-16 rounded-2xl shadow-2xl shadow-aog-green/20 animate-pulse-glow w-full sm:w-auto transition-all hover:scale-105"
             >
-              Start gratis check — 2 minuten <ArrowRight className="ml-2 w-5 h-5" />
+              Start gratis check — 2 minuten <ArrowRight className="ml-2 w-6 h-6" />
             </Button>
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="border-white/30 text-white hover:bg-white/10 font-semibold h-14 rounded-xl w-full sm:w-auto bg-transparent"
+              className="border-white/30 text-white hover:bg-white/10 font-black h-16 px-10 rounded-2xl w-full sm:w-auto bg-transparent backdrop-blur-sm transition-all hover:scale-105"
             >
               <a href="#calculator">Bereken mijn besparing</a>
             </Button>
           </div>
 
-          <p className="text-xs text-white/40 mb-10">Nog 23 plekken beschikbaar in uw regio</p>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-3 max-w-lg mx-auto">
-            {[
-              { value: "€240", label: "Waarde rapport (Nu gratis)" },
-              { value: "€1.645", label: "Gem. extra kosten na 2027" },
-              { value: "0%", label: "Rente via Warmtefonds" },
-            ].map((s) => (
-              <div key={s.value} className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl p-3 sm:p-4">
-                <p className="text-xl sm:text-2xl font-extrabold text-white">{s.value}</p>
-                <p className="text-[10px] sm:text-xs text-white/60 mt-0.5">{s.label}</p>
-              </div>
-            ))}
+          <div className="flex items-center justify-center gap-6 animate-slide-up [animation-delay:500ms]">
+            <p className="text-xs font-bold text-white/40 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-aog-green" /> 2.400+ huishoudens geholpen
+            </p>
+            <p className="text-xs font-bold text-white/40 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-aog-green" /> 4.9/5 Google Rating
+            </p>
           </div>
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-1.5">
-            <div className="w-1.5 h-2.5 bg-white/50 rounded-full" />
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
+          <div className="w-7 h-12 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
+            <div className="w-1.5 h-3 bg-white rounded-full" />
           </div>
         </div>
       </section>
@@ -127,7 +121,7 @@ export default function Home() {
       {/* Value Propositions */}
       <ValuePropositions />
 
-      {/* Lead Form */}
+      {/* Lead Form Section */}
       <div ref={formRef}>
         <LeadForm />
       </div>
@@ -142,32 +136,49 @@ export default function Home() {
       <FAQ />
 
       {/* Final CTA */}
-      <section className="py-16 sm:py-24 bg-gradient-to-br from-aog-green-dark to-aog-green text-white">
-        <div className="container text-center">
-          <h2 className="text-2xl sm:text-4xl font-extrabold mb-4">
-            Klaar om te besparen?
+      <section className="py-24 sm:py-32 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-aog-green/20 rounded-full blur-[120px] -mr-64 -mt-64" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-aog-blue/20 rounded-full blur-[120px] -ml-64 -mb-64" />
+        </div>
+        
+        <div className="container relative z-10 text-center">
+          <span className="inline-flex items-center gap-2 bg-aog-green/20 text-aog-green-light text-xs font-black px-4 py-2 rounded-full mb-8 uppercase tracking-widest">
+            KLAAR VOOR DE VOLGENDE STAP?
+          </span>
+          <h2 className="text-4xl sm:text-6xl font-black mb-8 text-balance leading-tight">
+            Maak uw woning vandaag nog <span className="text-aog-green">energie-onafhankelijk</span>
           </h2>
-          <p className="text-white/80 max-w-xl mx-auto mb-8">
-            Vraag vandaag nog uw gratis adviesrapport aan en ontdek hoeveel u kunt besparen met een thuisbatterij.
+          <p className="text-white/60 max-w-2xl mx-auto mb-12 text-lg sm:text-xl">
+            Vraag vandaag nog uw gratis adviesrapport aan en ontdek hoeveel u kunt besparen met een thuisbatterij en 0% financiering.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Button
               asChild
               size="lg"
-              className="bg-white text-aog-green-dark hover:bg-white/90 font-bold text-base px-8 h-14 rounded-xl shadow-lg"
+              className="bg-aog-green hover:bg-aog-green-light text-white font-black text-xl px-12 h-20 rounded-2xl shadow-2xl shadow-aog-green/20 group transition-all hover:scale-105"
             >
               <a href="#lead-form">
-                <CheckCircle className="mr-2 w-5 h-5" /> Start gratis energiecheck
+                <CheckCircle className="mr-3 w-7 h-7" /> Start gratis energiecheck
               </a>
             </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="border-white/30 text-white hover:bg-white/10 font-semibold h-14 rounded-xl bg-transparent"
-            >
-              <a href="tel:+31612712804">Bel: 06-127 128 04</a>
-            </Button>
+            <div className="flex flex-col items-center sm:items-start gap-2">
+              <a href="tel:+31612712804" className="flex items-center gap-3 text-2xl font-black hover:text-aog-green transition-colors">
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+                  <Phone className="w-6 h-6" />
+                </div>
+                06-127 128 04
+              </a>
+              <p className="text-white/40 text-sm font-bold uppercase tracking-widest">Direct contact met een adviseur</p>
+            </div>
+          </div>
+          
+          <div className="mt-16 flex flex-wrap justify-center items-center gap-x-12 gap-y-6 grayscale opacity-40">
+            <p className="text-sm font-black tracking-widest uppercase">Financieel Dagblad</p>
+            <p className="text-sm font-black tracking-widest uppercase">RTL Nieuws</p>
+            <p className="text-sm font-black tracking-widest uppercase">NOS.nl</p>
+            <p className="text-sm font-black tracking-widest uppercase">Consumentenbond</p>
           </div>
         </div>
       </section>
@@ -178,6 +189,16 @@ export default function Home() {
       {/* Floating elements */}
       <WhatsAppButton />
       <StickyCta />
+
+      <style>{`
+        @keyframes slow-zoom {
+          0% { transform: scale(1.05); }
+          100% { transform: scale(1.15); }
+        }
+        .animate-slow-zoom {
+          animation: slow-zoom 20s ease-in-out infinite alternate;
+        }
+      `}</style>
     </div>
   );
 }

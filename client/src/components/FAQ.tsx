@@ -1,10 +1,10 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Plus, Minus } from "lucide-react";
 
 const FAQ_ITEMS = [
   {
     q: "Wat is de salderingsregeling en waarom verdwijnt deze?",
-    a: "De salderingsregeling stelt u in staat om de stroom die u teruglevert aan het net te verrekenen met uw verbruik. Per 1 januari 2027 wordt deze regeling afgeschaft. Dit betekent dat u uw volledige verbruik weer zelf betaalt, ook al produceren uw panelen genoeg stroom. Bovendien betaalt u nu al terugleverkosten van gemiddeld €0,13 per kWh.",
+    a: "De salderingsregeling stelt u in staat om de stroom die u teruglevert aan het net te verrekenen met uw verbruik. Per 1 januari 2027 wordt deze regeling afgeschaft. Dit betekent dat u uw volledige verbruik weer zelf betaalt, ook al produceren uw panelen genoeg stroom. Bovendien betaalt u nu al terugleverkosten van gemiddeld €0,115 per kWh.",
   },
   {
     q: "Hoeveel kost een thuisbatterij?",
@@ -38,33 +38,54 @@ const FAQ_ITEMS = [
 
 export default function FAQ() {
   return (
-    <section id="faq" className="py-16 sm:py-24 bg-white">
-      <div className="container">
-        <div className="text-center mb-10 sm:mb-14">
-          <span className="inline-flex items-center gap-1.5 bg-aog-blue/10 text-aog-blue text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
-            <HelpCircle className="w-4 h-4" /> Veelgestelde Vragen
+    <section id="faq" className="py-20 sm:py-32 bg-white relative overflow-hidden">
+      <div className="container relative z-10">
+        <div className="text-center mb-16 sm:mb-24">
+          <span className="inline-flex items-center gap-1.5 bg-aog-blue/10 text-aog-blue text-xs font-black px-4 py-2 rounded-full mb-6 uppercase tracking-widest">
+            VRAGEN EN ANTWOORDEN
           </span>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-foreground">
-            Heeft u nog vragen?
+          <h2 className="text-3xl sm:text-5xl font-black text-foreground mb-6 text-balance leading-tight">
+            Alles wat u moet weten over <span className="text-aog-blue">thuisbatterijen</span>
           </h2>
-          <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-            Hieronder vindt u antwoorden op de meest gestelde vragen over thuisbatterijen en het Warmtefonds.
+          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg sm:text-xl">
+            Hieronder vindt u antwoorden op de meest gestelde vragen over thuisbatterijen, het Warmtefonds en de veranderende wetgeving.
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="space-y-3">
+        <div className="max-w-4xl mx-auto">
+          <Accordion type="single" collapsible className="space-y-4">
             {FAQ_ITEMS.map((item, i) => (
-              <AccordionItem key={i} value={`faq-${i}`} className="bg-slate-50 rounded-xl border border-border px-5 data-[state=open]:bg-white data-[state=open]:shadow-sm">
-                <AccordionTrigger className="text-left font-semibold text-foreground hover:no-underline py-5 text-sm sm:text-base">
-                  {item.q}
+              <AccordionItem 
+                key={i} 
+                value={`faq-${i}`} 
+                className="bg-slate-50 rounded-2xl border border-slate-200 px-6 sm:px-8 data-[state=open]:bg-white data-[state=open]:shadow-lg data-[state=open]:border-aog-blue/20 transition-all duration-300"
+              >
+                <AccordionTrigger className="text-left font-black text-foreground hover:no-underline py-6 text-base sm:text-lg group">
+                  <span className="flex-1 pr-4">{item.q}</span>
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-5">
-                  {item.a}
+                <AccordionContent className="text-muted-foreground text-base sm:text-lg leading-relaxed pb-8 pt-2">
+                  <div className="border-l-4 border-aog-blue/30 pl-6 py-2">
+                    {item.a}
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
+        </div>
+        
+        {/* Bottom CTA line */}
+        <div className="mt-20 text-center bg-slate-50 rounded-3xl p-8 border border-slate-100 max-w-2xl mx-auto">
+          <p className="text-lg font-bold text-foreground mb-4">Staat uw vraag er niet tussen?</p>
+          <p className="text-muted-foreground mb-6">Onze adviseurs staan klaar om al uw vragen te beantwoorden.</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="tel:+31612712804" className="text-aog-blue font-black text-lg hover:underline">
+              Bel: 06-127 128 04
+            </a>
+            <span className="hidden sm:block text-slate-300">|</span>
+            <a href="#lead-form" className="text-aog-green font-black text-lg hover:underline">
+              Start gratis check
+            </a>
+          </div>
         </div>
       </div>
     </section>

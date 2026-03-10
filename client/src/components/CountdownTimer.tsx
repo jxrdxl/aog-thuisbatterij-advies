@@ -23,12 +23,13 @@ function calculateTimeLeft(): TimeLeft {
 function TimeBlock({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center">
-      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
-        <span className="text-2xl sm:text-3xl font-extrabold text-white tabular-nums">
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center shadow-lg relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <span className="text-2xl sm:text-4xl font-black text-white tabular-nums relative z-10">
           {String(value).padStart(2, "0")}
         </span>
       </div>
-      <span className="text-[11px] sm:text-xs font-medium text-white/70 mt-1.5 uppercase tracking-wider">
+      <span className="text-[10px] sm:text-xs font-black text-white/50 mt-3 uppercase tracking-[0.2em]">
         {label}
       </span>
     </div>
@@ -44,13 +45,13 @@ export default function CountdownTimer() {
   }, []);
 
   return (
-    <div className="flex gap-2 sm:gap-3 justify-center">
+    <div className="flex gap-3 sm:gap-6 justify-center items-start">
       <TimeBlock value={timeLeft.days} label="Dagen" />
-      <div className="flex items-center text-white/40 text-2xl font-bold pt-0 -mt-4">:</div>
+      <div className="flex items-center text-white/30 text-3xl sm:text-5xl font-black pt-4 sm:pt-8">:</div>
       <TimeBlock value={timeLeft.hours} label="Uren" />
-      <div className="flex items-center text-white/40 text-2xl font-bold pt-0 -mt-4">:</div>
+      <div className="flex items-center text-white/30 text-3xl sm:text-5xl font-black pt-4 sm:pt-8">:</div>
       <TimeBlock value={timeLeft.minutes} label="Min" />
-      <div className="flex items-center text-white/40 text-2xl font-bold pt-0 -mt-4">:</div>
+      <div className="flex items-center text-white/30 text-3xl sm:text-5xl font-black pt-4 sm:pt-8">:</div>
       <TimeBlock value={timeLeft.seconds} label="Sec" />
     </div>
   );
