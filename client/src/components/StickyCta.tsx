@@ -32,7 +32,7 @@ export default function StickyCta() {
           className="flex-1 h-12 text-sm font-bold bg-aog-green hover:bg-aog-green-light text-white"
         >
           <a href="#lead-form">
-            Gratis rapport <ArrowRight className="w-4 h-4 ml-1" />
+            Start check <ArrowRight className="w-4 h-4 ml-1" />
           </a>
         </Button>
       </div>

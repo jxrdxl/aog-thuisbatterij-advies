@@ -43,7 +43,7 @@ export default function Header() {
             <Phone className="w-4 h-4" /> 06-127 128 04
           </a>
           <Button asChild size="sm" className="bg-aog-green hover:bg-aog-green-light text-white font-bold">
-            <a href="#lead-form">Gratis Rapport</a>
+            <a href="#lead-form">Vraag rapport aan</a>
           </Button>
         </nav>
 
@@ -68,7 +68,7 @@ export default function Header() {
               <Phone className="w-4 h-4" /> 06-127 128 04
             </a>
             <Button asChild className="w-full bg-aog-green hover:bg-aog-green-light text-white font-bold">
-              <a href="#lead-form" onClick={() => setMobileOpen(false)}>Vraag gratis rapport aan</a>
+              <a href="#lead-form" onClick={() => setMobileOpen(false)}>Start gratis check</a>
             </Button>
           </nav>
         </div>

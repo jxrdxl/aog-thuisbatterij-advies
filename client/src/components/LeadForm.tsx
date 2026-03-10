@@ -5,50 +5,41 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, ArrowRight, ArrowLeft, Shield, Phone, User, Mail, MapPin, Home, Zap } from "lucide-react";
+import { CheckCircle, ArrowRight, ArrowLeft, Shield, Phone, User, Mail, MapPin, Zap } from "lucide-react";
+import { useNavigate } from "wouter";
 
 // Declaratie voor Meta Pixel (om TypeScript fouten te voorkomen)
 declare global {
   interface Window {
-    fbq: any;
+    fbq: (...args: any[]) => void;
   }
 }
 
 interface FormData {
   solarPanelCount: string;
   homeOwner: boolean | undefined;
-  currentProvider: string;
-  annualIncome: string;
   name: string;
   phone: string;
   email: string;
   postalCode: string;
-  preferredContact: string;
 }
 
 const STEPS = [
-  { title: "Zonnepanelen", icon: Zap },
-  { title: "Woonsituatie", icon: Home },
-  { title: "Energieleverancier", icon: Zap },
-  { title: "Financiering", icon: Shield },
+  { title: "Kwalificatie", icon: Zap },
   { title: "Contactgegevens", icon: User },
-  { title: "Bevestiging", icon: Phone },
 ];
 
 export default function LeadForm() {
   const [step, setStep] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({
     solarPanelCount: "",
     homeOwner: undefined,
-    currentProvider: "",
-    annualIncome: "",
     name: "",
     phone: "",
     email: "",
     postalCode: "",
-    preferredContact: "phone",
   });
 
   const progress = ((step + 1) / STEPS.length) * 100;
@@ -59,21 +50,25 @@ export default function LeadForm() {
 
   const canProceed = (): boolean => {
     switch (step) {
-      case 0: return formData.solarPanelCount !== "";
-      case 1: return formData.homeOwner !== undefined;
-      case 2: return true;
-      case 3: return true;
-      case 4: return formData.name.length > 0 && formData.phone.length >= 8;
-      case 5: return true;
-      default: return false;
+      case 0: 
+        return formData.solarPanelCount !== "" && formData.homeOwner !== undefined;
+      case 1: 
+        return formData.name.length > 0 && formData.phone.length >= 10;
+      default: 
+        return false;
     }
   };
 
   const handleNext = () => {
     // BLOKKADE VOOR HUURDERS
-    if (step === 1 && formData.homeOwner === false) {
+    if (step === 0 && formData.homeOwner === false) {
       alert("Helaas, het adviesrapport en de financiering vanuit het Warmtefonds zijn uitsluitend beschikbaar voor woningeigenaren.");
       return; 
+    }
+    
+    // Track form step with Facebook Pixel
+    if (typeof window.fbq !== 'undefined') {
+      window.fbq('track', 'AddToCart');
     }
     
     if (step < STEPS.length - 1) setStep(step + 1);
@@ -88,9 +83,12 @@ export default function LeadForm() {
     const params = new URLSearchParams(window.location.search);
     
     const payload = {
-      ...formData,
-      email: formData.email || "",
-      homeOwner: formData.homeOwner ?? undefined,
+      name: formData.name,
+      phone: formData.phone,
+      email: formData.email || undefined,
+      postalCode: formData.postalCode || undefined,
+      solarPanelCount: formData.solarPanelCount,
+      homeOwner: formData.homeOwner,
       estimatedSavings: formData.solarPanelCount ? Math.round(parseInt(formData.solarPanelCount.split("-")[0] || "10") * 310 * 0.7 * 0.35 * 0.85) : undefined,
       source: "website-form",
       utmSource: params.get("utm_source") || undefined,
@@ -109,47 +107,26 @@ export default function LeadForm() {
         body: JSON.stringify(payload),
       });
       
-      // 2. Trigger Meta Pixel Lead Event
+      // 2. Trigger Meta Pixel Lead Event BEFORE submit
       if (typeof window.fbq !== 'undefined') {
-        window.fbq('track', 'Lead');
+        window.fbq('track', 'Lead', {
+          content_name: 'Gratis Energierapport',
+          content_category: 'Thuisbatterij Advies',
+          value: 240,
+          currency: 'EUR'
+        });
       }
       
-      setSubmitted(true);
+      // 3. Navigate to thank you page with name and phone
+      navigate(`/bedankt?naam=${encodeURIComponent(formData.name)}&telefoon=${encodeURIComponent(formData.phone)}`);
     } catch (error) {
       console.error("Fout:", error);
-      setSubmitted(true); 
+      // Still navigate to thank you page even if there's an error
+      navigate(`/bedankt?naam=${encodeURIComponent(formData.name)}&telefoon=${encodeURIComponent(formData.phone)}`);
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  if (submitted) {
-    return (
-      <section id="lead-form" className="py-16 sm:py-24 bg-gradient-to-b from-green-50 to-white">
-        <div className="container">
-          <div className="max-w-lg mx-auto text-center">
-            <div className="w-20 h-20 bg-aog-green/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-10 h-10 text-aog-green" />
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-3">Bedankt voor uw aanvraag!</h2>
-            <p className="text-muted-foreground text-lg mb-2">
-              Een adviseur belt u <strong>binnen 1 werkdag</strong>.
-            </p>
-            <p className="text-muted-foreground">Gemiddeld nemen wij binnen 2 uur contact op.</p>
-            <div className="mt-8 bg-white rounded-xl border border-border p-5 text-left">
-              <p className="text-sm font-semibold text-foreground mb-3">Wat kunt u verwachten?</p>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-aog-green mt-0.5 shrink-0" /> Telefonisch contact door een gecertificeerde adviseur</li>
-                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-aog-green mt-0.5 shrink-0" /> Persoonlijk energierapport t.w.v. €240 (gratis)</li>
-                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-aog-green mt-0.5 shrink-0" /> Advies op maat over financiering via Warmtefonds</li>
-                <li className="flex items-start gap-2"><CheckCircle className="w-4 h-4 text-aog-green mt-0.5 shrink-0" /> Geen verplichtingen — volledig vrijblijvend</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section id="lead-form" className="py-16 sm:py-24 bg-gradient-to-b from-green-50 to-white">
@@ -162,11 +139,24 @@ export default function LeadForm() {
             Controleer of u in aanmerking komt
           </h2>
           <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-            Om in aanmerking te komen voor 0% financiering vanuit het Warmtefonds is een onafhankelijk rapport vereist. Beantwoord 6 vragen om te starten.
+            Beantwoord 2 snelle vragen en ontvang uw gratis energierapport (waarde €240).
           </p>
         </div>
 
         <div className="max-w-xl mx-auto">
+          {/* Urgency banner above form */}
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6 flex items-center gap-3">
+            <span className="text-amber-600 text-lg">⚡</span>
+            <div>
+              <p className="text-amber-800 font-semibold text-sm">
+                Nog <span className="font-bold text-amber-900">beschikbaar deze week</span>
+              </p>
+              <p className="text-amber-700 text-xs">
+                Gemiddelde terugbeltijd: <strong>47 minuten</strong> · Nog 23 plekken in uw regio
+              </p>
+            </div>
+          </div>
+
           {/* Progress */}
           <div className="mb-8">
             <div className="flex justify-between text-xs text-muted-foreground mb-2">
@@ -177,17 +167,17 @@ export default function LeadForm() {
           </div>
 
           <div className="bg-white rounded-2xl border border-border p-6 sm:p-8 shadow-sm min-h-[320px] flex flex-col">
-            {/* Step 0: Solar panels */}
+            {/* Step 0: Qualification (Solar panels + Home owner) */}
             {step === 0 && (
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-foreground mb-1">Hoeveel zonnepanelen heeft u?</h3>
-                <p className="text-sm text-muted-foreground mb-6">Dit helpt ons uw besparing nauwkeurig te berekenen.</p>
-                <RadioGroup value={formData.solarPanelCount} onValueChange={(v) => updateField("solarPanelCount", v)} className="space-y-3">
+                <h3 className="text-lg font-bold text-foreground mb-6">Hoeveel zonnepanelen heeft u?</h3>
+                <RadioGroup value={formData.solarPanelCount} onValueChange={(v) => updateField("solarPanelCount", v)} className="space-y-3 mb-8">
                   {[
-                    { value: "1-6", label: "1 – 6 panelen", sub: "Klein systeem" },
-                    { value: "7-12", label: "7 – 12 panelen", sub: "Gemiddeld systeem" },
-                    { value: "13-18", label: "13 – 18 panelen", sub: "Groot systeem" },
-                    { value: "18+", label: "18+ panelen", sub: "Zeer groot systeem" },
+                    { value: "1-5", label: "1 – 5 panelen", sub: "Klein systeem" },
+                    { value: "6-10", label: "6 – 10 panelen", sub: "Gemiddeld systeem" },
+                    { value: "11-15", label: "11 – 15 panelen", sub: "Groot systeem" },
+                    { value: "16+", label: "16+ panelen", sub: "Zeer groot systeem" },
+                    { value: "unknown", label: "Weet ik niet", sub: "" },
                   ].map((opt) => (
                     <Label
                       key={opt.value}
@@ -201,141 +191,93 @@ export default function LeadForm() {
                       <RadioGroupItem value={opt.value} id={`panels-${opt.value}`} />
                       <div>
                         <p className="font-semibold text-foreground">{opt.label}</p>
-                        <p className="text-xs text-muted-foreground">{opt.sub}</p>
+                        {opt.sub && <p className="text-xs text-muted-foreground">{opt.sub}</p>}
                       </div>
                     </Label>
                   ))}
                 </RadioGroup>
-              </div>
-            )}
 
-            {/* Step 1: Home owner */}
-            {step === 1 && (
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-foreground mb-1">Bent u eigenaar van uw woning?</h3>
-                <p className="text-sm text-muted-foreground mb-6">Warmtefonds financiering is beschikbaar voor woningeigenaren.</p>
-                <div className="space-y-3">
-                  {[
-                    { value: true, label: "Ja, ik ben eigenaar", icon: "🏠" },
-                    { value: false, label: "Nee, ik huur", icon: "🔑" },
-                  ].map((opt) => (
-                    <button
-                      key={String(opt.value)}
-                      onClick={() => updateField("homeOwner", opt.value)}
-                      className={`w-full flex items-center gap-3 p-4 rounded-xl border text-left transition-all ${
-                        formData.homeOwner === opt.value
-                          ? "border-aog-green bg-aog-green/5 ring-1 ring-aog-green"
-                          : "border-border hover:border-aog-green/40"
-                      }`}
-                    >
-                      <span className="text-2xl">{opt.icon}</span>
-                      <span className="font-semibold text-foreground">{opt.label}</span>
-                    </button>
-                  ))}
+                <div className="border-t border-border pt-6">
+                  <h3 className="text-lg font-bold text-foreground mb-4">Bent u eigenaar van uw woning?</h3>
+                  <div className="space-y-3">
+                    {[
+                      { value: true, label: "Ja, ik ben eigenaar", icon: "🏠" },
+                      { value: false, label: "Nee, ik huur", icon: "🔑" },
+                    ].map((opt) => (
+                      <button
+                        key={String(opt.value)}
+                        onClick={() => updateField("homeOwner", opt.value)}
+                        className={`w-full flex items-center gap-3 p-4 rounded-xl border text-left transition-all ${
+                          formData.homeOwner === opt.value
+                            ? "border-aog-green bg-aog-green/5 ring-1 ring-aog-green"
+                            : "border-border hover:border-aog-green/40"
+                        }`}
+                      >
+                        <span className="text-2xl">{opt.icon}</span>
+                        <span className="font-semibold text-foreground">{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Step 2: Energy provider */}
-            {step === 2 && (
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-foreground mb-1">Wie is uw energieleverancier?</h3>
-                <p className="text-sm text-muted-foreground mb-6">Optioneel — helpt ons uw terugleverkosten in te schatten.</p>
-                <Select value={formData.currentProvider} onValueChange={(v) => updateField("currentProvider", v)}>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Selecteer uw leverancier" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["Eneco", "Vattenfall", "Essent", "Budget Energie", "Greenchoice", "Vandebron", "Tibber", "Engie", "Anders / Weet ik niet"].map((p) => (
-                      <SelectItem key={p} value={p}>{p}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {/* Step 3: Income / financing */}
-            {step === 3 && (
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-foreground mb-1">Wat is uw geschat jaarinkomen?</h3>
-                <p className="text-sm text-muted-foreground mb-6">Bij een inkomen onder €60.000 komt u mogelijk in aanmerking voor 0% rente via het Warmtefonds.</p>
-                <RadioGroup value={formData.annualIncome} onValueChange={(v) => updateField("annualIncome", v)} className="space-y-3">
-                  {[
-                    { value: "under-30k", label: "Onder €30.000", sub: "0% rente mogelijk" },
-                    { value: "30k-60k", label: "€30.000 – €60.000", sub: "0% rente mogelijk" },
-                    { value: "60k-plus", label: "Boven €60.000", sub: "Lage rente mogelijk" },
-                    { value: "prefer-not", label: "Zeg ik liever niet", sub: "Geen probleem" },
-                  ].map((opt) => (
-                    <Label
-                      key={opt.value}
-                      htmlFor={`income-${opt.value}`}
-                      className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
-                        formData.annualIncome === opt.value
-                          ? "border-aog-green bg-aog-green/5 ring-1 ring-aog-green"
-                          : "border-border hover:border-aog-green/40"
-                      }`}
-                    >
-                      <RadioGroupItem value={opt.value} id={`income-${opt.value}`} />
-                      <div>
-                        <p className="font-semibold text-foreground">{opt.label}</p>
-                        <p className="text-xs text-muted-foreground">{opt.sub}</p>
-                      </div>
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </div>
-            )}
-
-            {/* Step 4: Contact details */}
-            {step === 4 && (
+            {/* Step 1: Contact details */}
+            {step === 1 && (
               <div className="flex-1">
                 <h3 className="text-lg font-bold text-foreground mb-1">Uw contactgegevens</h3>
-                <p className="text-sm text-muted-foreground mb-6">Wij bellen u binnen 1 werkdag. Uw gegevens blijven vertrouwelijk.</p>
+                <p className="text-sm text-muted-foreground mb-6">Wij bellen u binnen 2 uur. Uw gegevens blijven vertrouwelijk.</p>
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="name" className="text-sm font-medium flex items-center gap-1.5 mb-1.5">
-                      <User className="w-3.5 h-3.5" /> Naam *
+                      <User className="w-3.5 h-3.5" /> Voornaam *
                     </Label>
-                    <Input id="name" placeholder="Uw volledige naam" value={formData.name} onChange={(e) => updateField("name", e.target.value)} className="h-12" />
+                    <Input 
+                      id="name" 
+                      placeholder="Uw voornaam" 
+                      value={formData.name} 
+                      onChange={(e) => updateField("name", e.target.value)} 
+                      className="h-12" 
+                    />
                   </div>
                   <div>
                     <Label htmlFor="phone" className="text-sm font-medium flex items-center gap-1.5 mb-1.5">
                       <Phone className="w-3.5 h-3.5" /> Telefoonnummer *
                     </Label>
-                    <Input id="phone" type="tel" placeholder="06-12345678" value={formData.phone} onChange={(e) => updateField("phone", e.target.value)} className="h-12" />
+                    <Input 
+                      id="phone" 
+                      type="tel" 
+                      placeholder="06-12345678" 
+                      value={formData.phone} 
+                      onChange={(e) => updateField("phone", e.target.value)} 
+                      className="h-12" 
+                    />
                   </div>
                   <div>
                     <Label htmlFor="email" className="text-sm font-medium flex items-center gap-1.5 mb-1.5">
                       <Mail className="w-3.5 h-3.5" /> E-mailadres (optioneel)
                     </Label>
-                    <Input id="email" type="email" placeholder="uw@email.nl" value={formData.email} onChange={(e) => updateField("email", e.target.value)} className="h-12" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="uw@email.nl" 
+                      value={formData.email} 
+                      onChange={(e) => updateField("email", e.target.value)} 
+                      className="h-12" 
+                    />
                   </div>
                   <div>
                     <Label htmlFor="postal" className="text-sm font-medium flex items-center gap-1.5 mb-1.5">
                       <MapPin className="w-3.5 h-3.5" /> Postcode (optioneel)
                     </Label>
-                    <Input id="postal" placeholder="1234 AB" value={formData.postalCode} onChange={(e) => updateField("postalCode", e.target.value)} className="h-12" />
+                    <Input 
+                      id="postal" 
+                      placeholder="1234 AB" 
+                      value={formData.postalCode} 
+                      onChange={(e) => updateField("postalCode", e.target.value)} 
+                      className="h-12" 
+                    />
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* Step 5: Confirmation */}
-            {step === 5 && (
-              <div className="flex-1">
-                <h3 className="text-lg font-bold text-foreground mb-1">Bevestig uw aanvraag</h3>
-                <p className="text-sm text-muted-foreground mb-6">Controleer uw gegevens en verstuur uw gratis aanvraag.</p>
-                <div className="bg-slate-50 rounded-xl p-5 space-y-3 text-sm">
-                  <div className="flex justify-between"><span className="text-muted-foreground">Naam</span><span className="font-semibold">{formData.name}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Telefoon</span><span className="font-semibold">{formData.phone}</span></div>
-                  {formData.email && <div className="flex justify-between"><span className="text-muted-foreground">E-mail</span><span className="font-semibold">{formData.email}</span></div>}
-                  {formData.postalCode && <div className="flex justify-between"><span className="text-muted-foreground">Postcode</span><span className="font-semibold">{formData.postalCode}</span></div>}
-                  <div className="flex justify-between"><span className="text-muted-foreground">Panelen</span><span className="font-semibold">{formData.solarPanelCount}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Eigenaar</span><span className="font-semibold">{formData.homeOwner ? "Ja" : formData.homeOwner === false ? "Nee" : "-"}</span></div>
-                </div>
-                <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
-                  <Shield className="w-4 h-4 text-aog-green shrink-0 mt-0.5" />
-                  <span>Door te versturen gaat u akkoord met onze privacyverklaring. Uw gegevens worden uitsluitend gebruikt voor het energierapport.</span>
                 </div>
               </div>
             )}
@@ -362,10 +304,10 @@ export default function LeadForm() {
               ) : (
                 <Button
                   onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !canProceed()}
                   className="bg-aog-green hover:bg-aog-green-light text-white gap-1 px-6"
                 >
-                  {isSubmitting ? "Versturen..." : "Verstuur aanvraag"} <CheckCircle className="w-4 h-4" />
+                  {isSubmitting ? "Versturen..." : "Vraag rapport aan"} <CheckCircle className="w-4 h-4" />
                 </Button>
               )}
             </div>

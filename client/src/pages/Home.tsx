@@ -78,7 +78,7 @@ export default function Home() {
               onClick={scrollToForm}
               className="bg-aog-green hover:bg-aog-green-light text-white font-bold text-base px-8 h-14 rounded-xl shadow-lg animate-pulse-glow w-full sm:w-auto"
             >
-              Start gratis bespaar-check — 90 sec <ArrowRight className="ml-2 w-5 h-5" />
+              Start gratis check — 2 minuten <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
             <Button
               asChild
@@ -157,7 +157,7 @@ export default function Home() {
               className="bg-white text-aog-green-dark hover:bg-white/90 font-bold text-base px-8 h-14 rounded-xl shadow-lg"
             >
               <a href="#lead-form">
-                <CheckCircle className="mr-2 w-5 h-5" /> Vraag gratis rapport aan
+                <CheckCircle className="mr-2 w-5 h-5" /> Start gratis energiecheck
               </a>
             </Button>
             <Button
