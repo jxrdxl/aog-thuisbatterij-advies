@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { createLead, getLeads } from "./db";
-import { notifyOwner } from "./_core/notification";
+import { sendLeadEmail } from "./_core/mail";
 
 export const appRouter = router({
   system: systemRouter,
@@ -57,14 +57,23 @@ export const appRouter = router({
           utmCampaign: input.utmCampaign,
         });
 
-        // Notify owner about new lead
+        // Send email notification about new lead
         try {
-          await notifyOwner({
-            title: `Nieuwe lead: ${input.name}`,
-            content: `Telefoon: ${input.phone}\nPanelen: ${input.solarPanelCount || "Onbekend"}\nPostcode: ${input.postalCode || "Onbekend"}\nBron: ${input.source || "website"}`,
+          await sendLeadEmail({
+            name: input.name,
+            phone: input.phone,
+            email: input.email || undefined,
+            postalCode: input.postalCode,
+            solarPanelCount: input.solarPanelCount,
+            homeOwner: input.homeOwner,
+            estimatedSavings: input.estimatedSavings,
+            source: input.source || "website",
+            utmSource: input.utmSource,
+            utmMedium: input.utmMedium,
+            utmCampaign: input.utmCampaign,
           });
         } catch (e) {
-          console.warn("[Notification] Failed to notify owner:", e);
+          console.warn("[Mail] Failed to send lead email notification:", e);
         }
 
         return {
