@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Phone, Menu, X, CheckCircle2, Zap, ArrowRight } from "lucide-react";
+import { useTracking } from "@/hooks/useTracking";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { trackInitiateCheckout, trackContact } = useTracking();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -43,13 +45,13 @@ export default function Header() {
             FAQ
           </a>
           <div className={`w-px h-6 bg-current opacity-10 ${scrolled ? "text-slate-900" : "text-white"}`} />
-          <a href="tel:+31612712804" className={`text-sm font-black transition-all hover:scale-105 flex items-center gap-2 ${scrolled ? "text-aog-blue" : "text-white"}`}>
+          <a href="tel:+31612712804" onClick={() => trackContact({ method: 'phone', source: 'header' })} className={`text-sm font-black transition-all hover:scale-105 flex items-center gap-2 ${scrolled ? "text-aog-blue" : "text-white"}`}>
             <div className="w-8 h-8 rounded-full bg-aog-blue/10 flex items-center justify-center">
               <Phone className="w-4 h-4" />
             </div>
             06-127 128 04
           </a>
-          <Button asChild size="lg" className="bg-aog-green hover:bg-aog-green-light text-white font-black rounded-2xl shadow-lg shadow-aog-green/20 h-12 px-6">
+          <Button asChild size="lg" className="bg-aog-green hover:bg-aog-green-light text-white font-black rounded-2xl shadow-lg shadow-aog-green/20 h-12 px-6" onClick={() => trackInitiateCheckout({ source: 'header' })}>
             <a href="#lead-form">Vraag rapport aan</a>
           </Button>
         </nav>
@@ -83,7 +85,7 @@ export default function Header() {
           </nav>
           
           <div className="mt-12 space-y-6">
-            <a href="tel:+31612712804" className="flex items-center gap-4 p-6 bg-slate-50 rounded-3xl group">
+            <a href="tel:+31612712804" onClick={() => trackContact({ method: 'phone', source: 'header_mobile' })} className="flex items-center gap-4 p-6 bg-slate-50 rounded-3xl group">
               <div className="w-12 h-12 rounded-2xl bg-aog-blue/10 flex items-center justify-center">
                 <Phone className="w-6 h-6 text-aog-blue" />
               </div>
@@ -92,8 +94,8 @@ export default function Header() {
                 <p className="text-xl font-black text-slate-900">06-127 128 04</p>
               </div>
             </a>
-            <Button asChild className="w-full h-20 text-xl font-black bg-aog-green hover:bg-aog-green-light text-white rounded-3xl shadow-xl shadow-aog-green/20">
-              <a href="#lead-form" onClick={() => setMobileOpen(false)}>Start gratis check</a>
+            <Button asChild className="w-full h-20 text-xl font-black bg-aog-green hover:bg-aog-green-light text-white rounded-3xl shadow-xl shadow-aog-green/20" onClick={() => { trackInitiateCheckout({ source: 'header_mobile' }); setMobileOpen(false); }}>
+              <a href="#lead-form">Start gratis check</a>
             </Button>
             <div className="flex items-center justify-center gap-2 text-slate-400">
               <CheckCircle2 className="w-4 h-4" />

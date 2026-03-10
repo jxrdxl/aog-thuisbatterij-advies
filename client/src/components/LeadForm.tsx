@@ -7,13 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle, ArrowRight, ArrowLeft, Shield, Phone, User, Mail, MapPin, Zap, Info } from "lucide-react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-
-// Declaratie voor Meta Pixel (om TypeScript fouten te voorkomen)
-declare global {
-  interface Window {
-    fbq: (...args: any[]) => void;
-  }
-}
+import { useTracking } from "@/hooks/useTracking";
 
 interface FormData {
   solarPanelCount: string;
@@ -33,6 +27,7 @@ export default function LeadForm() {
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, setLocation] = useLocation();
+  const { trackInitiateCheckout, trackAddToCart, trackLead, trackViewContent } = useTracking();
   const [formData, setFormData] = useState<FormData>({
     solarPanelCount: "",
     homeOwner: undefined,
@@ -66,10 +61,13 @@ export default function LeadForm() {
       return; 
     }
     
-    // Track form step with Facebook Pixel
-    if (typeof window.fbq !== 'undefined') {
-      window.fbq('track', 'AddToCart');
-    }
+    // Track form step progression
+    trackAddToCart({
+      content_name: `Formulier Stap ${step + 1} Voltooid`,
+      step: step + 1,
+      solar_panels: formData.solarPanelCount,
+      home_owner: formData.homeOwner
+    });
     
     if (step < STEPS.length - 1) setStep(step + 1);
   };
@@ -99,6 +97,14 @@ export default function LeadForm() {
     };
 
     try {
+      // Track form submission initiation
+      trackInitiateCheckout({
+        content_name: 'Energierapport Aanvraag',
+        solar_panels: formData.solarPanelCount,
+        home_owner: formData.homeOwner,
+        estimated_savings: payload.estimatedSavings
+      });
+
       // 1. Verstuur naar Google Sheets (Bestaande flow)
       try {
         await fetch("https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec", {
@@ -116,15 +122,15 @@ export default function LeadForm() {
       // 2. Verstuur naar eigen database & trigger notificaties via tRPC
       await leadMutation.mutateAsync(payload);
       
-      // 3. Trigger Meta Pixel Lead Event BEFORE redirect
-      if (typeof window.fbq !== 'undefined') {
-        window.fbq('track', 'Lead', {
-          content_name: 'Gratis Energierapport',
-          content_category: 'Thuisbatterij Advies',
-          value: 240,
-          currency: 'EUR'
-        });
-      }
+      // 3. Track Lead event (crucial for Meta Ads optimization)
+      trackLead({
+        phone_number: formData.phone,
+        first_name: formData.name,
+        email: formData.email,
+        postal_code: formData.postalCode,
+        solar_panels: formData.solarPanelCount,
+        estimated_savings: payload.estimatedSavings
+      });
       
       // 4. Navigate to thank you page with name and phone
       setLocation(`/bedankt?naam=${encodeURIComponent(formData.name)}&telefoon=${encodeURIComponent(formData.phone)}`);

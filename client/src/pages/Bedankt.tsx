@@ -2,17 +2,11 @@ import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Phone, FileText, Zap, Home, ArrowRight } from "lucide-react";
-
-// Declaratie voor Meta Pixel
-declare global {
-  interface Window {
-    fbq: (...args: any[]) => void;
-  }
-}
+import { useTracking } from "@/hooks/useTracking";
 
 export default function Bedankt() {
   const [location] = useLocation();
-  // const navigate = useNavigate(); // useNavigate is not exported by wouter v3, use useLocation for navigation if needed
+  const { trackLead, trackCompleteRegistration, trackViewContent } = useTracking();
   
   // Extract query parameters
   const params = new URLSearchParams(location.split('?')[1]);
@@ -20,14 +14,20 @@ export default function Bedankt() {
   const telefoon = params.get('telefoon') || '';
 
   useEffect(() => {
-    // Track CompleteRegistration event with Facebook Pixel
-    if (typeof window.fbq !== 'undefined') {
-      window.fbq('track', 'CompleteRegistration', {
-        content_name: 'Gratis Energierapport Aangevraagd',
-        value: 240,
-        currency: 'EUR'
-      });
-    }
+    // Track page view
+    trackViewContent({
+      content_name: 'Bedankpagina',
+      content_category: 'Thuisbatterij Advies'
+    });
+
+    // Track Lead event (crucial for Meta Ads optimization)
+    trackLead({
+      phone_number: telefoon,
+      first_name: naam
+    });
+
+    // Also track CompleteRegistration for backwards compatibility
+    trackCompleteRegistration();
   }, []);
 
   const whatsappLink = `https://wa.me/31612712804?text=Hallo, ik heb zojuist een rapport aangevraagd`;
@@ -113,6 +113,10 @@ export default function Bedankt() {
             asChild
             size="lg"
             className="bg-aog-green hover:bg-aog-green-light text-white font-bold flex-1"
+            onClick={() => {
+              const { trackContact } = useTracking();
+              trackContact({ method: 'whatsapp' });
+            }}
           >
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
               <span>💬 Liever direct contact? App ons</span>

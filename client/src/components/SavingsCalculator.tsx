@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Sun, TrendingDown, TrendingUp, Zap, ArrowRight, Info, AlertTriangle } from "lucide-react";
 import React, { Suspense } from "react";
+import { useTracking } from "@/hooks/useTracking";
 
 const TooltipProvider = React.lazy(() => import("@/components/ui/tooltip").then(m => ({ default: m.TooltipProvider })));
 const Tooltip = React.lazy(() => import("@/components/ui/tooltip").then(m => ({ default: m.Tooltip })));
@@ -39,7 +40,18 @@ function calculate(panels: number): CalculatorResult {
 
 export default function SavingsCalculator({ onCtaClick }: { onCtaClick: () => void }) {
   const [panels, setPanels] = useState(12);
+  const { trackInitiateCheckout } = useTracking();
   const result = useMemo(() => calculate(panels), [panels]);
+
+  const handleCtaClick = () => {
+    trackInitiateCheckout({
+      source: 'calculator_cta',
+      solar_panels: panels.toString(),
+      total_extra_cost: result.totalExtraCost,
+      savings_with_battery: result.savingsWithBattery
+    });
+    onCtaClick();
+  };
 
   return (
     <section id="calculator" className="py-20 sm:py-28 bg-white overflow-hidden">
@@ -175,7 +187,7 @@ export default function SavingsCalculator({ onCtaClick }: { onCtaClick: () => vo
                 </p>
                 <Button
                   size="lg"
-                  onClick={onCtaClick}
+                  onClick={handleCtaClick}
                   className="bg-aog-green hover:bg-aog-green-light text-white font-black text-lg px-10 h-16 rounded-2xl shadow-lg shadow-aog-green/20 group transition-all hover:scale-105"
                 >
                   Ontvang gratis rapport <ArrowRight className="ml-2 w-6 h-6 transition-transform group-hover:translate-x-1" />

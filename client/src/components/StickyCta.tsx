@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Phone, Zap } from "lucide-react";
+import { useTracking } from "@/hooks/useTracking";
 
 export default function StickyCta() {
   const [visible, setVisible] = useState(false);
+  const { trackContact, trackInitiateCheckout } = useTracking();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +25,7 @@ export default function StickyCta() {
           asChild
           variant="outline"
           className="flex-1 h-14 text-sm font-black border-slate-200 text-slate-700 rounded-2xl bg-white active:scale-95 transition-transform"
+          onClick={() => trackContact({ method: 'phone', source: 'sticky_cta' })}
         >
           <a href="tel:+31612712804">
             <Phone className="w-5 h-5 mr-2" /> Bel
@@ -31,6 +34,7 @@ export default function StickyCta() {
         <Button
           asChild
           className="flex-[2] h-14 text-base font-black bg-aog-green hover:bg-aog-green-light text-white rounded-2xl shadow-lg shadow-aog-green/20 active:scale-95 transition-transform"
+          onClick={() => trackInitiateCheckout({ source: 'sticky_cta' })}
         >
           <a href="#lead-form">
             Start check <ArrowRight className="w-5 h-5 ml-2" />

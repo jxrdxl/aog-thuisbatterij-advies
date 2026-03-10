@@ -1,10 +1,16 @@
 import { MessageCircle } from "lucide-react";
+import { useTracking } from "@/hooks/useTracking";
 
 const WHATSAPP_NUMBER = "31612712804";
 const WHATSAPP_MESSAGE = "Hallo, ik wil graag meer informatie over het gratis energierapport en thuisbatterij financiering.";
 
 export default function WhatsAppButton() {
+  const { trackContact } = useTracking();
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
+
+  const handleWhatsAppClick = () => {
+    trackContact({ method: 'whatsapp', source: 'floating_button' });
+  };
 
   return (
     <div className="fixed bottom-24 sm:bottom-8 right-6 z-50 group">
@@ -15,6 +21,7 @@ export default function WhatsAppButton() {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={handleWhatsAppClick}
         className="relative bg-[#25D366] hover:bg-[#20BD5A] text-white rounded-full w-16 h-16 flex items-center justify-center shadow-2xl hover:shadow-green-500/40 transition-all duration-300 hover:scale-110 active:scale-95 group-hover:-translate-y-2"
         aria-label="Chat via WhatsApp"
       >

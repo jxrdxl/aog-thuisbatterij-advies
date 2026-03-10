@@ -2,6 +2,7 @@ import { useRef, Suspense, lazy } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, CheckCircle, Zap, TrendingDown, Star, Phone, MessageCircle } from "lucide-react";
 import Header from "@/components/Header";
+import { useTracking } from "@/hooks/useTracking";
 
 const CountdownTimer = lazy(() => import("@/components/CountdownTimer"));
 const SavingsCalculator = lazy(() => import("@/components/SavingsCalculator"));
@@ -20,8 +21,10 @@ const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029246277/Kr7Kpr
 
 export default function Home() {
   const formRef = useRef<HTMLDivElement>(null);
+  const { trackInitiateCheckout, trackContact, trackViewContent } = useTracking();
 
   const scrollToForm = () => {
+    trackInitiateCheckout({ source: 'hero_cta' });
     document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -89,6 +92,7 @@ export default function Home() {
               variant="outline"
               size="lg"
               className="border-white/30 text-white hover:bg-white/10 font-black h-16 px-10 rounded-2xl w-full sm:w-auto bg-transparent backdrop-blur-sm transition-all hover:scale-105"
+              onClick={() => trackViewContent({ source: 'hero_calculator_link' })}
             >
               <a href="#calculator">Bereken mijn besparing</a>
             </Button>
@@ -163,13 +167,14 @@ export default function Home() {
               asChild
               size="lg"
               className="bg-aog-green hover:bg-aog-green-light text-white font-black text-xl px-12 h-20 rounded-2xl shadow-2xl shadow-aog-green/20 group transition-all hover:scale-105"
+              onClick={() => trackInitiateCheckout({ source: 'final_cta' })}
             >
               <a href="#lead-form">
                 <CheckCircle className="mr-3 w-7 h-7" /> Start gratis energiecheck
               </a>
             </Button>
             <div className="flex flex-col items-center sm:items-start gap-2">
-              <a href="tel:+31612712804" className="flex items-center gap-3 text-2xl font-black hover:text-aog-green transition-colors">
+              <a href="tel:+31612712804" onClick={() => trackContact({ method: 'phone', source: 'final_cta' })} className="flex items-center gap-3 text-2xl font-black hover:text-aog-green transition-colors">
                 <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
                   <Phone className="w-6 h-6" />
                 </div>
