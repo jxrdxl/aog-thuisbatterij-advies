@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, ArrowRight, ArrowLeft, Shield, Phone, User, Mail, MapPin, Zap, Info } from "lucide-react";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 
 // Declaratie voor Meta Pixel (om TypeScript fouten te voorkomen)
 declare global {
@@ -31,7 +31,7 @@ const STEPS = [
 export default function LeadForm() {
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const [formData, setFormData] = useState<FormData>({
     solarPanelCount: "",
     homeOwner: undefined,
@@ -117,11 +117,11 @@ export default function LeadForm() {
       }
       
       // 3. Navigate to thank you page with name and phone
-      navigate(`/bedankt?naam=${encodeURIComponent(formData.name)}&telefoon=${encodeURIComponent(formData.phone)}`);
+      setLocation(`/bedankt?naam=${encodeURIComponent(formData.name)}&telefoon=${encodeURIComponent(formData.phone)}`);
     } catch (error) {
       console.error("Fout:", error);
       // Still navigate to thank you page even if there's an error
-      navigate(`/bedankt?naam=${encodeURIComponent(formData.name)}&telefoon=${encodeURIComponent(formData.phone)}`);
+      setLocation(`/bedankt?naam=${encodeURIComponent(formData.name)}&telefoon=${encodeURIComponent(formData.phone)}`);
     } finally {
       setIsSubmitting(false);
     }

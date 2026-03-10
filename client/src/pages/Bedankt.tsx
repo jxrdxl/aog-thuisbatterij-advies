@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation, useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Phone, FileText, Zap, Home, ArrowRight } from "lucide-react";
 
@@ -12,7 +12,7 @@ declare global {
 
 export default function Bedankt() {
   const [location] = useLocation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // useNavigate is not exported by wouter v3, use useLocation for navigation if needed
   
   // Extract query parameters
   const params = new URLSearchParams(location.split('?')[1]);
