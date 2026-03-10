@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, ArrowRight, ArrowLeft, Shield, Phone, User, Mail, MapPin, Zap, Info } from "lucide-react";
 import { useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
 
 // Declaratie voor Meta Pixel (om TypeScript fouten te voorkomen)
 declare global {
@@ -77,6 +78,8 @@ export default function LeadForm() {
     if (step > 0) setStep(step - 1);
   };
 
+  const leadMutation = trpc.leads.submit.useMutation();
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     const params = new URLSearchParams(window.location.search);
@@ -84,8 +87,8 @@ export default function LeadForm() {
     const payload = {
       name: formData.name,
       phone: formData.phone,
-      email: formData.email || undefined,
-      postalCode: formData.postalCode || undefined,
+      email: formData.email || "",
+      postalCode: formData.postalCode || "",
       solarPanelCount: formData.solarPanelCount,
       homeOwner: formData.homeOwner,
       estimatedSavings: formData.solarPanelCount ? Math.round(parseInt(formData.solarPanelCount.split("-")[0] || "10") * 310 * 0.7 * 0.35 * 0.85) : undefined,
@@ -96,17 +99,24 @@ export default function LeadForm() {
     };
 
     try {
-      // 1. Verstuur naar Google Sheets
-      await fetch("https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec", {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "text/plain",
-        },
-        body: JSON.stringify(payload),
-      });
+      // 1. Verstuur naar Google Sheets (Bestaande flow)
+      try {
+        await fetch("https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec", {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+          body: JSON.stringify(payload),
+        });
+      } catch (e) {
+        console.warn("Google Sheets submission failed, continuing...", e);
+      }
+
+      // 2. Verstuur naar eigen database & trigger notificaties via tRPC
+      await leadMutation.mutateAsync(payload);
       
-      // 2. Trigger Meta Pixel Lead Event BEFORE submit
+      // 3. Trigger Meta Pixel Lead Event BEFORE redirect
       if (typeof window.fbq !== 'undefined') {
         window.fbq('track', 'Lead', {
           content_name: 'Gratis Energierapport',
@@ -116,7 +126,7 @@ export default function LeadForm() {
         });
       }
       
-      // 3. Navigate to thank you page with name and phone
+      // 4. Navigate to thank you page with name and phone
       setLocation(`/bedankt?naam=${encodeURIComponent(formData.name)}&telefoon=${encodeURIComponent(formData.phone)}`);
     } catch (error) {
       console.error("Fout:", error);
