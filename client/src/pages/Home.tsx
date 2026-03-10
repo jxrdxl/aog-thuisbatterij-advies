@@ -85,7 +85,7 @@ export default function Home() {
               onClick={scrollToForm}
               className="bg-aog-green hover:bg-aog-green-light text-white font-black text-lg px-10 h-16 rounded-2xl shadow-2xl shadow-aog-green/20 animate-pulse-glow w-full sm:w-auto transition-all hover:scale-105"
             >
-              Start gratis check — 2 minuten <ArrowRight className="ml-2 w-6 h-6" />
+              Check uw besparing na 2027 <ArrowRight className="ml-2 w-6 h-6" />
             </Button>
             <Button
               asChild

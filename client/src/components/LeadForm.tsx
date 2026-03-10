@@ -12,6 +12,8 @@ import { useTracking } from "@/hooks/useTracking";
 interface FormData {
   solarPanelCount: string;
   homeOwner: boolean | undefined;
+  income: string;
+  wattpeak: number | undefined;
   name: string;
   phone: string;
   email: string;
@@ -20,6 +22,8 @@ interface FormData {
 
 const STEPS = [
   { title: "Kwalificatie", icon: Zap },
+  { title: "Financiering", icon: Shield },
+  { title: "Systeem", icon: Zap },
   { title: "Contactgegevens", icon: User },
 ];
 
@@ -27,10 +31,12 @@ export default function LeadForm() {
   const [step, setStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, setLocation] = useLocation();
-  const { trackInitiateCheckout, trackAddToCart, trackLead, trackViewContent } = useTracking();
+  const { trackInitiateCheckout, trackAddToCart, trackLead } = useTracking();
   const [formData, setFormData] = useState<FormData>({
     solarPanelCount: "",
     homeOwner: undefined,
+    income: "",
+    wattpeak: undefined,
     name: "",
     phone: "",
     email: "",
@@ -47,7 +53,11 @@ export default function LeadForm() {
     switch (step) {
       case 0: 
         return formData.solarPanelCount !== "" && formData.homeOwner !== undefined;
-      case 1: 
+      case 1:
+        return formData.income !== "";
+      case 2:
+        return formData.wattpeak !== undefined;
+      case 3: 
         return formData.name.length > 0 && formData.phone.length >= 10;
       default: 
         return false;
@@ -55,18 +65,18 @@ export default function LeadForm() {
   };
 
   const handleNext = () => {
-    // BLOKKADE VOOR HUURDERS
     if (step === 0 && formData.homeOwner === false) {
       alert("Helaas, het adviesrapport en de financiering vanuit het Warmtefonds zijn uitsluitend beschikbaar voor woningeigenaren.");
       return; 
     }
     
-    // Track form step progression
     trackAddToCart({
       content_name: `Formulier Stap ${step + 1} Voltooid`,
       step: step + 1,
       solar_panels: formData.solarPanelCount,
-      home_owner: formData.homeOwner
+      home_owner: formData.homeOwner,
+      income: formData.income,
+      wattpeak: formData.wattpeak
     });
     
     if (step < STEPS.length - 1) setStep(step + 1);
@@ -89,6 +99,8 @@ export default function LeadForm() {
       postalCode: formData.postalCode || "",
       solarPanelCount: formData.solarPanelCount,
       homeOwner: formData.homeOwner,
+      income: formData.income,
+      wattpeak: formData.wattpeak,
       estimatedSavings: formData.solarPanelCount ? Math.round(parseInt(formData.solarPanelCount.split("-")[0] || "10") * 310 * 0.7 * 0.35 * 0.85) : undefined,
       source: "website-form",
       utmSource: params.get("utm_source") || undefined,
@@ -97,7 +109,6 @@ export default function LeadForm() {
     };
 
     try {
-      // Track form submission initiation
       trackInitiateCheckout({
         content_name: 'Energierapport Aanvraag',
         solar_panels: formData.solarPanelCount,
@@ -105,7 +116,6 @@ export default function LeadForm() {
         estimated_savings: payload.estimatedSavings
       });
 
-      // 1. Verstuur naar Google Sheets (Bestaande flow)
       try {
         await fetch("https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec", {
           method: "POST",
@@ -119,10 +129,8 @@ export default function LeadForm() {
         console.warn("Google Sheets submission failed, continuing...", e);
       }
 
-      // 2. Verstuur naar eigen database & trigger notificaties via tRPC
       await leadMutation.mutateAsync(payload);
       
-      // 3. Track Lead event (crucial for Meta Ads optimization)
       trackLead({
         phone_number: formData.phone,
         first_name: formData.name,
@@ -132,11 +140,9 @@ export default function LeadForm() {
         estimated_savings: payload.estimatedSavings
       });
       
-      // 4. Navigate to thank you page with name and phone
       setLocation(`/bedankt?naam=${encodeURIComponent(formData.name)}&telefoon=${encodeURIComponent(formData.phone)}`);
     } catch (error) {
       console.error("Fout:", error);
-      // Still navigate to thank you page even if there's an error
       setLocation(`/bedankt?naam=${encodeURIComponent(formData.name)}&telefoon=${encodeURIComponent(formData.phone)}`);
     } finally {
       setIsSubmitting(false);
@@ -145,7 +151,6 @@ export default function LeadForm() {
 
   return (
     <section id="lead-form" className="py-20 sm:py-32 bg-gradient-to-b from-green-50/50 to-white relative overflow-hidden">
-      {/* Background decoration */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-aog-green/5 rounded-full blur-[100px] -mr-64 -mt-64 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-aog-blue/5 rounded-full blur-[100px] -ml-64 -mb-64 pointer-events-none" />
 
@@ -158,12 +163,11 @@ export default function LeadForm() {
             Controleer of u in <span className="text-aog-green">aanmerking</span> komt
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg sm:text-xl leading-relaxed">
-            Beantwoord 2 snelle vragen en ontvang uw gratis onafhankelijk energierapport (waarde €240).
+            Beantwoord een paar snelle vragen en ontvang uw gratis onafhankelijk energierapport (waarde €240).
           </p>
         </div>
 
         <div className="max-w-2xl mx-auto">
-          {/* Urgency banner above form */}
           <div className="bg-amber-50 border border-amber-200 rounded-3xl p-6 mb-8 flex items-start gap-4 shadow-sm animate-slide-up">
             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
               <Zap className="w-6 h-6 text-amber-600 fill-current" />
@@ -179,7 +183,6 @@ export default function LeadForm() {
           </div>
 
           <div className="bg-white rounded-[2rem] border border-slate-200 p-8 sm:p-12 shadow-2xl shadow-slate-200/50 relative overflow-hidden">
-            {/* Progress */}
             <div className="mb-12">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Stap {step + 1} van {STEPS.length}</span>
@@ -189,7 +192,6 @@ export default function LeadForm() {
             </div>
 
             <div className="min-h-[350px] flex flex-col">
-              {/* Step 0: Qualification (Solar panels + Home owner) */}
               {step === 0 && (
                 <div className="flex-1 animate-slide-up">
                   <h3 className="text-xl font-black text-foreground mb-8 flex items-center gap-3">
@@ -247,7 +249,7 @@ export default function LeadForm() {
                           }`}
                         >
                           <span className="text-3xl">{opt.icon}</span>
-                          <span className="font-black text-foreground text-lg">{opt.label}</span>
+                          <span className="font-black text-foreground text-base">{opt.label}</span>
                         </button>
                       ))}
                     </div>
@@ -255,122 +257,179 @@ export default function LeadForm() {
                 </div>
               )}
 
-              {/* Step 1: Contact details */}
               {step === 1 && (
                 <div className="flex-1 animate-slide-up">
-                  <h3 className="text-xl font-black text-foreground mb-2 flex items-center gap-3">
+                  <h3 className="text-xl font-black text-foreground mb-4 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-aog-green/10 flex items-center justify-center">
-                      <Phone className="w-4 h-4 text-aog-green" />
+                      <Shield className="w-4 h-4 text-aog-green" />
                     </div>
-                    Uw contactgegevens
+                    Wat is uw gezamenlijk bruto jaarinkomen?
                   </h3>
-                  <p className="text-base font-bold text-muted-foreground mb-10 pl-11">
-                    Wij bellen u binnen 2 uur. Uw gegevens blijven 100% vertrouwelijk.
+                  <p className="text-slate-500 mb-8 text-sm font-medium">
+                    Dit is nodig om te checken of u in aanmerking komt voor de 0% lening van het Nationaal Warmtefonds.
                   </p>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 pl-11">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
-                        Voornaam *
-                      </Label>
-                      <Input 
-                        id="name" 
-                        placeholder="Uw voornaam" 
-                        value={formData.name} 
-                        onChange={(e) => updateField("name", e.target.value)} 
-                        className="h-14 rounded-xl border-2 border-slate-100 focus:border-aog-green transition-colors font-bold text-lg" 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
-                        Telefoonnummer *
-                      </Label>
-                      <Input 
-                        id="phone" 
-                        type="tel" 
-                        placeholder="06-12345678" 
-                        value={formData.phone} 
-                        onChange={(e) => updateField("phone", e.target.value)} 
-                        className="h-14 rounded-xl border-2 border-slate-100 focus:border-aog-green transition-colors font-bold text-lg" 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
-                        E-mailadres (optioneel)
-                      </Label>
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        placeholder="uw@email.nl" 
-                        value={formData.email} 
-                        onChange={(e) => updateField("email", e.target.value)} 
-                        className="h-14 rounded-xl border-2 border-slate-100 focus:border-aog-green transition-colors font-bold text-lg" 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="postal" className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
-                        Postcode (optioneel)
-                      </Label>
-                      <Input 
-                        id="postal" 
-                        placeholder="1234 AB" 
-                        value={formData.postalCode} 
-                        onChange={(e) => updateField("postalCode", e.target.value)} 
-                        className="h-14 rounded-xl border-2 border-slate-100 focus:border-aog-green transition-colors font-bold text-lg" 
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="pl-11 bg-slate-50 rounded-2xl p-4 flex items-start gap-3 border border-slate-100">
-                    <Info className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
-                    <p className="text-xs font-bold text-slate-500 leading-relaxed">
-                      Door op "Vraag rapport aan" te klikken gaat u akkoord met onze privacyverklaring. We gebruiken uw gegevens uitsluitend voor dit onafhankelijke energierapport.
-                    </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {[
+                      { value: "above", label: "Boven €60.000" },
+                      { value: "below", label: "Onder €60.000" },
+                    ].map((opt) => (
+                      <Button
+                        key={opt.value}
+                        type="button"
+                        variant={formData.income === opt.value ? "default" : "outline"}
+                        className={`h-20 text-lg font-black rounded-3xl border-2 transition-all ${formData.income === opt.value ? "bg-aog-blue border-aog-blue text-white scale-[1.02] shadow-lg shadow-aog-blue/20" : "border-slate-100 text-slate-600 hover:border-aog-blue/30 hover:bg-slate-50"}`}
+                        onClick={() => updateField("income", opt.value)}
+                      >
+                        {opt.label}
+                      </Button>
+                    ))}
                   </div>
                 </div>
               )}
 
-              {/* Navigation */}
-              <div className="flex items-center justify-between mt-12 pt-8 border-t border-slate-100">
-                <Button
-                  variant="ghost"
-                  onClick={handleBack}
-                  disabled={step === 0}
-                  className="gap-2 font-black text-slate-400 hover:text-slate-900 transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5" /> Vorige
-                </Button>
+              {step === 2 && (
+                <div className="flex-1 animate-slide-up">
+                  <h3 className="text-xl font-black text-foreground mb-8 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-aog-orange/10 flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-aog-orange fill-current" />
+                    </div>
+                    Wat is de wattpiek van uw panelen?
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {[370, 400, 410, 425].map((watt) => (
+                      <Button
+                        key={watt}
+                        type="button"
+                        variant={formData.wattpeak === watt ? "default" : "outline"}
+                        className={`h-20 text-lg font-black rounded-3xl border-2 transition-all ${formData.wattpeak === watt ? "bg-aog-blue border-aog-blue text-white scale-[1.02] shadow-lg shadow-aog-blue/20" : "border-slate-100 text-slate-600 hover:border-aog-blue/30 hover:bg-slate-50"}`}
+                        onClick={() => updateField("wattpeak", watt)}
+                      >
+                        {watt} Wp
+                      </Button>
+                    ))}
+                    <Button
+                      type="button"
+                      variant={formData.wattpeak === 0 ? "default" : "outline"}
+                      className={`h-20 text-lg font-black rounded-3xl border-2 transition-all sm:col-span-2 ${formData.wattpeak === 0 ? "bg-aog-blue border-aog-blue text-white scale-[1.02] shadow-lg shadow-aog-blue/20" : "border-slate-100 text-slate-600 hover:border-aog-blue/30 hover:bg-slate-50"}`}
+                      onClick={() => updateField("wattpeak", 0)}
+                    >
+                      Ik weet het niet zeker
+                    </Button>
+                  </div>
+                </div>
+              )}
 
+              {step === 3 && (
+                <div className="flex-1 animate-slide-up">
+                  <h3 className="text-xl font-black text-foreground mb-8 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-aog-green/10 flex items-center justify-center">
+                      <User className="w-4 h-4 text-aog-green" />
+                    </div>
+                    Waar mogen we het rapport naar sturen?
+                  </h3>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-slate-400">Volledige naam</Label>
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                        <Input
+                          id="name"
+                          placeholder="Bijv. Jan de Vries"
+                          className="h-14 pl-12 rounded-2xl border-slate-200 focus:border-aog-green focus:ring-aog-green/20"
+                          value={formData.name}
+                          onChange={(e) => updateField("name", e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-xs font-black uppercase tracking-widest text-slate-400">Telefoonnummer</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="06 12345678"
+                          className="h-14 pl-12 rounded-2xl border-slate-200 focus:border-aog-green focus:ring-aog-green/20"
+                          value={formData.phone}
+                          onChange={(e) => updateField("phone", e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest text-slate-400">E-mailadres (optioneel)</Label>
+                        <div className="relative">
+                          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="jan@voorbeeld.nl"
+                            className="h-14 pl-12 rounded-2xl border-slate-200 focus:border-aog-green focus:ring-aog-green/20"
+                            value={formData.email}
+                            onChange={(e) => updateField("email", e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="postalCode" className="text-xs font-black uppercase tracking-widest text-slate-400">Postcode (optioneel)</Label>
+                        <div className="relative">
+                          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                          <Input
+                            id="postalCode"
+                            placeholder="1234 AB"
+                            className="h-14 pl-12 rounded-2xl border-slate-200 focus:border-aog-green focus:ring-aog-green/20"
+                            value={formData.postalCode}
+                            onChange={(e) => updateField("postalCode", e.target.value)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-12 flex flex-col sm:flex-row gap-4">
+                {step > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleBack}
+                    className="h-16 px-8 rounded-2xl border-slate-200 text-slate-600 font-black hover:bg-slate-50"
+                  >
+                    <ArrowLeft className="w-5 h-5 mr-2" /> Vorige
+                  </Button>
+                )}
                 {step < STEPS.length - 1 ? (
                   <Button
-                    onClick={handleNext}
+                    type="button"
                     disabled={!canProceed()}
-                    className="bg-slate-900 hover:bg-slate-800 text-white font-black text-lg px-10 h-16 rounded-2xl shadow-xl transition-all active:scale-95"
+                    onClick={handleNext}
+                    className="flex-1 h-16 text-lg font-black bg-aog-green hover:bg-aog-green-light text-white rounded-2xl shadow-xl shadow-aog-green/20 transition-all active:scale-95 disabled:opacity-50"
                   >
-                    Volgende stap <ArrowRight className="ml-2 w-6 h-6" />
+                    Volgende stap <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 ) : (
                   <Button
+                    type="button"
+                    disabled={!canProceed() || isSubmitting}
                     onClick={handleSubmit}
-                    disabled={isSubmitting || !canProceed()}
-                    className="bg-aog-green hover:bg-aog-green-light text-white font-black text-xl px-12 h-20 rounded-2xl shadow-2xl shadow-aog-green/20 transition-all active:scale-95 group"
+                    className="flex-1 h-16 text-lg font-black bg-aog-green hover:bg-aog-green-light text-white rounded-2xl shadow-xl shadow-aog-green/20 transition-all active:scale-95 disabled:opacity-50"
                   >
-                    {isSubmitting ? "Versturen..." : "Vraag rapport aan"} 
-                    <CheckCircle className="ml-3 w-7 h-7 transition-transform group-hover:scale-110" />
+                    {isSubmitting ? "Verwerken..." : "Vraag rapport aan"} <CheckCircle className="w-5 h-5 ml-2" />
                   </Button>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-8 opacity-40">
+          <div className="mt-8 flex items-center justify-center gap-8 text-slate-400">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Veilig & AVG Proof</span>
+              <span className="text-xs font-black uppercase tracking-widest">Privacy gegarandeerd</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Onafhankelijk advies</span>
+              <span className="text-xs font-black uppercase tracking-widest">100% Onafhankelijk</span>
             </div>
           </div>
         </div>
