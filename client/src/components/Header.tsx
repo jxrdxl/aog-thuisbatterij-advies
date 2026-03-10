@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, Menu, X, CheckCircle2, Zap } from "lucide-react";
+import { Phone, Menu, X, CheckCircle2, Zap, ArrowRight } from "lucide-react";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
