@@ -7,6 +7,7 @@ const LeadForm = lazy(() => import("@/components/LeadForm"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 const StickyCta = lazy(() => import("@/components/StickyCta"));
 const Footer = lazy(() => import("@/components/Footer"));
+const ExitIntentPopup = lazy(() => import("@/components/ExitIntentPopup"));
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029246277/Kr7KprZignQsPbEATC3CRd/solar-house_a519113a.jpg";
 
@@ -212,6 +213,7 @@ export default function Home() {
         <Footer />
         <WhatsAppButton />
         <StickyCta />
+        <ExitIntentPopup />
       </Suspense>
     </div>
   );
