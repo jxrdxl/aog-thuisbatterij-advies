@@ -9,7 +9,7 @@ const StickyCta = lazy(() => import("@/components/StickyCta"));
 const Footer = lazy(() => import("@/components/Footer"));
 const ExitIntentPopup = lazy(() => import("@/components/ExitIntentPopup"));
 
-const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029246277/Kr7KprZignQsPbEATC3CRd/solar-house_a519113a.jpg";
+const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029246277/Kr7KprZignQsPbEATC3CRd/solar-house-50_cf88f835.webp";
 
 export default function Home() {
   return (
