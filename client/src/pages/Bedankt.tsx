@@ -62,8 +62,8 @@ export default function Bedankt() {
             {
               icon: Phone,
               step: "Stap 1",
-              title: "Wij bellen je binnen 2 uur",
-              description: "Een van onze gecertificeerde energieadviseurs neemt contact op om je situatie te bespreken."
+              title: "Wij bellen je binnen 24 uur",
+              description: "Een van onze energie-experts belt je om je persoonlijke situatie te bespreken en te kijken hoeveel je kunt besparen."
             },
             {
               icon: FileText,
@@ -100,10 +100,10 @@ export default function Bedankt() {
         {/* Info box */}
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8">
           <p className="text-sm text-blue-900">
-            <strong>Gemiddelde terugbeltijd:</strong> 47 minuten
+            <strong>Gemiddelde terugbeltijd:</strong> Binnen 24 uur
           </p>
           <p className="text-sm text-blue-800 mt-2">
-            Zorg dat je telefoon bij de hand is. We bellen je op <strong>{telefoon}</strong>.
+            Houd je telefoon bij de hand. We bellen je op <strong>{telefoon}</strong> om je gratis adviesrapport door te nemen.
           </p>
         </div>
 
