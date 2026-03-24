@@ -2,7 +2,20 @@
 <html lang="nl">
 
   <head>
-    <!-- Tracking scripts deferred to avoid blocking LCP -->
+    <!-- Facebook Pixel - Initialized early for accurate tracking -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', '1287923463261270');
+      fbq('track', 'PageView');
+    </script>
+    <!-- Clarity and Google Analytics deferred to avoid blocking LCP -->
     <script>
       window.addEventListener('load', function() {
         // Clarity
@@ -11,17 +24,6 @@
             t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
             y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
         })(window, document, "clarity", "script", "vt4aakrfpo");
-        // Facebook Pixel
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '1287923463261270');
-        fbq('track', 'PageView');
         // Google Analytics
         var s=document.createElement('script');s.async=true;
         s.src='https://www.googletagmanager.com/gtag/js?id=G-PLFL2SBJH1';
@@ -34,7 +36,7 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+      content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
     <title>Gratis Thuisbatterij Adviesrapport | AOG Energie</title>
     <meta name="description" content="De salderingsregeling verdwijnt per 1 januari 2027. Ontvang een gratis onafhankelijk energierapport t.w.v. €240 en ontdek hoeveel u bespaart met een thuisbatterij. Financiering via Warmtefonds mogelijk." />
     <meta name="keywords" content="thuisbatterij, zonnepanelen, salderingsregeling 2027, terugleverkosten, energiebesparing, Warmtefonds, gratis adviesrapport, AOG Energie" />
@@ -46,6 +48,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" crossorigin />
     <link rel="preload" as="image" href="https://d2xsxph8kpxj0f.cloudfront.net/310419663029246277/Kr7KprZignQsPbEATC3CRd/solar-house-50_cf88f835.webp" fetchpriority="high" />
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://connect.facebook.net" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://www.clarity.ms" />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap&display=fallback" rel="stylesheet" media="print" onload="this.media='all'" />
     <noscript>

@@ -48,29 +48,31 @@ export default function Home() {
             <LeadForm />
           </div>
 
-          {/* Trust indicators below form */}
-          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6 text-white/70 text-sm font-medium">
+          {/* Trust indicators below form - Mobile optimized */}
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-white/70 text-xs sm:text-sm font-medium">
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-aog-green" />
-              <span>2.400+ huishoudens geholpen</span>
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-aog-green flex-shrink-0" />
+              <span>2.400+ geholpen</span>
             </div>
+            <div className="hidden sm:flex items-center text-white/40">•</div>
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-aog-green" />
-              <span>Gratis adviesrapport (€240)</span>
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-aog-green flex-shrink-0" />
+              <span>Gratis rapport</span>
             </div>
+            <div className="hidden sm:flex items-center text-white/40">•</div>
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-aog-green" />
-              <span>0% financiering</span>
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-aog-green flex-shrink-0" />
+              <span>0% rente</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* MINIMAL INFO SECTION - Only essentials */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="container">
+      <section className="py-12 sm:py-20 bg-white">
+        <div className="container px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-8 text-center">
+            <h2 className="text-xl sm:text-3xl font-black text-foreground mb-6 sm:mb-8 text-center">
               Wat gebeurt er na uw aanvraag?
             </h2>
             

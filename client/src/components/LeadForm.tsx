@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle, Zap, User, Phone } from "lucide-react";
+import { CheckCircle, Zap, User, Phone, Shield } from "lucide-react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 
@@ -19,13 +19,29 @@ interface FormData {
 
 export default function LeadForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formStarted, setFormStarted] = useState(false);
   const [, setLocation] = useLocation();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     phone: "",
   });
 
+  // Track InitiateCheckout once when form is first focused
+  useEffect(() => {
+    if (formStarted && typeof window.fbq !== 'undefined') {
+      window.fbq('track', 'InitiateCheckout', {
+        content_name: 'Gratis Energierapport',
+        content_category: 'Thuisbatterij Advies',
+        value: 240,
+        currency: 'EUR'
+      });
+    }
+  }, [formStarted]);
+
   const updateField = <K extends keyof FormData>(key: K, value: FormData[K]) => {
+    if (!formStarted) {
+      setFormStarted(true);
+    }
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -70,21 +86,14 @@ export default function LeadForm() {
       // 2. Verstuur naar database
       await leadMutation.mutateAsync(payload);
       
-      // 3. FIRE LEAD EVENT
+      // 3. FIRE COMPLETEREGISTRATION EVENT
       if (typeof window.fbq !== 'undefined') {
-        window.fbq('track', 'Lead', {
+        window.fbq('track', 'CompleteRegistration', {
           content_name: 'Gratis Energierapport Aangevraagd',
           content_category: 'Thuisbatterij Advies',
           value: 240,
           currency: 'EUR',
           phone_number: formData.phone,
-        });
-        
-        window.fbq('track', 'Purchase', {
-          content_name: 'Energierapport',
-          content_category: 'Thuisbatterij Advies',
-          value: 240,
-          currency: 'EUR'
         });
       }
       
@@ -116,6 +125,7 @@ export default function LeadForm() {
               value={formData.name}
               onChange={(e) => updateField("name", e.target.value)}
               className="h-14 rounded-xl border-slate-200 text-lg font-medium"
+              autoComplete="name"
             />
           </div>
 
@@ -129,6 +139,7 @@ export default function LeadForm() {
               value={formData.phone}
               onChange={(e) => updateField("phone", e.target.value)}
               className="h-14 rounded-xl border-slate-200 text-lg font-medium"
+              autoComplete="tel"
             />
           </div>
 
@@ -150,7 +161,7 @@ export default function LeadForm() {
           </div>
         </div>
 
-        {/* Trust line */}
+        {/* Trust line with enhanced signals */}
         <div className="flex flex-wrap justify-center gap-4 mt-8 pt-6 border-t border-slate-100">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
             <Zap className="w-3 h-3 text-aog-orange" /> Gratis adviesrapport (€240)
@@ -159,7 +170,7 @@ export default function LeadForm() {
             <CheckCircle className="w-3 h-3 text-aog-green" /> Geen verplichtingen
           </div>
           <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
-            <User className="w-3 h-3 text-aog-blue" /> Onafhankelijk advies
+            <Shield className="w-3 h-3 text-aog-blue" /> Veilig & Vertrouwd
           </div>
         </div>
       </div>
