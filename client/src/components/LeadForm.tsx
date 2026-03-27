@@ -111,8 +111,8 @@ export default function LeadForm() {
     <section id="lead-form" className="w-full">
       <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-white/20 p-6 sm:p-10 shadow-2xl">
         <div className="mb-8 text-center">
-          <h2 className="text-2xl font-black text-foreground mb-2">Ontvang uw gratis adviesrapport</h2>
-          <p className="text-slate-500 font-medium">Vul uw gegevens in en we bellen u binnen 24 uur.</p>
+          <h2 className="text-2xl font-black text-foreground mb-2">Start uw gratis check</h2>
+          <p className="text-slate-500 font-medium">Vul uw gegevens in en we bellen u binnen 47 minuten.</p>
         </div>
 
         <div className="space-y-6">
@@ -154,7 +154,7 @@ export default function LeadForm() {
                 "Verzenden..."
               ) : (
                 <>
-                  Rapport aanvragen <CheckCircle className="w-6 h-6 ml-2" />
+                  Nu gratis checken <ArrowRight className="w-6 h-6 ml-2" />
                 </>
               )}
             </Button>

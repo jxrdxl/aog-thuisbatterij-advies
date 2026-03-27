@@ -1,6 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Zap, Phone, MessageCircle } from "lucide-react";
+import { CheckCircle, Zap, Phone, Shield, ArrowRight, TrendingDown, AlertTriangle } from "lucide-react";
 import Header from "@/components/Header";
 
 const LeadForm = lazy(() => import("@/components/LeadForm"));
@@ -13,11 +13,11 @@ const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029246277/Kr7Kpr
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col selection:bg-aog-green/30">
+    <div className="min-h-screen flex flex-col selection:bg-aog-green/30 font-sans">
       <Header />
 
-      {/* HERO + FORM SECTION - COMBINED FOR IMMEDIATE ACTION */}
-      <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden pt-24">
+      {/* HERO + FORM SECTION - OPTIMIZED FOR CONVERSION */}
+      <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden pt-20 pb-12">
         {/* Background */}
         <div className="absolute inset-0">
           <img
@@ -28,183 +28,241 @@ export default function Home() {
             fetchPriority="high"
             decoding="async"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/85 via-slate-900/75 to-slate-900/85" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-900/80 to-slate-900/90" />
         </div>
 
-        {/* Content - Form takes center stage */}
-        <div className="relative z-10 container w-full flex flex-col items-center justify-center">
-          {/* Minimal Hero Text */}
-          <div className="text-center mb-8 sm:mb-12 max-w-3xl px-4">
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.2] mb-4 text-balance">
-              Wat kost uw zonnepanelen u in <span className="text-aog-orange">2027?</span>
-            </h1>
-            <p className="text-base sm:text-lg text-white/80 leading-relaxed">
-              De saldering verdwijnt. Ontdek in 2 minuten hoeveel u kunt besparen met een thuisbatterij.
-            </p>
-          </div>
-
-          {/* FORM COMPONENT DIRECTLY IN HERO */}
-          <div className="w-full max-w-2xl px-4">
-            <LeadForm />
-          </div>
-
-          {/* Trust indicators below form - Mobile optimized */}
-          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-white/70 text-xs sm:text-sm font-medium">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-aog-green flex-shrink-0" />
-              <span>2.400+ geholpen</span>
+        {/* Content */}
+        <div className="relative z-10 container w-full flex flex-col lg:flex-row items-center justify-between gap-12 px-4">
+          {/* Hero Text - Left Side */}
+          <div className="text-left max-w-2xl lg:pr-8">
+            <div className="inline-flex items-center gap-2 bg-aog-orange/20 border border-aog-orange/30 px-4 py-2 rounded-full mb-6 animate-fade-in">
+              <AlertTriangle className="w-4 h-4 text-aog-orange" />
+              <span className="text-aog-orange text-xs sm:text-sm font-black uppercase tracking-wider">Belangrijke Update: Saldering 2027</span>
             </div>
-            <div className="hidden sm:flex items-center text-white/40">•</div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-aog-green flex-shrink-0" />
-              <span>Gratis rapport</span>
-            </div>
-            <div className="hidden sm:flex items-center text-white/40">•</div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-aog-green flex-shrink-0" />
-              <span>0% rente</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* MINIMAL INFO SECTION - Only essentials */}
-      <section className="py-12 sm:py-20 bg-white">
-        <div className="container px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-xl sm:text-3xl font-black text-foreground mb-6 sm:mb-8 text-center">
-              Wat gebeurt er na uw aanvraag?
-            </h2>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-[1.1] mb-6 text-balance">
+              Betaal niet voor uw <span className="text-aog-green">eigen stroom.</span>
+            </h1>
+            
+            <p className="text-lg sm:text-xl text-white/90 leading-relaxed mb-8 font-medium">
+              De salderingsregeling stopt. Voorkom <span className="text-white font-black underline decoration-aog-orange decoration-4">terugleverkosten</span> en word 100% onafhankelijk met een slimme thuisbatterij.
+            </p>
+
+            <div className="space-y-4 mb-8 hidden sm:block">
               {[
-                {
-                  number: "1",
-                  title: "Wij bellen u",
-                  description: "Binnen 2 uur neemt een adviseur contact op (gem. 47 min)"
-                },
-                {
-                  number: "2",
-                  title: "Gratis rapport",
-                  description: "Persoonlijk advies op basis van uw situatie (waarde €240)"
-                },
-                {
-                  number: "3",
-                  title: "0% financiering",
-                  description: "Via het Warmtefonds - geen rente, geen gedoe"
-                }
-              ].map((item, idx) => (
-                <div key={idx} className="text-center p-6 rounded-2xl bg-slate-50 border border-slate-100">
-                  <div className="w-12 h-12 rounded-full bg-aog-green/10 flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl font-black text-aog-green">{item.number}</span>
-                  </div>
-                  <h3 className="font-black text-foreground mb-2">{item.title}</h3>
-                  <p className="text-sm text-muted-foreground">{item.description}</p>
+                "Bespaar tot €1.500 per jaar op uw rekening",
+                "Ontvang uw gratis adviesrapport (t.w.v. €240)",
+                "0% rente financiering via het Warmtefonds"
+              ].map((text, i) => (
+                <div key={i} className="flex items-center gap-3 text-white/80 font-bold">
+                  <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
+                  <span>{text}</span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* COST COMPARISON - Quick visual reference */}
-      <section className="py-16 sm:py-20 bg-slate-50">
-        <div className="container">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-12 text-center">
-              De impact van de nieuwe regels
-            </h2>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Current situation */}
-              <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
-                <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-4">NU (2024-2026)</p>
-                <p className="text-4xl font-black text-aog-green mb-2">€0</p>
-                <p className="text-sm text-muted-foreground">U ontvangt geld voor teruggeleverde stroom (saldering)</p>
+          {/* FORM COMPONENT - Right Side / Center on Mobile */}
+          <div className="w-full max-w-md lg:max-w-lg animate-slide-up">
+            <div className="relative">
+              {/* Floating Badge */}
+              <div className="absolute -top-4 -right-4 z-20 bg-aog-green text-white px-4 py-2 rounded-2xl font-black text-sm shadow-xl rotate-3 hidden sm:block">
+                GRATIS CHECK
               </div>
-
-              {/* 2027 situation */}
-              <div className="bg-red-50 rounded-2xl p-8 border border-red-200 shadow-sm">
-                <p className="text-xs font-black text-red-600 uppercase tracking-widest mb-4">VANAF 2027</p>
-                <p className="text-4xl font-black text-aog-red mb-2">€1.400+</p>
-                <p className="text-sm text-red-700">Extra kosten per jaar (gemiddeld)</p>
-              </div>
+              <LeadForm />
             </div>
-
-            <div className="mt-8 p-6 bg-aog-green/5 rounded-2xl border border-aog-green/20 text-center">
-              <p className="text-lg font-black text-aog-green mb-2">💡 Oplossing: Thuisbatterij</p>
-              <p className="text-sm text-foreground">Gebruik uw eigen stroom in de avond en nacht. Voorkomt deze extra kosten.</p>
+            
+            {/* Trust signals directly under form */}
+            <div className="mt-6 flex items-center justify-center gap-6 text-white/60 text-xs font-bold uppercase tracking-widest">
+              <div className="flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5" /> AVG Veilig
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5" /> Direct Inzicht
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ - Minimal */}
-      <section className="py-16 sm:py-20 bg-white">
-        <div className="container">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground mb-12 text-center">
-              Veelgestelde vragen
+      {/* SOCIAL PROOF / LOGOS */}
+      <section className="py-8 bg-slate-50 border-y border-slate-200">
+        <div className="container px-4">
+          <p className="text-center text-slate-400 text-xs font-black uppercase tracking-[0.2em] mb-6">Aanbevolen door experts & gebruikers</p>
+          <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-16 opacity-50 grayscale">
+            {/* Placeholder for logos like Warmtefonds, etc. */}
+            <div className="font-black text-xl text-slate-400">WARMTEFONDS</div>
+            <div className="font-black text-xl text-slate-400">ZONNE-ENERGIE</div>
+            <div className="font-black text-xl text-slate-400">DUURZAAM NL</div>
+          </div>
+        </div>
+      </section>
+
+      {/* THE PROBLEM SECTION - "PIJN & OPLOSSING" */}
+      <section className="py-20 bg-white">
+        <div className="container px-4">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 mb-6">
+              Waarom nu actie nodig is
             </h2>
-            
-            <div className="space-y-4">
-              {[
-                {
-                  q: "Hoeveel kost een thuisbatterij?",
-                  a: "Dat hangt af van uw situatie. Daarom bellen we u voor een persoonlijk advies. Veel huiseigenaren financieren via het Warmtefonds met 0% rente."
-                },
-                {
-                  q: "Ben ik geschikt?",
-                  a: "Als u eigenaar bent van uw woning en zonnepanelen heeft, bent u waarschijnlijk geschikt. Vul het formulier in en wij bellen u."
-                },
-                {
-                  q: "Wat als ik huur?",
-                  a: "Helaas is het adviesrapport en de financiering van het Warmtefonds alleen beschikbaar voor woningeigenaren."
-                },
-                {
-                  q: "Hoe snel gaat dit?",
-                  a: "Gemiddeld bellen wij u binnen 47 minuten. Het hele proces duurt meestal 2-4 weken."
-                }
-              ].map((item, idx) => (
-                <details key={idx} className="group border border-slate-200 rounded-xl p-6 hover:border-aog-green/30 transition-colors cursor-pointer">
-                  <summary className="font-black text-foreground flex items-center justify-between">
-                    {item.q}
-                    <span className="text-aog-green group-open:rotate-180 transition-transform">▼</span>
-                  </summary>
-                  <p className="text-muted-foreground mt-4 text-sm leading-relaxed">{item.a}</p>
-                </details>
-              ))}
+            <p className="text-lg text-slate-600 font-medium">
+              De energiemarkt verandert sneller dan ooit. Wie niet meebeweegt, betaalt de hoofdprijs.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Problem */}
+            <div className="bg-red-50 rounded-3xl p-8 sm:p-10 border border-red-100 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <TrendingDown className="w-24 h-24 text-red-600" />
+              </div>
+              <h3 className="text-2xl font-black text-red-900 mb-4">Het Probleem</h3>
+              <ul className="space-y-4">
+                {[
+                  "Salderingsregeling stopt volledig in 2027",
+                  "U betaalt 'terugleverkosten' voor uw eigen stroom",
+                  "Energieprijzen blijven onvoorspelbaar",
+                  "Uw zonnepanelen renderen minder"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-red-800/80 font-bold">
+                    <span className="text-red-500 mt-1">✕</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
+
+            {/* Solution */}
+            <div className="bg-aog-green/5 rounded-3xl p-8 sm:p-10 border border-aog-green/10 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Zap className="w-24 h-24 text-aog-green" />
+              </div>
+              <h3 className="text-2xl font-black text-aog-green mb-4">De Oplossing</h3>
+              <ul className="space-y-4">
+                {[
+                  "Sla uw eigen stroom op voor de avond/nacht",
+                  "Word 100% onafhankelijk van het net",
+                  "Gebruik dynamische prijzen in uw voordeel",
+                  "Verhoog de waarde van uw woning direct"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-aog-green/80 font-bold">
+                    <span className="text-aog-green mt-1">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DYNAMIC ARBITRAGE EXPLAINER */}
+      <section className="py-20 bg-slate-900 text-white overflow-hidden">
+        <div className="container px-4">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="lg:w-1/2">
+              <h2 className="text-3xl sm:text-5xl font-black mb-8 leading-tight">
+                Laat uw batterij <span className="text-aog-orange">geld verdienen</span> terwijl u slaapt.
+              </h2>
+              <p className="text-xl text-white/70 mb-8 leading-relaxed">
+                Met een dynamisch energiecontract koopt uw batterij automatisch stroom in wanneer de prijs negatief is, en gebruikt u deze wanneer de prijzen hoog zijn. 
+              </p>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                  <p className="text-3xl font-black text-aog-green mb-1">€0,-</p>
+                  <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Inkoopkosten bij zon</p>
+                </div>
+                <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                  <p className="text-3xl font-black text-aog-orange mb-1">100%</p>
+                  <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Zelfverbruik</p>
+                </div>
+              </div>
+            </div>
+            <div className="lg:w-1/2 relative">
+              {/* Visual representation of the battery app/graph */}
+              <div className="bg-slate-800 rounded-3xl p-4 sm:p-8 border border-white/10 shadow-2xl">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="font-black text-lg">Live Energie Dashboard</div>
+                  <div className="px-3 py-1 rounded-full bg-aog-green/20 text-aog-green text-xs font-bold">OPTIMALISEREN</div>
+                </div>
+                <div className="space-y-6">
+                  <div className="h-32 w-full bg-gradient-to-t from-aog-green/20 to-transparent rounded-xl border-b-2 border-aog-green relative">
+                    {/* Mock graph line */}
+                    <div className="absolute inset-0 flex items-end justify-around px-4">
+                      {[40, 70, 45, 90, 65, 80, 30].map((h, i) => (
+                        <div key={i} style={{ height: `${h}%` }} className="w-4 bg-aog-green/40 rounded-t-sm" />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs font-bold text-white/40">
+                    <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* STEPS SECTION */}
+      <section className="py-20 bg-white">
+        <div className="container px-4">
+          <h2 className="text-3xl sm:text-4xl font-black text-center mb-16">Hoe het werkt</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 max-w-5xl mx-auto">
+            {[
+              {
+                step: "01",
+                title: "Gratis Check",
+                desc: "Vul uw gegevens in voor een eerste scan van uw situatie."
+              },
+              {
+                step: "02",
+                title: "Persoonlijk Plan",
+                desc: "Onze adviseur stelt een rapport op t.w.v. €240 (geheel gratis)."
+              },
+              {
+                step: "03",
+                title: "Zorgeloze Installatie",
+                desc: "Wij regelen alles, van financiering tot de laatste schroef."
+              }
+            ].map((item, i) => (
+              <div key={i} className="relative group">
+                <div className="text-7xl font-black text-slate-100 absolute -top-10 -left-4 group-hover:text-aog-green/10 transition-colors">{item.step}</div>
+                <div className="relative z-10">
+                  <h3 className="text-xl font-black mb-4">{item.title}</h3>
+                  <p className="text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* FINAL CTA */}
-      <section className="py-16 sm:py-24 bg-slate-900 text-white">
-        <div className="container text-center">
-          <h2 className="text-3xl sm:text-4xl font-black mb-6">
-            Klaar om uw toekomst veilig te stellen?
+      <section className="py-20 bg-aog-green">
+        <div className="container px-4 text-center">
+          <h2 className="text-3xl sm:text-5xl font-black text-white mb-8">
+            Klaar voor de toekomst?
           </h2>
-          <p className="text-white/70 mb-10 max-w-2xl mx-auto">
-            Vraag nu uw gratis adviesrapport aan. Geen verplichtingen, geen kosten.
+          <p className="text-white/90 text-xl mb-12 max-w-2xl mx-auto font-medium">
+            Sluit u aan bij 2.400+ Nederlandse huishoudens die al besparen.
           </p>
-          
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               asChild
               size="lg"
-              className="bg-aog-green hover:bg-aog-green-light text-white font-black text-lg px-8 h-16 rounded-2xl shadow-lg shadow-aog-green/20"
+              className="bg-white text-aog-green hover:bg-slate-100 font-black text-xl px-10 h-20 rounded-2xl shadow-2xl"
             >
-              <a href="#lead-form">Start gratis check</a>
+              <a href="#lead-form">Start de gratis check <ArrowRight className="ml-2 w-6 h-6" /></a>
             </Button>
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="border-white/30 text-white hover:bg-white/10 font-black h-16 px-8 rounded-2xl"
+              className="border-white/40 text-white hover:bg-white/10 font-black h-20 px-10 rounded-2xl text-xl"
             >
               <a href="tel:+31612712804">
-                <Phone className="w-5 h-5 mr-2" /> Bel ons: 06-127 128 04
+                <Phone className="w-6 h-6 mr-3" /> 06-127 128 04
               </a>
             </Button>
           </div>
