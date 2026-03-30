@@ -35,9 +35,9 @@ export default function Home() {
         <div className="relative z-10 container w-full flex flex-col lg:flex-row items-center justify-between gap-12 px-4">
           {/* Hero Text - Left Side */}
           <div className="text-left max-w-2xl lg:pr-8">
-            <div className="inline-flex items-center gap-2 bg-aog-orange/20 border border-aog-orange/30 px-4 py-2 rounded-full mb-6 animate-fade-in">
-              <AlertTriangle className="w-4 h-4 text-aog-orange" />
-              <span className="text-aog-orange text-xs sm:text-sm font-black uppercase tracking-wider">Belangrijke Update: Saldering 2027</span>
+            <div className="inline-flex items-center gap-2 bg-red-600/20 border border-red-500/40 px-4 py-2.5 rounded-full mb-6 animate-fade-in">
+              <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
+              <span className="text-red-300 text-xs sm:text-sm font-black uppercase tracking-wider">U betaalt nu al tot €504/jaar om uw eigen stroom terug te leveren</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-[1.1] mb-6 text-balance">
@@ -45,14 +45,14 @@ export default function Home() {
             </h1>
             
             <p className="text-lg sm:text-xl text-white/90 leading-relaxed mb-8 font-medium">
-              De salderingsregeling stopt. Voorkom <span className="text-white font-black underline decoration-aog-orange decoration-4">terugleverkosten</span> en word 100% onafhankelijk met een slimme thuisbatterij.
+              Energieleveranciers rekenen u <span className="text-white font-black underline decoration-red-400 decoration-4">terugleverkosten</span> voor uw eigen zonnestroom — en per 1 januari 2027 wordt het nog duurder. Zet uw batterij aan het werk.
             </p>
 
             <div className="space-y-4 mb-8 hidden sm:block">
               {[
-                "Bespaar tot €1.500 per jaar op uw rekening",
+                "Stop tot €504 per jaar aan terugleverkosten te betalen",
                 "Ontvang uw gratis adviesrapport (t.w.v. €240)",
-                "0% rente financiering via het Warmtefonds"
+                "0% rente financiering via het Warmtefonds (tot €8.500)"
               ].map((text, i) => (
                 <div key={i} className="flex items-center gap-3 text-white/80 font-bold">
                   <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
@@ -90,10 +90,9 @@ export default function Home() {
         <div className="container px-4">
           <p className="text-center text-slate-400 text-xs font-black uppercase tracking-[0.2em] mb-6">Aanbevolen door experts & gebruikers</p>
           <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-16 opacity-50 grayscale">
-            {/* Placeholder for logos like Warmtefonds, etc. */}
             <div className="font-black text-xl text-slate-400">WARMTEFONDS</div>
-            <div className="font-black text-xl text-slate-400">ZONNE-ENERGIE</div>
-            <div className="font-black text-xl text-slate-400">DUURZAAM NL</div>
+            <div className="font-black text-xl text-slate-400">CONSUMENTENBOND</div>
+            <div className="font-black text-xl text-slate-400">NOS.NL</div>
           </div>
         </div>
       </section>
@@ -119,10 +118,10 @@ export default function Home() {
               <h3 className="text-2xl font-black text-red-900 mb-4">Het Probleem</h3>
               <ul className="space-y-4">
                 {[
-                  "Salderingsregeling stopt volledig in 2027",
-                  "U betaalt 'terugleverkosten' voor uw eigen stroom",
-                  "Energieprijzen blijven onvoorspelbaar",
-                  "Uw zonnepanelen renderen minder"
+                  "U betaalt al tot €504/jaar terugleverkosten",
+                  "Salderingsregeling stopt volledig op 1 jan. 2027",
+                  "Teruglevering levert straks slechts ~5¢/kWh op",
+                  "Uw zonnepanelen renderen steeds minder"
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3 text-red-800/80 font-bold">
                     <span className="text-red-500 mt-1">✕</span>
@@ -151,54 +150,6 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* DYNAMIC ARBITRAGE EXPLAINER */}
-      <section className="py-20 bg-slate-900 text-white overflow-hidden">
-        <div className="container px-4">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-            <div className="lg:w-1/2">
-              <h2 className="text-3xl sm:text-5xl font-black mb-8 leading-tight">
-                Laat uw batterij <span className="text-aog-orange">geld verdienen</span> terwijl u slaapt.
-              </h2>
-              <p className="text-xl text-white/70 mb-8 leading-relaxed">
-                Met een dynamisch energiecontract koopt uw batterij automatisch stroom in wanneer de prijs negatief is, en gebruikt u deze wanneer de prijzen hoog zijn. 
-              </p>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                  <p className="text-3xl font-black text-aog-green mb-1">€0,-</p>
-                  <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Inkoopkosten bij zon</p>
-                </div>
-                <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-                  <p className="text-3xl font-black text-aog-orange mb-1">100%</p>
-                  <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Zelfverbruik</p>
-                </div>
-              </div>
-            </div>
-            <div className="lg:w-1/2 relative">
-              {/* Visual representation of the battery app/graph */}
-              <div className="bg-slate-800 rounded-3xl p-4 sm:p-8 border border-white/10 shadow-2xl">
-                <div className="flex items-center justify-between mb-8">
-                  <div className="font-black text-lg">Live Energie Dashboard</div>
-                  <div className="px-3 py-1 rounded-full bg-aog-green/20 text-aog-green text-xs font-bold">OPTIMALISEREN</div>
-                </div>
-                <div className="space-y-6">
-                  <div className="h-32 w-full bg-gradient-to-t from-aog-green/20 to-transparent rounded-xl border-b-2 border-aog-green relative">
-                    {/* Mock graph line */}
-                    <div className="absolute inset-0 flex items-end justify-around px-4">
-                      {[40, 70, 45, 90, 65, 80, 30].map((h, i) => (
-                        <div key={i} style={{ height: `${h}%` }} className="w-4 bg-aog-green/40 rounded-t-sm" />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex justify-between text-xs font-bold text-white/40">
-                    <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -238,6 +189,56 @@ export default function Home() {
         </div>
       </section>
 
+      {/* DYNAMIC ARBITRAGE EXPLAINER - shown AFTER basic value is clear */}
+      <section className="py-20 bg-slate-900 text-white overflow-hidden">
+        <div className="container px-4">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="lg:w-1/2">
+              <div className="inline-flex items-center gap-2 bg-aog-green/20 border border-aog-green/30 px-4 py-2 rounded-full mb-6">
+                <Zap className="w-4 h-4 text-aog-green" />
+                <span className="text-aog-green text-xs font-black uppercase tracking-wider">Slim systeem</span>
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black mb-8 leading-tight">
+                Uw batterij werkt ook 's nachts <span className="text-aog-orange">voor u.</span>
+              </h2>
+              <p className="text-xl text-white/70 mb-8 leading-relaxed">
+                De Hunco ESS slaat uw eigen zonnestroom op en verhandelt overschot automatisch op de energiemarkt — zodat u maximaal profiteert en niets meer teruggeeft aan het net voor niets.
+              </p>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                  <p className="text-3xl font-black text-aog-green mb-1">€0,-</p>
+                  <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Terugleverkosten</p>
+                </div>
+                <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                  <p className="text-3xl font-black text-aog-orange mb-1">100%</p>
+                  <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Zelfverbruik</p>
+                </div>
+              </div>
+            </div>
+            <div className="lg:w-1/2 relative">
+              <div className="bg-slate-800 rounded-3xl p-4 sm:p-8 border border-white/10 shadow-2xl">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="font-black text-lg">Live Energie Dashboard</div>
+                  <div className="px-3 py-1 rounded-full bg-aog-green/20 text-aog-green text-xs font-bold">OPTIMALISEREN</div>
+                </div>
+                <div className="space-y-6">
+                  <div className="h-32 w-full bg-gradient-to-t from-aog-green/20 to-transparent rounded-xl border-b-2 border-aog-green relative">
+                    <div className="absolute inset-0 flex items-end justify-around px-4">
+                      {[40, 70, 45, 90, 65, 80, 30].map((h, i) => (
+                        <div key={i} style={{ height: `${h}%` }} className="w-4 bg-aog-green/40 rounded-t-sm" />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs font-bold text-white/40">
+                    <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FINAL CTA */}
       <section className="py-20 bg-aog-green">
         <div className="container px-4 text-center">
@@ -245,7 +246,7 @@ export default function Home() {
             Klaar voor de toekomst?
           </h2>
           <p className="text-white/90 text-xl mb-12 max-w-2xl mx-auto font-medium">
-            Sluit u aan bij 2.400+ Nederlandse huishoudens die al besparen.
+            Wacht niet tot de wachtlijsten oplopen. Vraag nu uw gratis adviesrapport aan.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
