@@ -8,12 +8,20 @@ const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 const StickyCta = lazy(() => import("@/components/StickyCta"));
 const Footer = lazy(() => import("@/components/Footer"));
 const ExitIntentPopup = lazy(() => import("@/components/ExitIntentPopup"));
+const SavingsCalculator = lazy(() => import("@/components/SavingsCalculator"));
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029246277/Kr7KprZignQsPbEATC3CRd/solar-house-50_cf88f835.webp";
 
 export default function Home() {
+  const scrollToForm = () => {
+    const formElement = document.getElementById("lead-form");
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col selection:bg-aog-green/30 font-sans">
+    <div className="min-h-screen flex flex-col selection:bg-aog-green/30 font-sans text-slate-900">
       <Header />
 
       {/* HERO + FORM SECTION - OPTIMIZED FOR CONVERSION */}
@@ -69,7 +77,9 @@ export default function Home() {
               <div className="absolute -top-4 -right-4 z-20 bg-aog-green text-white px-4 py-2 rounded-2xl font-black text-sm shadow-xl rotate-3 hidden sm:block">
                 GRATIS CHECK
               </div>
-              <LeadForm />
+              <Suspense fallback={<div className="h-[400px] bg-white/10 animate-pulse rounded-3xl" />}>
+                <LeadForm />
+              </Suspense>
             </div>
             
             {/* Trust signals directly under form */}
@@ -96,6 +106,11 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* SAVINGS CALCULATOR SECTION */}
+      <Suspense fallback={<div className="h-96 bg-slate-50 animate-pulse" />}>
+        <SavingsCalculator onCtaClick={scrollToForm} />
+      </Suspense>
 
       {/* THE PROBLEM SECTION - "PIJN & OPLOSSING" */}
       <section className="py-20 bg-white">

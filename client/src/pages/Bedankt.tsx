@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Phone, FileText, Zap, Home, ArrowRight } from "lucide-react";
+import { CheckCircle, Phone, FileText, Zap, ArrowRight } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
 
 export default function Bedankt() {
   const [location] = useLocation();
-  const { trackLead, trackCompleteRegistration, trackViewContent } = useTracking();
+  const { trackLead, trackCompleteRegistration, trackViewContent, trackContact } = useTracking();
   
   // Extract query parameters
   const params = new URLSearchParams(location.split('?')[1]);
@@ -28,7 +28,7 @@ export default function Bedankt() {
 
     // Also track CompleteRegistration for backwards compatibility
     trackCompleteRegistration();
-  }, []);
+  }, [trackViewContent, trackLead, trackCompleteRegistration, telefoon, naam]);
 
   const whatsappLink = `https://wa.me/31612712804?text=Hallo, ik heb zojuist een rapport aangevraagd`;
 
@@ -114,7 +114,6 @@ export default function Bedankt() {
             size="lg"
             className="bg-aog-green hover:bg-aog-green-light text-white font-bold flex-1"
             onClick={() => {
-              const { trackContact } = useTracking();
               trackContact({ method: 'whatsapp' });
             }}
           >
