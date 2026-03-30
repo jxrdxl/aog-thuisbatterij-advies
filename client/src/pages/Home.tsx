@@ -1,216 +1,281 @@
-import { useRef, Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Shield, CheckCircle, Zap, TrendingDown, Star, Phone, MessageCircle } from "lucide-react";
+import { CheckCircle, Zap, Phone, Shield, ArrowRight, TrendingDown, AlertTriangle } from "lucide-react";
 import Header from "@/components/Header";
-import { useTracking } from "@/hooks/useTracking";
 
-const CountdownTimer = lazy(() => import("@/components/CountdownTimer"));
-const SavingsCalculator = lazy(() => import("@/components/SavingsCalculator"));
 const LeadForm = lazy(() => import("@/components/LeadForm"));
-const TrustSignals = lazy(() => import("@/components/TrustSignals"));
-const ValuePropositions = lazy(() => import("@/components/ValuePropositions"));
-const FAQ = lazy(() => import("@/components/FAQ"));
-const Testimonials = lazy(() => import("@/components/Testimonials"));
 const WhatsAppButton = lazy(() => import("@/components/WhatsAppButton"));
 const StickyCta = lazy(() => import("@/components/StickyCta"));
-const HowItWorks = lazy(() => import("@/components/HowItWorks"));
-const UrgencyBanner = lazy(() => import("@/components/UrgencyBanner"));
 const Footer = lazy(() => import("@/components/Footer"));
+const ExitIntentPopup = lazy(() => import("@/components/ExitIntentPopup"));
 
-const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029246277/Kr7KprZignQsPbEATC3CRd/solar-house_a519113a.jpg";
+const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663029246277/Kr7KprZignQsPbEATC3CRd/solar-house-50_cf88f835.webp";
 
 export default function Home() {
-  const formRef = useRef<HTMLDivElement>(null);
-  const { trackInitiateCheckout, trackContact, trackViewContent } = useTracking();
-
-  const scrollToForm = () => {
-    trackInitiateCheckout({ source: 'hero_cta' });
-    document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
-    <div className="min-h-screen flex flex-col selection:bg-aog-green/30">
+    <div className="min-h-screen flex flex-col selection:bg-aog-green/30 font-sans">
       <Header />
 
-      {/* HERO SECTION */}
-      <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
+      {/* HERO + FORM SECTION - OPTIMIZED FOR CONVERSION */}
+      <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden pt-20 pb-12">
         {/* Background */}
         <div className="absolute inset-0">
           <img
             src={HERO_BG}
             alt="Huis met zonnepanelen in Nederland"
-            className="w-full h-full object-cover scale-105 animate-slow-zoom"
+            className="w-full h-full object-cover scale-105"
             loading="eager"
             fetchPriority="high"
             decoding="async"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-900/70 to-slate-900/90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-900/80 to-slate-900/90" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container text-center pt-24 pb-16">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs sm:text-sm font-black px-5 py-2 rounded-full mb-8 animate-slide-up shadow-xl">
-            <Shield className="w-4 h-4 text-aog-green" /> 
-            <span className="uppercase tracking-widest">Warmtefonds Initiatief · Onafhankelijk</span>
+        <div className="relative z-10 container w-full flex flex-col lg:flex-row items-center justify-between gap-12 px-4">
+          {/* Hero Text - Left Side */}
+          <div className="text-left max-w-2xl lg:pr-8">
+            <div className="inline-flex items-center gap-2 bg-red-600/20 border border-red-500/40 px-4 py-2.5 rounded-full mb-6 animate-fade-in">
+              <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
+              <span className="text-red-300 text-xs sm:text-sm font-black uppercase tracking-wider">U betaalt nu al tot €504/jaar om uw eigen stroom terug te leveren</span>
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-[1.1] mb-6 text-balance">
+              Betaal niet voor uw <span className="text-aog-green">eigen stroom.</span>
+            </h1>
+            
+            <p className="text-lg sm:text-xl text-white/90 leading-relaxed mb-8 font-medium">
+              Energieleveranciers rekenen u <span className="text-white font-black underline decoration-red-400 decoration-4">terugleverkosten</span> voor uw eigen zonnestroom — en per 1 januari 2027 wordt het nog duurder. Zet uw batterij aan het werk.
+            </p>
+
+            <div className="space-y-4 mb-8 hidden sm:block">
+              {[
+                "Stop tot €504 per jaar aan terugleverkosten te betalen",
+                "Ontvang uw gratis adviesrapport (t.w.v. €240)",
+                "0% rente financiering via het Warmtefonds (tot €8.500)"
+              ].map((text, i) => (
+                <div key={i} className="flex items-center gap-3 text-white/80 font-bold">
+                  <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
+                  <span>{text}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Headline */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.1] mb-6 max-w-5xl mx-auto animate-slide-up [animation-delay:100ms] text-balance">
-            Wat kosten uw zonnepanelen u{" "}
-            <span className="relative inline-block">
-              <span className="text-aog-orange italic">straks in 2027?</span>
-              <svg className="absolute -bottom-2 left-0 w-full h-3" viewBox="0 0 200 8" fill="none" preserveAspectRatio="none">
-                <path d="M2 6C50 2 150 2 198 6" stroke="oklch(0.70 0.18 60)" strokeWidth="4" strokeLinecap="round" />
-              </svg>
-            </span>
-          </h1>
+          {/* FORM COMPONENT - Right Side / Center on Mobile */}
+          <div className="w-full max-w-md lg:max-w-lg animate-slide-up">
+            <div className="relative">
+              {/* Floating Badge */}
+              <div className="absolute -top-4 -right-4 z-20 bg-aog-green text-white px-4 py-2 rounded-2xl font-black text-sm shadow-xl rotate-3 hidden sm:block">
+                GRATIS CHECK
+              </div>
+              <LeadForm />
+            </div>
+            
+            {/* Trust signals directly under form */}
+            <div className="mt-6 flex items-center justify-center gap-6 text-white/60 text-xs font-bold uppercase tracking-widest">
+              <div className="flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5" /> AVG Veilig
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5" /> Direct Inzicht
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <p className="text-lg sm:text-2xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed animate-slide-up [animation-delay:200ms]">
-            De salderingsregeling verdwijnt per <strong className="text-white">1 januari 2027</strong>.
-            Heeft u zonnepanelen? Dan gaat u waarschijnlijk <strong className="text-aog-orange">€1.400+ extra per jaar</strong> betalen.
-            Ontdek hoe een thuisbatterij dit voorkomt.
+      {/* SOCIAL PROOF / LOGOS */}
+      <section className="py-8 bg-slate-50 border-y border-slate-200">
+        <div className="container px-4">
+          <p className="text-center text-slate-400 text-xs font-black uppercase tracking-[0.2em] mb-6">Aanbevolen door experts & gebruikers</p>
+          <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-16 opacity-50 grayscale">
+            <div className="font-black text-xl text-slate-400">WARMTEFONDS</div>
+            <div className="font-black text-xl text-slate-400">CONSUMENTENBOND</div>
+            <div className="font-black text-xl text-slate-400">NOS.NL</div>
+          </div>
+        </div>
+      </section>
+
+      {/* THE PROBLEM SECTION - "PIJN & OPLOSSING" */}
+      <section className="py-20 bg-white">
+        <div className="container px-4">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 mb-6">
+              Waarom nu actie nodig is
+            </h2>
+            <p className="text-lg text-slate-600 font-medium">
+              De energiemarkt verandert sneller dan ooit. Wie niet meebeweegt, betaalt de hoofdprijs.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Problem */}
+            <div className="bg-red-50 rounded-3xl p-8 sm:p-10 border border-red-100 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <TrendingDown className="w-24 h-24 text-red-600" />
+              </div>
+              <h3 className="text-2xl font-black text-red-900 mb-4">Het Probleem</h3>
+              <ul className="space-y-4">
+                {[
+                  "U betaalt al tot €504/jaar terugleverkosten",
+                  "Salderingsregeling stopt volledig op 1 jan. 2027",
+                  "Teruglevering levert straks slechts ~5¢/kWh op",
+                  "Uw zonnepanelen renderen steeds minder"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-red-800/80 font-bold">
+                    <span className="text-red-500 mt-1">✕</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Solution */}
+            <div className="bg-aog-green/5 rounded-3xl p-8 sm:p-10 border border-aog-green/10 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <Zap className="w-24 h-24 text-aog-green" />
+              </div>
+              <h3 className="text-2xl font-black text-aog-green mb-4">De Oplossing</h3>
+              <ul className="space-y-4">
+                {[
+                  "Sla uw eigen stroom op voor de avond/nacht",
+                  "Word 100% onafhankelijk van het net",
+                  "Gebruik dynamische prijzen in uw voordeel",
+                  "Verhoog de waarde van uw woning direct"
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-aog-green/80 font-bold">
+                    <span className="text-aog-green mt-1">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* STEPS SECTION */}
+      <section className="py-20 bg-white">
+        <div className="container px-4">
+          <h2 className="text-3xl sm:text-4xl font-black text-center mb-16">Hoe het werkt</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 max-w-5xl mx-auto">
+            {[
+              {
+                step: "01",
+                title: "Gratis Check",
+                desc: "Vul uw gegevens in voor een eerste scan van uw situatie."
+              },
+              {
+                step: "02",
+                title: "Persoonlijk Plan",
+                desc: "Onze adviseur stelt een rapport op t.w.v. €240 (geheel gratis)."
+              },
+              {
+                step: "03",
+                title: "Zorgeloze Installatie",
+                desc: "Wij regelen alles, van financiering tot de laatste schroef."
+              }
+            ].map((item, i) => (
+              <div key={i} className="relative group">
+                <div className="text-7xl font-black text-slate-100 absolute -top-10 -left-4 group-hover:text-aog-green/10 transition-colors">{item.step}</div>
+                <div className="relative z-10">
+                  <h3 className="text-xl font-black mb-4">{item.title}</h3>
+                  <p className="text-slate-500 font-medium leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* DYNAMIC ARBITRAGE EXPLAINER - shown AFTER basic value is clear */}
+      <section className="py-20 bg-slate-900 text-white overflow-hidden">
+        <div className="container px-4">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="lg:w-1/2">
+              <div className="inline-flex items-center gap-2 bg-aog-green/20 border border-aog-green/30 px-4 py-2 rounded-full mb-6">
+                <Zap className="w-4 h-4 text-aog-green" />
+                <span className="text-aog-green text-xs font-black uppercase tracking-wider">Slim systeem</span>
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black mb-8 leading-tight">
+                Uw batterij werkt ook 's nachts <span className="text-aog-orange">voor u.</span>
+              </h2>
+              <p className="text-xl text-white/70 mb-8 leading-relaxed">
+                De Hunco ESS slaat uw eigen zonnestroom op en verhandelt overschot automatisch op de energiemarkt — zodat u maximaal profiteert en niets meer teruggeeft aan het net voor niets.
+              </p>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                  <p className="text-3xl font-black text-aog-green mb-1">€0,-</p>
+                  <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Terugleverkosten</p>
+                </div>
+                <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                  <p className="text-3xl font-black text-aog-orange mb-1">100%</p>
+                  <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Zelfverbruik</p>
+                </div>
+              </div>
+            </div>
+            <div className="lg:w-1/2 relative">
+              <div className="bg-slate-800 rounded-3xl p-4 sm:p-8 border border-white/10 shadow-2xl">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="font-black text-lg">Live Energie Dashboard</div>
+                  <div className="px-3 py-1 rounded-full bg-aog-green/20 text-aog-green text-xs font-bold">OPTIMALISEREN</div>
+                </div>
+                <div className="space-y-6">
+                  <div className="h-32 w-full bg-gradient-to-t from-aog-green/20 to-transparent rounded-xl border-b-2 border-aog-green relative">
+                    <div className="absolute inset-0 flex items-end justify-around px-4">
+                      {[40, 70, 45, 90, 65, 80, 30].map((h, i) => (
+                        <div key={i} style={{ height: `${h}%` }} className="w-4 bg-aog-green/40 rounded-t-sm" />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs font-bold text-white/40">
+                    <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="py-20 bg-aog-green">
+        <div className="container px-4 text-center">
+          <h2 className="text-3xl sm:text-5xl font-black text-white mb-8">
+            Klaar voor de toekomst?
+          </h2>
+          <p className="text-white/90 text-xl mb-12 max-w-2xl mx-auto font-medium">
+            Wacht niet tot de wachtlijsten oplopen. Vraag nu uw gratis adviesrapport aan.
           </p>
-
-          {/* Countdown */}
-          <div className="mb-12 animate-slide-up [animation-delay:300ms]">
-            <p className="text-xs font-black text-white/40 uppercase tracking-[0.3em] mb-4">SALDERING VERDWIJNT OVER</p>
-            <CountdownTimer />
-          </div>
-
-          {/* CTA Group */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 animate-slide-up [animation-delay:400ms]">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
+              asChild
               size="lg"
-              onClick={scrollToForm}
-              className="bg-aog-green hover:bg-aog-green-light text-white font-black text-lg px-10 h-16 rounded-2xl shadow-2xl shadow-aog-green/20 animate-pulse-glow w-full sm:w-auto transition-all hover:scale-105"
+              className="bg-white text-aog-green hover:bg-slate-100 font-black text-xl px-10 h-20 rounded-2xl shadow-2xl"
             >
-              Check uw besparing na 2027 <ArrowRight className="ml-2 w-6 h-6" />
+              <a href="#lead-form">Start de gratis check <ArrowRight className="ml-2 w-6 h-6" /></a>
             </Button>
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="border-white/30 text-white hover:bg-white/10 font-black h-16 px-10 rounded-2xl w-full sm:w-auto bg-transparent backdrop-blur-sm transition-all hover:scale-105"
-              onClick={() => trackViewContent({ source: 'hero_calculator_link' })}
+              className="border-white/40 text-white hover:bg-white/10 font-black h-20 px-10 rounded-2xl text-xl"
             >
-              <a href="#calculator">Bereken mijn besparing</a>
-            </Button>
-          </div>
-
-          <div className="flex items-center justify-center gap-6 animate-slide-up [animation-delay:500ms]">
-            <p className="text-xs font-bold text-white/40 flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-aog-green" /> 2.400+ huishoudens geholpen
-            </p>
-            <p className="text-xs font-bold text-white/40 flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-aog-green" /> 4.9/5 Google Rating
-            </p>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
-          <div className="w-7 h-12 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
-            <div className="w-1.5 h-3 bg-white rounded-full" />
-          </div>
-        </div>
-      </section>
-
-      <Suspense fallback={<div className="h-20" />}>
-        {/* Trust Signals / News Ticker */}
-        <TrustSignals />
-
-        {/* How It Works */}
-        <HowItWorks />
-
-        {/* Savings Calculator */}
-        <SavingsCalculator onCtaClick={scrollToForm} />
-
-        {/* Value Propositions */}
-        <ValuePropositions />
-
-        {/* Lead Form Section */}
-        <div ref={formRef}>
-          <LeadForm />
-        </div>
-
-        {/* Testimonials */}
-        <Testimonials />
-
-        {/* Urgency Banner */}
-        <UrgencyBanner />
-
-        {/* FAQ */}
-        <FAQ />
-      </Suspense>
-
-      {/* Final CTA */}
-      <section className="py-24 sm:py-32 bg-slate-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-aog-green/20 rounded-full blur-[120px] -mr-64 -mt-64" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-aog-blue/20 rounded-full blur-[120px] -ml-64 -mb-64" />
-        </div>
-        
-        <div className="container relative z-10 text-center">
-          <span className="inline-flex items-center gap-2 bg-aog-green/20 text-aog-green-light text-xs font-black px-4 py-2 rounded-full mb-8 uppercase tracking-widest">
-            KLAAR VOOR DE VOLGENDE STAP?
-          </span>
-          <h2 className="text-4xl sm:text-6xl font-black mb-8 text-balance leading-tight">
-            Maak uw woning vandaag nog <span className="text-aog-green">energie-onafhankelijk</span>
-          </h2>
-          <p className="text-white/60 max-w-2xl mx-auto mb-12 text-lg sm:text-xl">
-            Vraag vandaag nog uw gratis adviesrapport aan en ontdek hoeveel u kunt besparen met een thuisbatterij en 0% financiering.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <Button
-              asChild
-              size="lg"
-              className="bg-aog-green hover:bg-aog-green-light text-white font-black text-xl px-12 h-20 rounded-2xl shadow-2xl shadow-aog-green/20 group transition-all hover:scale-105"
-              onClick={() => trackInitiateCheckout({ source: 'final_cta' })}
-            >
-              <a href="#lead-form">
-                <CheckCircle className="mr-3 w-7 h-7" /> Start gratis energiecheck
+              <a href="tel:+31612712804">
+                <Phone className="w-6 h-6 mr-3" /> 06-127 128 04
               </a>
             </Button>
-            <div className="flex flex-col items-center sm:items-start gap-2">
-              <a href="tel:+31612712804" onClick={() => trackContact({ method: 'phone', source: 'final_cta' })} className="flex items-center gap-3 text-2xl font-black hover:text-aog-green transition-colors">
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-                  <Phone className="w-6 h-6" />
-                </div>
-                06-127 128 04
-              </a>
-              <p className="text-white/40 text-sm font-bold uppercase tracking-widest">Direct contact met een adviseur</p>
-            </div>
-          </div>
-          
-          <div className="mt-16 flex flex-wrap justify-center items-center gap-x-12 gap-y-6 grayscale opacity-40">
-            <p className="text-sm font-black tracking-widest uppercase">Financieel Dagblad</p>
-            <p className="text-sm font-black tracking-widest uppercase">RTL Nieuws</p>
-            <p className="text-sm font-black tracking-widest uppercase">NOS.nl</p>
-            <p className="text-sm font-black tracking-widest uppercase">Consumentenbond</p>
           </div>
         </div>
       </section>
 
       <Suspense fallback={null}>
-        {/* Footer */}
         <Footer />
-
-        {/* Floating elements */}
         <WhatsAppButton />
         <StickyCta />
+        <ExitIntentPopup />
       </Suspense>
-
-      <style>{`
-        @keyframes slow-zoom {
-          0% { transform: scale(1.05); }
-          100% { transform: scale(1.15); }
-        }
-        .animate-slow-zoom {
-          animation: slow-zoom 20s ease-in-out infinite alternate;
-        }
-      `}</style>
     </div>
   );
 }

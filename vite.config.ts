@@ -168,6 +168,20 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Performance optimizations
+    chunkSizeWarningLimit: 500,
+    cssCodeSplit: true,
+    minify: "esbuild",
+    rollupOptions: {
+      output: {
+        // Split vendor chunks for better caching
+        manualChunks: {
+          react: ["react", "react-dom"],
+          ui: ["@radix-ui/react-accordion", "@radix-ui/react-dialog", "@radix-ui/react-label", "@radix-ui/react-radio-group", "@radix-ui/react-slot"],
+          trpc: ["@trpc/client", "@trpc/react-query", "@tanstack/react-query"],
+        },
+      },
+    },
   },
   server: {
     host: true,
