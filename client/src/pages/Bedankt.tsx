@@ -1,33 +1,33 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Phone, FileText, Zap, ArrowRight } from "lucide-react";
+import { CheckCircle, Phone, FileText, Zap } from "lucide-react";
 import { useTracking } from "@/hooks/useTracking";
 
 export default function Bedankt() {
   const [location] = useLocation();
   const { trackLead, trackCompleteRegistration, trackViewContent, trackContact } = useTracking();
-  
-  // Extract query parameters
-  const params = new URLSearchParams(location.split('?')[1]);
-  const naam = params.get('naam') || 'je';
-  const telefoon = params.get('telefoon') || '';
+
+  const params = new URLSearchParams(location.split("?")[1]);
+  const naam = params.get("naam") || "je";
+  const telefoon = params.get("telefoon") || "";
 
   useEffect(() => {
-    // Track page view
     trackViewContent({
-      content_name: 'Bedankpagina',
-      content_category: 'Thuisbatterij Advies'
+      content_name: "Bedankpagina",
+      content_category: "Thuisbatterij Advies",
     });
 
-    // Track Lead event (crucial for Meta Ads optimization)
     trackLead({
       phone_number: telefoon,
-      first_name: naam
+      first_name: naam,
     });
 
-    // Also track CompleteRegistration for backwards compatibility
-    trackCompleteRegistration();
+    trackCompleteRegistration({
+      content_name: "Gratis Energierapport Aangevraagd",
+      value: 240,
+      currency: "EUR",
+    });
   }, [trackViewContent, trackLead, trackCompleteRegistration, telefoon, naam]);
 
   const whatsappLink = `https://wa.me/31612712804?text=Hallo, ik heb zojuist een rapport aangevraagd`;
@@ -35,47 +35,53 @@ export default function Bedankt() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center py-12 px-4">
       <div className="max-w-2xl w-full">
-        {/* Success Icon */}
         <div className="text-center mb-8">
           <div className="w-24 h-24 bg-aog-green/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-12 h-12 text-aog-green" />
           </div>
-          
+
           <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground mb-2">
             Bedankt, {naam}!
           </h1>
           <p className="text-lg text-muted-foreground">
-            Je gratis energierapport is aangevraagd.
+            Uw gratis energierapport is aangevraagd.
           </p>
         </div>
 
-        {/* Divider */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8 text-center">
+          <p className="text-sm text-blue-900">
+            <strong>Gemiddelde terugbeltijd:</strong> 47 minuten
+          </p>
+          <p className="text-sm text-blue-800 mt-2">
+            Houd uw telefoon bij de hand. We bellen u op <strong>{telefoon}</strong>.
+          </p>
+        </div>
+
         <div className="flex items-center gap-4 my-8">
           <div className="flex-1 h-px bg-border" />
           <span className="text-sm text-muted-foreground font-medium">Wat gebeurt er nu?</span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
-        {/* Steps */}
         <div className="space-y-4 mb-10">
           {[
             {
               icon: Phone,
               step: "Stap 1",
-              title: "Wij bellen je binnen 24 uur",
-              description: "Een van onze energie-experts belt je om je persoonlijke situatie te bespreken en te kijken hoeveel je kunt besparen."
+              title: "Wij bellen u gemiddeld binnen 47 minuten",
+              description: "Een adviseur kijkt direct met u naar uw situatie, zonnepanelen en mogelijke besparing."
             },
             {
               icon: FileText,
               step: "Stap 2",
-              title: "Persoonlijk rapport",
-              description: "Op basis van jouw situatie stellen wij een gratis rapport op (waarde €240)."
+              title: "U ontvangt een gratis rapport",
+              description: "We stellen een persoonlijk rapport op met advies dat past bij uw woning en verbruik."
             },
             {
               icon: Zap,
               step: "Stap 3",
-              title: "Advies op maat",
-              description: "Je ontvangt een concreet advies over thuisbatterij-opties en financiering via het Warmtefonds (0% rente)."
+              title: "U krijgt helder vervolgadvies",
+              description: "Inclusief uitleg over thuisbatterij-opties en mogelijke 0% financiering via het Warmtefonds."
             }
           ].map((item, idx) => {
             const Icon = item.icon;
@@ -97,49 +103,30 @@ export default function Bedankt() {
           })}
         </div>
 
-        {/* Info box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8">
-          <p className="text-sm text-blue-900">
-            <strong>Gemiddelde terugbeltijd:</strong> Binnen 24 uur
-          </p>
-          <p className="text-sm text-blue-800 mt-2">
-            Houd je telefoon bij de hand. We bellen je op <strong>{telefoon}</strong> om je gratis adviesrapport door te nemen.
-          </p>
-        </div>
-
-        {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <Button
             asChild
             size="lg"
             className="bg-aog-green hover:bg-aog-green-light text-white font-bold flex-1"
             onClick={() => {
-              trackContact({ method: 'whatsapp' });
+              trackContact({ method: "whatsapp", source: "thankyou" });
             }}
           >
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
               <span>💬 Liever direct contact? App ons</span>
             </a>
           </Button>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-            className="flex-1"
-          >
-            <a href="/">
-              Terug naar home
-            </a>
+          <Button asChild variant="outline" size="lg" className="flex-1">
+            <a href="/">Terug naar home</a>
           </Button>
         </div>
 
-        {/* Trust signals */}
         <div className="bg-white rounded-xl border border-border p-6 text-center">
           <p className="text-sm font-semibold text-foreground mb-4">Waarom kiezen huiseigenaren voor ons?</p>
           <div className="grid grid-cols-3 gap-4 text-center">
             {[
               { value: "€240", label: "Rapport waarde" },
-              { value: "0%", label: "Rente" },
+              { value: "0%", label: "Rente mogelijk" },
               { value: "47 min", label: "Gem. beltijd" }
             ].map((item, idx) => (
               <div key={idx}>

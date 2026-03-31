@@ -5,13 +5,12 @@ export default function Footer() {
     <footer className="bg-slate-950 text-white pt-20 pb-10 border-t border-white/5">
       <div className="container">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
-          {/* Brand */}
           <div className="space-y-6">
             <h3 className="text-2xl font-black">
               <span className="text-aog-green">AOG</span> Energie
             </h3>
             <p className="text-base text-slate-400 leading-relaxed max-w-xs">
-              Algemene Opslag Groep helpt huishoudens in heel Nederland de stap naar energieonafhankelijkheid te zetten via slimme thuisbatterijen en onafhankelijk advies.
+              Algemene Opslag Groep helpt huishoudens in heel Nederland grip te krijgen op terugleverkosten, thuisbatterijen en slim energiegebruik.
             </p>
             <div className="flex items-center gap-4 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all">
               <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
@@ -23,7 +22,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Contact */}
           <div>
             <h4 className="text-sm font-black uppercase tracking-[0.2em] text-white/40 mb-8">Contactgegevens</h4>
             <ul className="space-y-4">
@@ -52,13 +50,17 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Quick links */}
           <div>
             <h4 className="text-sm font-black uppercase tracking-[0.2em] text-white/40 mb-8">Snelle links</h4>
             <ul className="space-y-4">
               <li>
                 <a href="#calculator" className="text-base font-bold text-slate-400 hover:text-aog-green transition-colors flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4" /> Bespaarcheck
+                </a>
+              </li>
+              <li>
+                <a href="#how-it-works" className="text-base font-bold text-slate-400 hover:text-aog-green transition-colors flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" /> Werkwijze
                 </a>
               </li>
               <li>
@@ -71,50 +73,42 @@ export default function Footer() {
                   <CheckCircle2 className="w-4 h-4" /> Veelgestelde vragen
                 </a>
               </li>
-              <li>
-                <a href="#testimonials" className="text-base font-bold text-slate-400 hover:text-aog-green transition-colors flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" /> Klantervaringen
-                </a>
-              </li>
             </ul>
           </div>
 
-          {/* Trust */}
           <div>
-            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-white/40 mb-8">Onze Garanties</h4>
+            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-white/40 mb-8">Waarom nu?</h4>
             <div className="space-y-6">
               <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
                 <div className="flex items-center gap-3 mb-2">
                   <Shield className="w-5 h-5 text-aog-green" />
-                  <span className="text-sm font-black uppercase tracking-widest">Warmtefonds</span>
+                  <span className="text-sm font-black uppercase tracking-widest">Rapport</span>
                 </div>
                 <p className="text-xs text-slate-500 font-bold leading-relaxed">
-                  Officiële onafhankelijke rapporten die geaccepteerd worden voor 0% financiering.
+                  Gratis adviesrapport met concrete inschatting van terugleverkosten en mogelijke besparing.
                 </p>
               </div>
               <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
                 <div className="flex items-center gap-3 mb-2">
                   <CheckCircle2 className="w-5 h-5 text-aog-blue" />
-                  <span className="text-sm font-black uppercase tracking-widest">Gecertificeerd</span>
+                  <span className="text-sm font-black uppercase tracking-widest">Financiering</span>
                 </div>
                 <p className="text-xs text-slate-500 font-bold leading-relaxed">
-                  Alleen erkende installateurs en gecertificeerde energieadviseurs.
+                  Mogelijk in combinatie met 0% rente via het Warmtefonds, afhankelijk van uw situatie.
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
         <div className="border-t border-white/10 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
             <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">
               &copy; {new Date().getFullYear()} Algemene Opslag Groep B.V.
             </p>
             <div className="flex gap-6">
-              <a href="#" className="text-xs font-bold text-slate-600 hover:text-white transition-colors uppercase tracking-widest">Privacy</a>
-              <a href="#" className="text-xs font-bold text-slate-600 hover:text-white transition-colors uppercase tracking-widest">Disclaimer</a>
-              <a href="#" className="text-xs font-bold text-slate-600 hover:text-white transition-colors uppercase tracking-widest">Voorwaarden</a>
+              <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Privacy op aanvraag</span>
+              <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Disclaimer op aanvraag</span>
             </div>
           </div>
           <div className="flex items-center gap-3 text-slate-600">
