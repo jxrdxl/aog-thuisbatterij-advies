@@ -67,6 +67,9 @@ export default function LeadForm() {
       utmCampaign: params.get("utm_campaign") || undefined,
     };
 
+    let sheetsAccepted = false;
+    let dbAccepted = false;
+
     try {
       try {
         await fetch("https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec", {
@@ -77,12 +80,24 @@ export default function LeadForm() {
           },
           body: JSON.stringify(payload),
         });
+        sheetsAccepted = true;
       } catch (e) {
-        console.warn("Google Sheets submission failed, continuing...", e);
+        console.warn("Google Sheets submission failed", e);
       }
 
-      await leadMutation.mutateAsync(payload);
-      setLocation(`/bedankt?naam=${encodeURIComponent(payload.name)}&telefoon=${encodeURIComponent(payload.phone)}`);
+      try {
+        await leadMutation.mutateAsync(payload);
+        dbAccepted = true;
+      } catch (e) {
+        console.warn("Database/trpc submission failed, continuing with fallback", e);
+      }
+
+      if (sheetsAccepted || dbAccepted) {
+        setLocation(`/bedankt?naam=${encodeURIComponent(payload.name)}&telefoon=${encodeURIComponent(payload.phone)}`);
+        return;
+      }
+
+      setSubmitError("Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04.");
     } catch (error) {
       console.error("Lead submission failed:", error);
       setSubmitError("Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04.");
