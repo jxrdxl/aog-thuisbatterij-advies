@@ -17,7 +17,7 @@ export default function StickyCta() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[60] bg-white/97 backdrop-blur-md border-t border-slate-100 shadow-[0_-10px_30px_rgba(0,0,0,0.12)] p-3 sm:hidden animate-slide-up">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/97 backdrop-blur-md border-t border-slate-100 shadow-[0_-10px_30px_rgba(0,0,0,0.12)] p-3 sm:hidden animate-slide-up">
       <div className="flex gap-2">
         <Button
           asChild

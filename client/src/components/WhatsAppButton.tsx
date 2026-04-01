@@ -13,7 +13,7 @@ export default function WhatsAppButton() {
   };
 
   return (
-    <div className="fixed bottom-24 sm:bottom-8 right-6 z-50 group">
+    <div className="fixed bottom-32 sm:bottom-8 right-6 z-50 group">
       {/* Pulse effect */}
       <div className="absolute inset-0 bg-[#25D366] rounded-full animate-ping opacity-20 group-hover:opacity-0 transition-opacity" />
       

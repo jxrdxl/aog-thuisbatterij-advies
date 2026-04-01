@@ -95,7 +95,7 @@ export default function Home() {
         <div className="container px-4">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl sm:text-5xl font-black text-slate-900 mb-4">
-              Waarom u **nu** actie moet ondernemen
+              Waarom u <span className="text-aog-green">nu</span> actie moet ondernemen
             </h2>
             <p className="text-lg text-slate-600 font-medium">
               De energiemarkt verandert snel. Zonder actie betaalt u straks extra voor uw eigen opgewekte stroom.

@@ -159,8 +159,6 @@ export default function LeadForm() {
       case 6:
         return !!answers.futureUsage;
       case 7:
-        return !!answers.interest;
-      case 8:
         return (
           leadFields.postcode.trim().length >= 6 &&
           leadFields.firstName.trim().length >= 2 &&
@@ -168,6 +166,8 @@ export default function LeadForm() {
           leadFields.email.includes("@") &&
           leadFields.phone.replace(/\D/g, "").length >= 10
         );
+      case 8:
+        return !!answers.interest;
       default:
         return false;
     }
@@ -644,7 +644,7 @@ export default function LeadForm() {
               <button
                 type="button"
                 onClick={() => handleAutoAdvance("interest", "advies")}
-                className="w-full rounded-2xl bg-aog-green text-white py-5 text-xl font-black shadow-lg shadow-aog-green/20 hover:bg-aog-green-light transition-colors"
+                className="w-full rounded-2xl bg-aog-green text-white py-4 sm:py-5 px-4 text-lg sm:text-xl font-black shadow-lg shadow-aog-green/20 hover:bg-aog-green-light transition-colors h-auto min-h-14 sm:min-h-16 flex items-center justify-center"
               >
                 Bekijk mijn besparing
               </button>
@@ -721,9 +721,9 @@ export default function LeadForm() {
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 1 || isSubmitting}
-            className="h-12 px-4 rounded-xl text-base font-black border-slate-200 sm:h-14 sm:px-6 sm:rounded-2xl sm:text-lg"
+            className="h-12 px-4 rounded-xl text-base font-black border-slate-200 sm:h-14 sm:px-6 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-1 sm:gap-2"
           >
-            <ArrowLeft className="w-4 h-4 mr-1 sm:w-5 sm:h-5 sm:mr-2" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="hidden sm:inline">Vorige</span>
             <span className="sm:hidden">Terug</span>
           </Button>
@@ -733,21 +733,21 @@ export default function LeadForm() {
               type="button"
               onClick={nextStep}
               disabled={!canContinueStep()}
-              className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg"
+              className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-1 sm:gap-2"
             >
               <span className="hidden sm:inline">Volgende</span>
               <span className="sm:hidden">Volg</span>
-              <ArrowRight className="w-4 h-4 ml-1 sm:w-5 sm:h-5 sm:ml-2" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           ) : (
             <Button
               type="button"
               onClick={handleSubmit}
               disabled={!canContinueStep() || isSubmitting}
-              className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg"
+              className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-2"
             >
               {isSubmitting ? "Verzenden..." : "Verzenden"}
-              <ArrowRight className="w-4 h-4 ml-1 sm:w-5 sm:h-5 sm:ml-2" />
+              {!isSubmitting && <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}
             </Button>
           )}
         </div>
