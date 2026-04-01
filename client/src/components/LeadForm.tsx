@@ -31,7 +31,6 @@ type QuizAnswers = {
   feedIn: string;
   usageMoment: string;
   futureUsage: string;
-  interest: string;
 };
 
 type LeadFields = {
@@ -42,17 +41,16 @@ type LeadFields = {
   phone: string;
 };
 
-const totalSteps = 9;
+const totalSteps = 8;
 
 const optionBase =
-  "w-full text-left rounded-2xl border-2 px-4 py-4 transition-all duration-200 bg-white hover:shadow-md";
+  "w-full text-left rounded-2xl border px-3.5 py-3.5 transition-all duration-200 bg-white";
 const optionIdle = "border-slate-200 hover:border-aog-green/50";
 const optionActive = "border-aog-green bg-aog-green/5 shadow-sm";
 
 export default function LeadForm() {
   const [, setLocation] = useLocation();
   const { trackInitiateCheckout } = useTracking();
-
   const leadMutation = trpc.leads.submit.useMutation();
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -67,7 +65,6 @@ export default function LeadForm() {
     feedIn: "",
     usageMoment: "",
     futureUsage: "",
-    interest: "",
   });
 
   const [leadFields, setLeadFields] = useState<LeadFields>({
@@ -95,7 +92,7 @@ export default function LeadForm() {
         title: "Uw situatie lijkt geschikt voor een persoonlijke bespaaranalyse",
         range: "€530 – €950",
         description:
-          "Op basis van uw antwoorden lijkt het zinvol om te laten berekenen hoeveel terugleververlies mogelijk speelt en of een thuisbatterij in uw situatie interessant kan zijn.",
+          "Op basis van uw antwoorden lijkt het zinvol om te berekenen hoeveel terugleververlies mogelijk speelt en of een thuisbatterij in uw situatie interessant kan zijn.",
       };
     }
 
@@ -104,7 +101,7 @@ export default function LeadForm() {
       title: "Een persoonlijke check is in uw situatie zinvol",
       range: "€250 – €650",
       description:
-        "Uw situatie vraagt om een persoonlijke berekening. Voor sommige huishoudens is een thuisbatterij interessant, voor andere niet. Daarom kijken we eerst naar uw woning, verbruik en teruglevering.",
+        "Uw situatie vraagt om een persoonlijke berekening. Voor sommige huishoudens is een thuisbatterij interessant, voor andere niet.",
     };
   }, [answers]);
 
@@ -133,47 +130,44 @@ export default function LeadForm() {
   };
 
   const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep((s) => s + 1);
-    }
+    if (currentStep < totalSteps) setCurrentStep((s) => s + 1);
   };
 
   const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep((s) => s - 1);
-    }
+    if (currentStep > 1) setCurrentStep((s) => s - 1);
   };
 
-const canContinueStep = () => {
-  switch (currentStep) {
-    case 1:
-      return !!answers.homeType;
-    case 2:
-      return !!answers.hasPanels;
-    case 3:
-      return !!answers.panelCount;
-    case 4:
-      return !!answers.feedIn;
-    case 5:
-      return !!answers.usageMoment;
-    case 6:
-      return !!answers.futureUsage;
-    case 7:
-      return (
-        leadFields.postcode.trim().length >= 6 &&
-        leadFields.firstName.trim().length >= 2 &&
-        leadFields.lastName.trim().length >= 2 &&
-        leadFields.email.includes("@") &&
-        leadFields.phone.replace(/\D/g, "").length >= 10
-      );
-    case 8:
-      return !!answers.interest;
-    case 9:
-      return true;
-    default:
-      return false;
-  }
-};
+  const isValidEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  const canContinueStep = () => {
+    switch (currentStep) {
+      case 1:
+        return !!answers.homeType;
+      case 2:
+        return !!answers.hasPanels;
+      case 3:
+        return !!answers.panelCount;
+      case 4:
+        return !!answers.feedIn;
+      case 5:
+        return !!answers.usageMoment;
+      case 6:
+        return !!answers.futureUsage;
+      case 7:
+        return (
+          leadFields.postcode.trim().length >= 6 &&
+          leadFields.firstName.trim().length >= 2 &&
+          leadFields.lastName.trim().length >= 2 &&
+          isValidEmail(leadFields.email) &&
+          leadFields.phone.replace(/\D/g, "").length >= 10
+        );
+      case 8:
+        return true;
+      default:
+        return false;
+    }
+  };
 
   const handleAutoAdvance = (key: keyof QuizAnswers, value: string) => {
     updateAnswer(key, value);
@@ -184,108 +178,81 @@ const canContinueStep = () => {
     ) {
       setTimeout(() => {
         setLocation("/bedankt?naam=bezoeker&telefoon=");
-      }, 250);
+      }, 220);
       return;
     }
 
-    setTimeout(() => nextStep(), 180);
+    setTimeout(() => nextStep(), 140);
   };
 
-const handleSubmit = async () => {
-  if (!canContinueStep() || isSubmitting) return;
+  const handleSubmit = async () => {
+    if (!canContinueStep() || isSubmitting) return;
 
-  setIsSubmitting(true);
-  setSubmitError("");
+    setIsSubmitting(true);
+    setSubmitError("");
 
-  const params = new URLSearchParams(window.location.search);
-  const fullName = `${leadFields.firstName} ${leadFields.lastName}`.trim();
+    const params = new URLSearchParams(window.location.search);
+    const fullName = `${leadFields.firstName} ${leadFields.lastName}`.trim();
 
-  const payload = {
-    name: fullName,
-    phone: leadFields.phone.trim(),
-    email: leadFields.email.trim(),
-    postalCode: leadFields.postcode.trim(),
-    solarPanelCount: answers.panelCount || "unknown",
-    homeOwner: answers.homeType === "koopwoning",
-    source: "website-quiz-funnel-v3",
-    utmSource: params.get("utm_source") || undefined,
-    utmMedium: params.get("utm_medium") || undefined,
-    utmCampaign: params.get("utm_campaign") || undefined,
-  };
+    const payload = {
+      name: fullName,
+      phone: leadFields.phone.trim(),
+      email: leadFields.email.trim(),
+      postalCode: leadFields.postcode.trim(),
+      solarPanelCount: answers.panelCount || "unknown",
+      homeOwner: answers.homeType === "koopwoning",
+      source: "website-quiz-funnel-v3",
+      utmSource: params.get("utm_source") || undefined,
+      utmMedium: params.get("utm_medium") || undefined,
+      utmCampaign: params.get("utm_campaign") || undefined,
+    };
 
-  const sheetPayload = {
-    ...payload,
-    usageMoment: answers.usageMoment || "",
-    feedIn: answers.feedIn || "",
-    futureUsage: answers.futureUsage || "",
-    interest: answers.interest || "",
-  };
+    const sheetPayload = {
+      ...payload,
+      usageMoment: answers.usageMoment || "",
+      feedIn: answers.feedIn || "",
+      futureUsage: answers.futureUsage || "",
+    };
 
-  let sheetsAccepted = false;
-  let dbAccepted = false;
-
-  try {
-    // 1. Push naar Google Sheets
-    try {
-      await fetch(
-        "https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec",
-        {
-          method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type": "text/plain;charset=utf-8",
-          },
-          body: JSON.stringify(sheetPayload),
-        }
-      );
-      sheetsAccepted = true;
-    } catch (e) {
-      console.error("Google Sheets submission failed", e);
-    }
-
-    // 2. Push naar backend / trpc
-    try {
-      await leadMutation.mutateAsync(payload);
-      dbAccepted = true;
-    } catch (e) {
-      console.error("Database/trpc submission failed", e);
-    }
-
-    // 3. Alleen doorgaan als minstens 1 van beide is gelukt
-    if (sheetsAccepted || dbAccepted) {
-      setLocation(
-        `/bedankt?naam=${encodeURIComponent(
-          leadFields.firstName
-        )}&telefoon=${encodeURIComponent(leadFields.phone)}`
-      );
-      return;
-    }
-
-    setSubmitError(
-      "Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04."
-    );
-  } catch (error) {
-    console.error("Lead submission failed:", error);
-    setSubmitError(
-      "Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04."
-    );
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    let sheetsAccepted = false;
+    let dbAccepted = false;
 
     try {
       try {
-        await leadMutation.mutateAsync(payload);
+        await fetch(
+          "https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec",
+          {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+              "Content-Type": "text/plain;charset=utf-8",
+            },
+            body: JSON.stringify(sheetPayload),
+          }
+        );
+        sheetsAccepted = true;
       } catch (e) {
-        console.error("Database/trpc submission failed", e);
-        throw e;
+        console.error("Google Sheets submission failed", e);
       }
 
-      setLocation(
-        `/bedankt?naam=${encodeURIComponent(
-          leadFields.firstName
-        )}&telefoon=${encodeURIComponent(leadFields.phone)}`
+      try {
+        await leadMutation.mutateAsync(payload);
+        dbAccepted = true;
+      } catch (e) {
+        console.error("Database/trpc submission failed", e);
+      }
+
+      if (sheetsAccepted || dbAccepted) {
+        setLocation(
+          `/bedankt?naam=${encodeURIComponent(
+            leadFields.firstName
+          )}&telefoon=${encodeURIComponent(leadFields.phone)}`
+        );
+        return;
+      }
+
+      setSubmitError(
+        "Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04."
       );
     } catch (error) {
       console.error("Lead submission failed:", error);
@@ -302,14 +269,14 @@ const handleSubmit = async () => {
       case 1:
         return (
           <>
-            <h3 className="text-3xl font-black text-slate-900 mb-3">
+            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
               Woont u in een koopwoning?
             </h3>
-            <p className="text-slate-500 text-lg mb-6">
+            <p className="text-slate-500 text-base sm:text-lg mb-5">
               Deze check is bedoeld voor particuliere koopwoningen.
             </p>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {[
                 { value: "koopwoning", label: "Ja, koopwoning", icon: Home },
                 { value: "huurwoning", label: "Nee, huurwoning", icon: Home },
@@ -323,13 +290,13 @@ const handleSubmit = async () => {
                     onClick={() => handleAutoAdvance("homeType", item.value)}
                     className={`${optionBase} ${active ? optionActive : optionIdle}`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                        <Icon className="w-6 h-6 text-slate-700" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-slate-700" />
                       </div>
-                      <div>
-                        <p className="font-black text-lg text-slate-900">{item.label}</p>
-                      </div>
+                      <p className="font-black text-base sm:text-lg text-slate-900">
+                        {item.label}
+                      </p>
                     </div>
                   </button>
                 );
@@ -341,14 +308,14 @@ const handleSubmit = async () => {
       case 2:
         return (
           <>
-            <h3 className="text-3xl font-black text-slate-900 mb-3">
+            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
               Heeft u zonnepanelen?
             </h3>
-            <p className="text-slate-500 text-lg mb-6">
+            <p className="text-slate-500 text-base sm:text-lg mb-5">
               We richten deze check op woningen die al zonnestroom opwekken.
             </p>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {[
                 { value: "ja", label: "Ja", icon: Sun },
                 { value: "nee", label: "Nee", icon: Sun },
@@ -362,13 +329,13 @@ const handleSubmit = async () => {
                     onClick={() => handleAutoAdvance("hasPanels", item.value)}
                     className={`${optionBase} ${active ? optionActive : optionIdle}`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                        <Icon className="w-6 h-6 text-aog-green" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-aog-green" />
                       </div>
-                      <div>
-                        <p className="font-black text-lg text-slate-900">{item.label}</p>
-                      </div>
+                      <p className="font-black text-base sm:text-lg text-slate-900">
+                        {item.label}
+                      </p>
                     </div>
                   </button>
                 );
@@ -380,14 +347,14 @@ const handleSubmit = async () => {
       case 3:
         return (
           <>
-            <h3 className="text-3xl font-black text-slate-900 mb-3">
+            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
               Hoeveel zonnepanelen heeft u ongeveer?
             </h3>
-            <p className="text-slate-500 text-lg mb-6">
+            <p className="text-slate-500 text-base sm:text-lg mb-5">
               Een grove indicatie is genoeg.
             </p>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {["6-10", "11-15", "16-20", "20+"].map((value) => {
                 const active = answers.panelCount === value;
                 return (
@@ -397,13 +364,13 @@ const handleSubmit = async () => {
                     onClick={() => handleAutoAdvance("panelCount", value)}
                     className={`${optionBase} ${active ? optionActive : optionIdle}`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                        <Sun className="w-6 h-6 text-aog-orange" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <Sun className="w-5 h-5 text-aog-orange" />
                       </div>
-                      <div>
-                        <p className="font-black text-lg text-slate-900">{value}</p>
-                      </div>
+                      <p className="font-black text-base sm:text-lg text-slate-900">
+                        {value}
+                      </p>
                     </div>
                   </button>
                 );
@@ -415,14 +382,14 @@ const handleSubmit = async () => {
       case 4:
         return (
           <>
-            <h3 className="text-3xl font-black text-slate-900 mb-3">
+            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
               Levert u regelmatig stroom terug?
             </h3>
-            <p className="text-slate-500 text-lg mb-6">
+            <p className="text-slate-500 text-base sm:text-lg mb-5">
               Dit helpt bepalen of terugleververlies een rol speelt.
             </p>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {[
                 { value: "regelmatig", label: "Ja, regelmatig", icon: BatteryCharging },
                 { value: "soms", label: "Soms", icon: Gauge },
@@ -437,13 +404,13 @@ const handleSubmit = async () => {
                     onClick={() => handleAutoAdvance("feedIn", item.value)}
                     className={`${optionBase} ${active ? optionActive : optionIdle}`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                        <Icon className="w-6 h-6 text-slate-700" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-slate-700" />
                       </div>
-                      <div>
-                        <p className="font-black text-lg text-slate-900">{item.label}</p>
-                      </div>
+                      <p className="font-black text-base sm:text-lg text-slate-900">
+                        {item.label}
+                      </p>
                     </div>
                   </button>
                 );
@@ -455,14 +422,14 @@ const handleSubmit = async () => {
       case 5:
         return (
           <>
-            <h3 className="text-3xl font-black text-slate-900 mb-3">
+            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
               Wanneer gebruikt u de meeste stroom?
             </h3>
-            <p className="text-slate-500 text-lg mb-6">
+            <p className="text-slate-500 text-base sm:text-lg mb-5">
               Dit bepaalt hoeveel zonnestroom u direct zelf gebruikt.
             </p>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {[
                 {
                   value: "overdag",
@@ -498,25 +465,27 @@ const handleSubmit = async () => {
                     onClick={() => handleAutoAdvance("usageMoment", item.value)}
                     className={`${optionBase} ${active ? optionActive : optionIdle}`}
                   >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                          <Icon className="w-6 h-6 text-slate-700" />
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                          <Icon className="w-5 h-5 text-slate-700" />
                         </div>
                         <div>
-                          <p className="font-black text-lg text-slate-900">{item.label}</p>
+                          <p className="font-black text-base sm:text-lg text-slate-900">
+                            {item.label}
+                          </p>
                           <p className="text-sm text-slate-500">{item.sub}</p>
                         </div>
                       </div>
-                      {active ? <CheckCircle className="w-6 h-6 text-aog-green" /> : null}
+                      {active ? <CheckCircle className="w-5 h-5 text-aog-green" /> : null}
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            <div className="mt-5 rounded-2xl bg-blue-50 border border-blue-100 p-4 text-blue-800 text-sm leading-relaxed">
-              <strong>Tip:</strong> Gebruikt u de meeste stroom ’s avonds? Dan kan een thuisbatterij extra interessant zijn, omdat u overdag zonnestroom opslaat en later gebruikt.
+            <div className="mt-4 rounded-2xl bg-blue-50 border border-blue-100 p-3.5 text-blue-800 text-sm leading-relaxed">
+              <strong>Tip:</strong> Gebruikt u de meeste stroom ’s avonds? Dan kan een thuisbatterij extra interessant zijn.
             </div>
           </>
         );
@@ -524,14 +493,14 @@ const handleSubmit = async () => {
       case 6:
         return (
           <>
-            <h3 className="text-3xl font-black text-slate-900 mb-3">
+            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
               Verwacht u meer stroom te gaan gebruiken?
             </h3>
-            <p className="text-slate-500 text-lg mb-6">
+            <p className="text-slate-500 text-base sm:text-lg mb-5">
               Denk aan een laadpaal, airco of warmtepomp.
             </p>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {[
                 { value: "laadpaal", label: "Elektrische auto / laadpaal", icon: Car },
                 { value: "warmtepomp", label: "Airco / warmtepomp", icon: Zap },
@@ -547,13 +516,13 @@ const handleSubmit = async () => {
                     onClick={() => handleAutoAdvance("futureUsage", item.value)}
                     className={`${optionBase} ${active ? optionActive : optionIdle}`}
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                        <Icon className="w-6 h-6 text-slate-700" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-slate-700" />
                       </div>
-                      <div>
-                        <p className="font-black text-lg text-slate-900">{item.label}</p>
-                      </div>
+                      <p className="font-black text-base sm:text-lg text-slate-900">
+                        {item.label}
+                      </p>
                     </div>
                   </button>
                 );
@@ -565,18 +534,24 @@ const handleSubmit = async () => {
       case 7:
         return (
           <>
-            <div className="rounded-[28px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-6 py-8 mb-6">
-              <p className="text-4xl mb-3">📋</p>
-              <h3 className="text-3xl font-black mb-3">Uw gegevens</h3>
-              <p className="text-white/80 text-lg">Vul uw contactgegevens in</p>
+            <div className="rounded-[24px] border border-aog-green bg-aog-green/5 px-5 py-5 mb-5 text-center">
+              <p className="text-3xl mb-2">📋</p>
+              <h3 className="text-2xl sm:text-3xl font-black text-aog-green mb-2">
+                Vul uw gegevens in
+              </h3>
+              <p className="text-slate-600 text-base sm:text-lg">
+                Daarna ziet u direct uw indicatieve besparing.
+              </p>
             </div>
 
-            <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-              <h3 className="text-4xl font-black text-slate-900 mb-6">Jouw gegevens</h3>
+            <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+              <h3 className="text-[2rem] sm:text-4xl font-black text-slate-900 mb-5">
+                Uw gegevens
+              </h3>
 
-              <div className="space-y-5">
+              <div className="space-y-4">
                 <div>
-                  <Label className="text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
+                  <Label className="text-sm sm:text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-aog-green" />
                     Postcode *
                   </Label>
@@ -584,38 +559,38 @@ const handleSubmit = async () => {
                     placeholder="1234 AB"
                     value={leadFields.postcode}
                     onChange={(e) => updateLeadField("postcode", e.target.value)}
-                    className="h-14 rounded-2xl border-slate-200 text-lg"
+                    className="h-12 sm:h-14 rounded-2xl border-slate-200 text-base sm:text-lg"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
+                    <Label className="text-sm sm:text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
                       <User className="w-4 h-4 text-aog-blue" />
                       Voornaam *
                     </Label>
                     <Input
-                      placeholder="Je voornaam"
+                      placeholder="Uw voornaam"
                       value={leadFields.firstName}
                       onChange={(e) => updateLeadField("firstName", e.target.value)}
-                      className="h-14 rounded-2xl border-slate-200 text-lg"
+                      className="h-12 sm:h-14 rounded-2xl border-slate-200 text-base sm:text-lg"
                     />
                   </div>
                   <div>
-                    <Label className="text-base font-black text-slate-900 mb-2 block">
+                    <Label className="text-sm sm:text-base font-black text-slate-900 mb-2 block">
                       Achternaam *
                     </Label>
                     <Input
-                      placeholder="Je achternaam"
+                      placeholder="Uw achternaam"
                       value={leadFields.lastName}
                       onChange={(e) => updateLeadField("lastName", e.target.value)}
-                      className="h-14 rounded-2xl border-slate-200 text-lg"
+                      className="h-12 sm:h-14 rounded-2xl border-slate-200 text-base sm:text-lg"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
+                  <Label className="text-sm sm:text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
                     <Mail className="w-4 h-4 text-aog-blue" />
                     E-mailadres *
                   </Label>
@@ -624,12 +599,12 @@ const handleSubmit = async () => {
                     type="email"
                     value={leadFields.email}
                     onChange={(e) => updateLeadField("email", e.target.value)}
-                    className="h-14 rounded-2xl border-slate-200 text-lg"
+                    className="h-12 sm:h-14 rounded-2xl border-slate-200 text-base sm:text-lg"
                   />
                 </div>
 
                 <div>
-                  <Label className="text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
+                  <Label className="text-sm sm:text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
                     <Phone className="w-4 h-4 text-aog-green" />
                     Telefoonnummer *
                   </Label>
@@ -638,13 +613,19 @@ const handleSubmit = async () => {
                     type="tel"
                     value={leadFields.phone}
                     onChange={(e) => updateLeadField("phone", e.target.value)}
-                    className="h-14 rounded-2xl border-slate-200 text-lg"
+                    className="h-12 sm:h-14 rounded-2xl border-slate-200 text-base sm:text-lg"
                   />
                 </div>
 
-                <div className="rounded-2xl bg-slate-50 p-4 text-slate-500 italic text-lg leading-relaxed">
+                <div className="rounded-2xl bg-slate-50 p-4 text-slate-500 italic text-base leading-relaxed">
                   Uw contactgegevens worden alleen gebruikt voor maatwerkadvies. De gegevens worden niet doorverkocht.
                 </div>
+
+                {submitError ? (
+                  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                    {submitError}
+                  </div>
+                ) : null}
               </div>
             </div>
           </>
@@ -653,103 +634,53 @@ const handleSubmit = async () => {
       case 8:
         return (
           <>
-            <div className="rounded-[28px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-6 py-8 mb-6">
-              <p className="text-4xl mb-3">🎉</p>
-              <h3 className="text-3xl font-black mb-3">Uw bespaarresultaat</h3>
-              <p className="text-white/80 text-lg">Op basis van uw antwoorden</p>
+            <div className="rounded-[24px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-5 py-6 mb-5">
+              <p className="text-3xl mb-2">🎉</p>
+              <h3 className="text-3xl font-black mb-2">Uw bespaarresultaat</h3>
+              <p className="text-white/80 text-base">Op basis van uw antwoorden</p>
             </div>
 
-            <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="inline-flex items-center rounded-full border border-aog-green/70 bg-aog-green/10 px-4 py-2 text-aog-green font-bold text-sm mb-5">
+            <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="inline-flex items-center rounded-full border border-aog-green/70 bg-aog-green/10 px-3 py-1.5 text-aog-green font-bold text-xs mb-4">
                 ⭐ {resultMeta.badge}
               </div>
 
-              <h4 className="text-4xl font-black text-slate-900 leading-tight mb-4">
+              <h4 className="text-[2rem] sm:text-4xl font-black text-slate-900 leading-tight mb-3">
                 {resultMeta.title}
               </h4>
 
-              <p className="text-slate-500 text-lg leading-relaxed mb-6">
+              <p className="text-slate-500 text-base sm:text-lg leading-relaxed mb-5">
                 {resultMeta.description}
               </p>
 
-              <div className="rounded-[24px] border-2 border-aog-green bg-aog-green/5 p-6 mb-6 text-center">
-                <p className="text-aog-green font-bold text-xl mb-2">
+              <div className="rounded-[22px] border-2 border-aog-green bg-aog-green/5 p-5 mb-5 text-center">
+                <p className="text-aog-green font-bold text-lg mb-1">
                   Geschat besparingspotentieel
                 </p>
-                <p className="text-5xl sm:text-6xl font-black text-aog-green mb-1">
+                <p className="text-4xl sm:text-5xl font-black text-aog-green mb-1">
                   {resultMeta.range}
                 </p>
-                <p className="text-slate-500 text-lg">per jaar</p>
+                <p className="text-slate-500 text-base">per jaar</p>
               </div>
 
               <div>
-                <h5 className="text-2xl font-black text-slate-900 mb-4">
+                <h5 className="text-xl sm:text-2xl font-black text-slate-900 mb-3">
                   Onze aanbevelingen:
                 </h5>
-                <ul className="space-y-4 text-slate-600 text-lg">
+                <ul className="space-y-3 text-slate-600 text-base sm:text-lg">
                   <li className="flex items-start gap-3">
-                    <CheckCircle className="w-6 h-6 text-aog-green mt-0.5 flex-shrink-0" />
-                    <span>Plan een gratis adviesgesprek voor een persoonlijke berekening</span>
+                    <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
+                    <span>Laat berekenen wat terugleveren u nu kost</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <CheckCircle className="w-6 h-6 text-aog-green mt-0.5 flex-shrink-0" />
-                    <span>Bekijk hoe u uw zelfverbruik kunt maximaliseren</span>
+                    <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
+                    <span>Ontdek of een thuisbatterij in uw situatie zinvol is</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <CheckCircle className="w-6 h-6 text-aog-green mt-0.5 flex-shrink-0" />
-                    <span>Informeer naar slimme laad- of batterijopties voor uw woning</span>
+                    <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
+                    <span>Krijg inzicht in uw mogelijke besparing</span>
                   </li>
                 </ul>
-              </div>
-            </div>
-
-            <div className="mt-6 rounded-[28px] border-2 border-aog-green bg-white p-6 shadow-sm">
-              <button
-                type="button"
-                onClick={() => handleAutoAdvance("interest", "advies")}
-                className="w-full rounded-2xl bg-aog-green text-white py-4 sm:py-5 px-4 text-lg sm:text-xl font-black shadow-lg shadow-aog-green/20 hover:bg-aog-green-light transition-colors h-auto min-h-14 sm:min-h-16 flex items-center justify-center"
-              >
-                Bekijk mijn besparing
-              </button>
-
-              <div className="flex justify-center gap-8 text-sm text-slate-500 mt-5 pt-5 border-t border-slate-200">
-                <span>100% vrijblijvend</span>
-                <span>Gratis advies</span>
-              </div>
-            </div>
-          </>
-        );
-
-      case 9:
-        return (
-          <>
-            <div className="rounded-[28px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-6 py-8 mb-6">
-              <p className="text-4xl mb-3">✅</p>
-              <h3 className="text-3xl font-black mb-3">Bedankt!</h3>
-              <p className="text-white/80 text-lg">Uw aanvraag is ontvangen</p>
-            </div>
-
-            <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-              <h4 className="text-3xl font-black text-slate-900 text-center mb-3">
-                Uw bespaaranalyse is onderweg
-              </h4>
-              <p className="text-slate-500 text-center text-lg mb-6">
-                We nemen zo snel mogelijk contact met u op voor een persoonlijk adviesgesprek.
-              </p>
-
-              <div className="space-y-3 text-slate-600 text-lg pt-2">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
-                  <span>Persoonlijke bespaaranalyse op maat</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
-                  <span>Onafhankelijk en vrijblijvend advies</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
-                  <span>Terugkoppeling op basis van uw situatie</span>
-                </div>
               </div>
             </div>
           </>
