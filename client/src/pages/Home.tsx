@@ -95,27 +95,27 @@ export default function Home() {
         <div className="container px-4">
           <div className="max-w-4xl mx-auto text-center mb-12">
             <h2 className="text-3xl sm:text-5xl font-black text-slate-900 mb-4">
-              Waarom deze check juist nu relevant is
+              Waarom u **nu** actie moet ondernemen
             </h2>
             <p className="text-lg text-slate-600 font-medium">
-              De markt verandert. Niet omdat zonnepanelen ineens slecht zijn, maar omdat teruglevering minder waardevol wordt.
+              De energiemarkt verandert snel. Zonder actie betaalt u straks extra voor uw eigen opgewekte stroom.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {[
               {
-                title: "Terugleverkosten drukken op rendement",
-                text: "Veel huishoudens merken dat terugleveren minder aantrekkelijk wordt dan voorheen.",
-              },
-              {
-                title: "2027 verandert het speelveld",
-                text: "Het afbouwen van salderen maakt slim omgaan met eigen opwek steeds belangrijker.",
-              },
-              {
-                title: "Niet elke woning is hetzelfde",
-                text: "Uw panelen, verbruik en toekomstplannen bepalen of een thuisbatterij echt interessant is.",
-              },
+                  title: "Stijgende terugleverkosten",
+                  text: "Energieleveranciers rekenen steeds hogere kosten voor het terugleveren van stroom. Uw rendement daalt.",
+                },
+                {
+                  title: "Einde salderingsregeling 2027",
+                  text: "Vanaf 1 januari 2027 kunt u opgewekte stroom niet meer wegstrepen tegen uw verbruik. U betaalt dan voor uw eigen stroom.",
+                },
+                {
+                  title: "Voorkom waardeverlies van uw zonnepanelen",
+                  text: "Zonder thuisbatterij verliest uw investering in zonnepanelen aanzienlijk aan waarde na 2027.",
+                },
             ].map((item) => (
               <div
                 key={item.title}
@@ -135,13 +135,13 @@ export default function Home() {
             <div className="grid lg:grid-cols-2 gap-8 items-center">
               <div>
                 <p className="text-aog-green font-black uppercase tracking-wider text-sm mb-3">
-                  Slimmer positioneren
+                  De oplossing voor uw zonnepanelen
                 </p>
                 <h2 className="text-3xl sm:text-5xl font-black mb-4">
-                  Niet harder verkopen. Wel slimmer.
+                  Voorkom onnodige kosten en maximaliseer uw rendement.
                 </h2>
                 <p className="text-white/80 text-lg leading-relaxed">
-                  Deze funnel is bewust gebouwd als bespaarcheck in plaats van een harde productpitch. Daardoor voelt het veiliger, duidelijker en minder pushy voor mensen die geïnteresseerd zijn, maar nog niet overtuigd.
+                  Onze bespaarcheck helpt u inzicht te krijgen in de impact van de nieuwe energieregels en toont hoe een thuisbatterij uw zonnepanelen weer rendabel maakt.
                 </p>
               </div>
 
