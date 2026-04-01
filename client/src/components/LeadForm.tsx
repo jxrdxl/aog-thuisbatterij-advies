@@ -189,27 +189,88 @@ export default function LeadForm() {
     setTimeout(() => nextStep(), 180);
   };
 
-  const handleSubmit = async () => {
-    if (!canContinueStep() || isSubmitting) return;
+const handleSubmit = async () => {
+  if (!canContinueStep() || isSubmitting) return;
 
-    setIsSubmitting(true);
-    setSubmitError("");
+  setIsSubmitting(true);
+  setSubmitError("");
 
-    const params = new URLSearchParams(window.location.search);
-    const fullName = `${leadFields.firstName} ${leadFields.lastName}`.trim();
+  const params = new URLSearchParams(window.location.search);
+  const fullName = `${leadFields.firstName} ${leadFields.lastName}`.trim();
 
-    const payload = {
-      name: fullName,
-      phone: leadFields.phone.trim(),
-      email: leadFields.email.trim(),
-      postalCode: leadFields.postcode.trim(),
-      solarPanelCount: answers.panelCount || "unknown",
-      homeOwner: answers.homeType === "koopwoning",
-      source: "website-quiz-funnel-v3",
-      utmSource: params.get("utm_source") || undefined,
-      utmMedium: params.get("utm_medium") || undefined,
-      utmCampaign: params.get("utm_campaign") || undefined,
-    };
+  const payload = {
+    name: fullName,
+    phone: leadFields.phone.trim(),
+    email: leadFields.email.trim(),
+    postalCode: leadFields.postcode.trim(),
+    solarPanelCount: answers.panelCount || "unknown",
+    homeOwner: answers.homeType === "koopwoning",
+    source: "website-quiz-funnel-v3",
+    utmSource: params.get("utm_source") || undefined,
+    utmMedium: params.get("utm_medium") || undefined,
+    utmCampaign: params.get("utm_campaign") || undefined,
+  };
+
+  const sheetPayload = {
+    ...payload,
+    usageMoment: answers.usageMoment || "",
+    feedIn: answers.feedIn || "",
+    futureUsage: answers.futureUsage || "",
+    interest: answers.interest || "",
+  };
+
+  let sheetsAccepted = false;
+  let dbAccepted = false;
+
+  try {
+    // 1. Push naar Google Sheets
+    try {
+      await fetch(
+        "https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec",
+        {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8",
+          },
+          body: JSON.stringify(sheetPayload),
+        }
+      );
+      sheetsAccepted = true;
+    } catch (e) {
+      console.error("Google Sheets submission failed", e);
+    }
+
+    // 2. Push naar backend / trpc
+    try {
+      await leadMutation.mutateAsync(payload);
+      dbAccepted = true;
+    } catch (e) {
+      console.error("Database/trpc submission failed", e);
+    }
+
+    // 3. Alleen doorgaan als minstens 1 van beide is gelukt
+    if (sheetsAccepted || dbAccepted) {
+      setLocation(
+        `/bedankt?naam=${encodeURIComponent(
+          leadFields.firstName
+        )}&telefoon=${encodeURIComponent(leadFields.phone)}`
+      );
+      return;
+    }
+
+    setSubmitError(
+      "Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04."
+    );
+  } catch (error) {
+    console.error("Lead submission failed:", error);
+    setSubmitError(
+      "Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04."
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
     try {
       try {
