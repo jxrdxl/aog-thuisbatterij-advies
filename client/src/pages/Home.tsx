@@ -35,12 +35,12 @@ export default function Home() {
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-[1.04] mb-6">
-                Ontdek of een thuisbatterij{" "}
-                <span className="text-aog-green">rendabel</span> is voor jouw situatie
+                Uw zonnepanelen leveren straks{" "}
+                <span className="text-aog-orange">minder op</span>
               </h1>
 
               <p className="text-lg sm:text-xl text-white/85 leading-relaxed mb-8 max-w-2xl">
-                Beantwoord een paar korte vragen en krijg direct inzicht in jouw besparingspotentieel. Persoonlijk advies, zonder verplichtingen.
+                Einde saldering in 2027. Terugleverkosten stijgen. Ontdek wat dit voor u betekent en of een thuisbatterij interessant is.
               </p>
 
               <div className="flex flex-wrap gap-4 text-white/90 text-base font-bold mb-8">
@@ -62,7 +62,7 @@ export default function Home() {
                 onClick={scrollToForm}
                 className="inline-flex items-center justify-center rounded-full bg-aog-green hover:bg-aog-green-light text-white font-black text-2xl px-10 py-5 shadow-[0_18px_60px_rgba(34,197,94,0.35)] transition-all"
               >
-                Start de bespaarcheck
+                Start de bespaarcheck (2 min)
               </button>
 
               <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl">

@@ -13,22 +13,13 @@ export default function Bedankt() {
   const telefoon = params.get("telefoon") || "";
 
   useEffect(() => {
-    trackViewContent({
-      content_name: "Bedankpagina",
-      content_category: "Thuisbatterij Advies",
-    });
-
-    trackLead({
-      phone_number: telefoon,
-      first_name: naam,
-    });
-
+    // Only fire CompleteRegistration on thank-you page (conversion event)
     trackCompleteRegistration({
       content_name: "Bespaarcheck Aangevraagd",
       value: 240,
       currency: "EUR",
     });
-  }, [trackViewContent, trackLead, trackCompleteRegistration, telefoon, naam]);
+  }, [trackCompleteRegistration]);
 
   const whatsappLink = `https://wa.me/31612712804?text=Hallo, ik heb zojuist de bespaarcheck gedaan`;
 
@@ -118,9 +109,6 @@ export default function Bedankt() {
               asChild
               size="lg"
               className="bg-aog-green hover:bg-aog-green-light text-white font-bold flex-1"
-              onClick={() => {
-                trackContact({ method: "whatsapp", source: "thankyou" });
-              }}
             >
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                 <span>💬 Liever direct contact? App ons</span>

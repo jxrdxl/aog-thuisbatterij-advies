@@ -42,7 +42,7 @@ type LeadFields = {
   phone: string;
 };
 
-const totalSteps = 8;
+const totalSteps = 9;
 
 const optionBase =
   "w-full text-left rounded-2xl border-2 px-4 py-4 transition-all duration-200 bg-white hover:shadow-md";
@@ -211,51 +211,18 @@ export default function LeadForm() {
       utmCampaign: params.get("utm_campaign") || undefined,
     };
 
-    let sheetsAccepted = false;
-    let dbAccepted = false;
-
     try {
       try {
-        await fetch(
-          "https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec",
-          {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-              "Content-Type": "text/plain",
-            },
-            body: JSON.stringify({
-              ...payload,
-              usageMoment: answers.usageMoment,
-              feedIn: answers.feedIn,
-              futureUsage: answers.futureUsage,
-              interest: answers.interest,
-            }),
-          }
-        );
-        sheetsAccepted = true;
-      } catch (e) {
-        console.warn("Google Sheets submission failed", e);
-      }
-
-      try {
         await leadMutation.mutateAsync(payload);
-        dbAccepted = true;
       } catch (e) {
-        console.warn("Database/trpc submission failed", e);
+        console.error("Database/trpc submission failed", e);
+        throw e;
       }
 
-      if (sheetsAccepted || dbAccepted) {
-        setLocation(
-          `/bedankt?naam=${encodeURIComponent(
-            leadFields.firstName
-          )}&telefoon=${encodeURIComponent(leadFields.phone)}`
-        );
-        return;
-      }
-
-      setSubmitError(
-        "Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04."
+      setLocation(
+        `/bedankt?naam=${encodeURIComponent(
+          leadFields.firstName
+        )}&telefoon=${encodeURIComponent(leadFields.phone)}`
       );
     } catch (error) {
       console.error("Lead submission failed:", error);
@@ -536,97 +503,9 @@ export default function LeadForm() {
         return (
           <>
             <div className="rounded-[28px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-6 py-8 mb-6">
-              <p className="text-4xl mb-3">🎉</p>
-              <h3 className="text-3xl font-black mb-3">Uw bespaarresultaat</h3>
-              <p className="text-white/80 text-lg">Op basis van uw antwoorden</p>
-            </div>
-
-            <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="inline-flex items-center rounded-full border border-aog-green/70 bg-aog-green/10 px-4 py-2 text-aog-green font-bold text-sm mb-5">
-                ⭐ {resultMeta.badge}
-              </div>
-
-              <h4 className="text-4xl font-black text-slate-900 leading-tight mb-4">
-                {resultMeta.title}
-              </h4>
-
-              <p className="text-slate-500 text-lg leading-relaxed mb-6">
-                {resultMeta.description}
-              </p>
-
-              <div className="rounded-[24px] border-2 border-aog-green bg-aog-green/5 p-6 mb-6 text-center">
-                <p className="text-aog-green font-bold text-xl mb-2">
-                  Geschat besparingspotentieel
-                </p>
-                <p className="text-5xl sm:text-6xl font-black text-aog-green mb-1">
-                  {resultMeta.range}
-                </p>
-                <p className="text-slate-500 text-lg">per jaar</p>
-              </div>
-
-              <div>
-                <h5 className="text-2xl font-black text-slate-900 mb-4">
-                  Onze aanbevelingen:
-                </h5>
-                <ul className="space-y-4 text-slate-600 text-lg">
-                  <li className="flex items-start gap-3">
-                    <CheckCircle className="w-6 h-6 text-aog-green mt-0.5 flex-shrink-0" />
-                    <span>Plan een gratis adviesgesprek voor een persoonlijke berekening</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle className="w-6 h-6 text-aog-green mt-0.5 flex-shrink-0" />
-                    <span>Bekijk hoe u uw zelfverbruik kunt maximaliseren</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle className="w-6 h-6 text-aog-green mt-0.5 flex-shrink-0" />
-                    <span>Informeer naar slimme laad- of batterijopties voor uw woning</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="mt-6 rounded-[28px] border-2 border-aog-green bg-white p-6 shadow-sm">
-              <h4 className="text-3xl font-black text-slate-900 text-center mb-3">
-                Klaar voor de volgende stap?
-              </h4>
-              <p className="text-slate-500 text-center text-lg mb-6">
-                Laat uw gegevens achter en ontvang een persoonlijke terugkoppeling.
-              </p>
-
-              <div className="space-y-3">
-                <button
-                  type="button"
-                  onClick={() => handleAutoAdvance("interest", "advies")}
-                  className="w-full rounded-2xl bg-aog-green text-white py-5 text-xl font-black shadow-lg shadow-aog-green/20 hover:bg-aog-green-light transition-colors"
-                >
-                  Plan een adviesgesprek
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleAutoAdvance("interest", "vrijblijvend")}
-                  className="w-full rounded-2xl border-2 border-slate-200 bg-white text-slate-900 py-5 text-xl font-black hover:border-aog-green/50 transition-colors"
-                >
-                  Alleen vrijblijvend advies
-                </button>
-              </div>
-
-              <div className="flex justify-center gap-8 text-sm text-slate-500 mt-5 pt-5 border-t border-slate-200">
-                <span>100% vrijblijvend</span>
-                <span>Gratis advies</span>
-              </div>
-            </div>
-          </>
-        );
-
-      case 8:
-        return (
-          <>
-            <div className="rounded-[24px] border border-aog-green bg-aog-green/5 px-6 py-6 mb-6 text-center">
-              <p className="text-4xl mb-3">🎉</p>
-              <h3 className="text-3xl font-black text-aog-green mb-2">Check afgerond!</h3>
-              <p className="text-slate-600 text-lg">
-                Vul uw gegevens in om uw persoonlijke bespaaranalyse te ontvangen.
-              </p>
+              <p className="text-4xl mb-3">📋</p>
+              <h3 className="text-3xl font-black mb-3">Uw gegevens</h3>
+              <p className="text-white/80 text-lg">Vul uw contactgegevens in</p>
             </div>
 
             <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
@@ -703,27 +582,111 @@ export default function LeadForm() {
                 <div className="rounded-2xl bg-slate-50 p-4 text-slate-500 italic text-lg leading-relaxed">
                   Uw contactgegevens worden alleen gebruikt voor maatwerkadvies. De gegevens worden niet doorverkocht.
                 </div>
+              </div>
+            </div>
+          </>
+        );
 
-                <div className="space-y-3 text-slate-600 text-lg pt-2">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
-                    <span>Persoonlijke bespaaranalyse op maat</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
-                    <span>Onafhankelijk en vrijblijvend advies</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
-                    <span>Terugkoppeling op basis van uw situatie</span>
-                  </div>
+      case 8:
+        return (
+          <>
+            <div className="rounded-[28px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-6 py-8 mb-6">
+              <p className="text-4xl mb-3">🎉</p>
+              <h3 className="text-3xl font-black mb-3">Uw bespaarresultaat</h3>
+              <p className="text-white/80 text-lg">Op basis van uw antwoorden</p>
+            </div>
+
+            <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="inline-flex items-center rounded-full border border-aog-green/70 bg-aog-green/10 px-4 py-2 text-aog-green font-bold text-sm mb-5">
+                ⭐ {resultMeta.badge}
+              </div>
+
+              <h4 className="text-4xl font-black text-slate-900 leading-tight mb-4">
+                {resultMeta.title}
+              </h4>
+
+              <p className="text-slate-500 text-lg leading-relaxed mb-6">
+                {resultMeta.description}
+              </p>
+
+              <div className="rounded-[24px] border-2 border-aog-green bg-aog-green/5 p-6 mb-6 text-center">
+                <p className="text-aog-green font-bold text-xl mb-2">
+                  Geschat besparingspotentieel
+                </p>
+                <p className="text-5xl sm:text-6xl font-black text-aog-green mb-1">
+                  {resultMeta.range}
+                </p>
+                <p className="text-slate-500 text-lg">per jaar</p>
+              </div>
+
+              <div>
+                <h5 className="text-2xl font-black text-slate-900 mb-4">
+                  Onze aanbevelingen:
+                </h5>
+                <ul className="space-y-4 text-slate-600 text-lg">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle className="w-6 h-6 text-aog-green mt-0.5 flex-shrink-0" />
+                    <span>Plan een gratis adviesgesprek voor een persoonlijke berekening</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle className="w-6 h-6 text-aog-green mt-0.5 flex-shrink-0" />
+                    <span>Bekijk hoe u uw zelfverbruik kunt maximaliseren</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle className="w-6 h-6 text-aog-green mt-0.5 flex-shrink-0" />
+                    <span>Informeer naar slimme laad- of batterijopties voor uw woning</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-[28px] border-2 border-aog-green bg-white p-6 shadow-sm">
+              <button
+                type="button"
+                onClick={() => handleAutoAdvance("interest", "advies")}
+                className="w-full rounded-2xl bg-aog-green text-white py-5 text-xl font-black shadow-lg shadow-aog-green/20 hover:bg-aog-green-light transition-colors"
+              >
+                Bekijk mijn besparing
+              </button>
+
+              <div className="flex justify-center gap-8 text-sm text-slate-500 mt-5 pt-5 border-t border-slate-200">
+                <span>100% vrijblijvend</span>
+                <span>Gratis advies</span>
+              </div>
+            </div>
+          </>
+        );
+
+      case 9:
+        return (
+          <>
+            <div className="rounded-[28px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-6 py-8 mb-6">
+              <p className="text-4xl mb-3">✅</p>
+              <h3 className="text-3xl font-black mb-3">Bedankt!</h3>
+              <p className="text-white/80 text-lg">Uw aanvraag is ontvangen</p>
+            </div>
+
+            <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+              <h4 className="text-3xl font-black text-slate-900 text-center mb-3">
+                Uw bespaaranalyse is onderweg
+              </h4>
+              <p className="text-slate-500 text-center text-lg mb-6">
+                We nemen zo snel mogelijk contact met u op voor een persoonlijk adviesgesprek.
+              </p>
+
+              <div className="space-y-3 text-slate-600 text-lg pt-2">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
+                  <span>Persoonlijke bespaaranalyse op maat</span>
                 </div>
-
-                {submitError ? (
-                  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-                    {submitError}
-                  </div>
-                ) : null}
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
+                  <span>Onafhankelijk en vrijblijvend advies</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-aog-green flex-shrink-0" />
+                  <span>Terugkoppeling op basis van uw situatie</span>
+                </div>
               </div>
             </div>
           </>
