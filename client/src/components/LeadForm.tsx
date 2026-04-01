@@ -699,13 +699,13 @@ export default function LeadForm() {
 
   return (
     <section id="lead-form" className="w-full">
-      <div className="rounded-[32px] bg-white/95 backdrop-blur-md border border-white/20 p-5 sm:p-7 shadow-2xl">
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-lg font-black text-slate-700">Bespaarcheck</p>
-            <p className="text-lg font-bold text-slate-500">{stepPercentage}%</p>
+      <div className="rounded-[28px] bg-white/95 backdrop-blur-md border border-white/20 p-4 sm:p-6 shadow-2xl">
+        <div className="mb-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-black text-slate-700">Bespaarcheck</p>
+            <p className="text-sm font-bold text-slate-500">{stepPercentage}%</p>
           </div>
-          <div className="h-3 rounded-full bg-slate-100 overflow-hidden">
+          <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
             <div
               className="h-full bg-aog-green transition-all duration-300"
               style={{ width: `${stepPercentage}%` }}
@@ -715,16 +715,17 @@ export default function LeadForm() {
 
         {renderStep()}
 
-        <div className="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between gap-4">
+        <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={prevStep}
             disabled={currentStep === 1 || isSubmitting}
-            className="h-14 px-6 rounded-2xl text-lg font-black border-slate-200"
+            className="h-12 px-4 rounded-xl text-base font-black border-slate-200 sm:h-14 sm:px-6 sm:rounded-2xl sm:text-lg"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Vorige
+            <ArrowLeft className="w-4 h-4 mr-1 sm:w-5 sm:h-5 sm:mr-2" />
+            <span className="hidden sm:inline">Vorige</span>
+            <span className="sm:hidden">Terug</span>
           </Button>
 
           {currentStep < totalSteps ? (
@@ -732,25 +733,26 @@ export default function LeadForm() {
               type="button"
               onClick={nextStep}
               disabled={!canContinueStep()}
-              className="h-14 px-7 rounded-2xl text-lg font-black bg-aog-green hover:bg-aog-green-light"
+              className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg"
             >
-              Volgende
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <span className="hidden sm:inline">Volgende</span>
+              <span className="sm:hidden">Volg</span>
+              <ArrowRight className="w-4 h-4 ml-1 sm:w-5 sm:h-5 sm:ml-2" />
             </Button>
           ) : (
             <Button
               type="button"
               onClick={handleSubmit}
               disabled={!canContinueStep() || isSubmitting}
-              className="h-14 px-7 rounded-2xl text-lg font-black bg-aog-green hover:bg-aog-green-light"
+              className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg"
             >
-              {isSubmitting ? "Verzenden..." : "Ontvang mijn analyse"}
-              <ArrowRight className="w-5 h-5 ml-2" />
+              {isSubmitting ? "Verzenden..." : "Verzenden"}
+              <ArrowRight className="w-4 h-4 ml-1 sm:w-5 sm:h-5 sm:ml-2" />
             </Button>
           )}
         </div>
 
-        <div className="flex flex-wrap justify-center gap-4 mt-6 pt-5 border-t border-slate-100">
+        <div className="flex flex-wrap justify-center gap-2 mt-4 pt-4 border-t border-slate-100 text-xs sm:gap-4 sm:mt-6 sm:pt-5">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
             <Zap className="w-3 h-3 text-aog-orange" /> Persoonlijke analyse
           </div>
