@@ -123,3 +123,44 @@ export async function getLeadById(id: number): Promise<Lead | undefined> {
   const result = await db.select().from(leads).where(eq(leads.id, id)).limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
+
+// Google Sheets submission function
+export async function submitLeadToGoogleSheets(lead: InsertLead): Promise<boolean> {
+  const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec";
+
+  try {
+    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: lead.name,
+        phone: lead.phone,
+        email: lead.email,
+        postalCode: lead.postalCode,
+        solarPanelCount: lead.solarPanelCount,
+        homeOwner: lead.homeOwner,
+        annualIncome: lead.annualIncome,
+        preferredContact: lead.preferredContact,
+        estimatedSavings: lead.estimatedSavings,
+        source: lead.source,
+        utmSource: lead.utmSource,
+        utmMedium: lead.utmMedium,
+        utmCampaign: lead.utmCampaign,
+        submittedAt: new Date().toISOString(),
+      }),
+    });
+
+    if (!response.ok) {
+      console.warn(`[Google Sheets] Submission failed with status ${response.status}`);
+      return false;
+    }
+
+    console.log("[Google Sheets] Lead submitted successfully");
+    return true;
+  } catch (error) {
+    console.error("[Google Sheets] Submission error:", error);
+    return false;
+  }
+}

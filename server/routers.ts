@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { createLead, getLeads } from "./db";
+import { createLead, getLeads, submitLeadToGoogleSheets } from "./db";
 import { sendLeadEmail } from "./_core/mail";
 
 export const appRouter = router({
@@ -74,6 +74,15 @@ export const appRouter = router({
           });
         } catch (e) {
           console.warn("[Mail] Failed to send lead email notification:", e);
+        }
+
+        // Submit lead to Google Sheets
+        if (lead) {
+          try {
+            await submitLeadToGoogleSheets(lead);
+          } catch (e) {
+            console.warn("[Google Sheets] Failed to submit lead to Google Sheets:", e);
+          }
         }
 
         return {
