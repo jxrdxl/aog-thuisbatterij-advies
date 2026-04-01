@@ -144,34 +144,36 @@ export default function LeadForm() {
     }
   };
 
-  const canContinueStep = () => {
-    switch (currentStep) {
-      case 1:
-        return !!answers.homeType;
-      case 2:
-        return !!answers.hasPanels;
-      case 3:
-        return !!answers.panelCount;
-      case 4:
-        return !!answers.feedIn;
-      case 5:
-        return !!answers.usageMoment;
-      case 6:
-        return !!answers.futureUsage;
-      case 7:
-        return (
-          leadFields.postcode.trim().length >= 6 &&
-          leadFields.firstName.trim().length >= 2 &&
-          leadFields.lastName.trim().length >= 2 &&
-          leadFields.email.includes("@") &&
-          leadFields.phone.replace(/\D/g, "").length >= 10
-        );
-      case 8:
-        return !!answers.interest;
-      default:
-        return false;
-    }
-  };
+const canContinueStep = () => {
+  switch (currentStep) {
+    case 1:
+      return !!answers.homeType;
+    case 2:
+      return !!answers.hasPanels;
+    case 3:
+      return !!answers.panelCount;
+    case 4:
+      return !!answers.feedIn;
+    case 5:
+      return !!answers.usageMoment;
+    case 6:
+      return !!answers.futureUsage;
+    case 7:
+      return (
+        leadFields.postcode.trim().length >= 6 &&
+        leadFields.firstName.trim().length >= 2 &&
+        leadFields.lastName.trim().length >= 2 &&
+        leadFields.email.includes("@") &&
+        leadFields.phone.replace(/\D/g, "").length >= 10
+      );
+    case 8:
+      return !!answers.interest;
+    case 9:
+      return true;
+    default:
+      return false;
+  }
+};
 
   const handleAutoAdvance = (key: keyof QuizAnswers, value: string) => {
     updateAnswer(key, value);
