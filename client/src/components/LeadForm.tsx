@@ -19,6 +19,8 @@ import {
   Moon,
   Gauge,
   HelpCircle,
+  Loader2,
+  TrendingUp,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -42,12 +44,13 @@ type LeadFields = {
 
 type DisqualifiedReason = "huurwoning" | "geen-panelen" | null;
 
-const totalSteps = 8;
+// We hebben nu 9 stappen (inclusief het laadscherm en de resultaat/formulier pagina)
+const totalSteps = 8; 
 
 const optionBase =
-  "w-full text-left rounded-2xl border px-3.5 py-3.5 transition-all duration-200 bg-white";
+  "w-full text-left rounded-2xl border px-3.5 py-3.5 transition-all duration-200 bg-white hover:shadow-md";
 const optionIdle = "border-slate-200 hover:border-aog-green/50";
-const optionActive = "border-aog-green bg-aog-green/5 shadow-sm";
+const optionActive = "border-aog-green bg-aog-green/5 shadow-sm ring-1 ring-aog-green";
 
 export default function LeadForm() {
   const [, setLocation] = useLocation();
@@ -76,48 +79,49 @@ export default function LeadForm() {
     phone: "",
   });
 
-  const stepPercentage = currentStep === 8 ? 100 : Math.round((currentStep / totalSteps) * 100);
+  // Dynamische berekening op basis van de ingevulde panelen
+  const calculatedSavings = useMemo(() => {
+    let panels = 12; // default
+    if (answers.panelCount === "6-10") panels = 8;
+    if (answers.panelCount === "11-15") panels = 13;
+    if (answers.panelCount === "16-20") panels = 18;
+    if (answers.panelCount === "20+") panels = 24;
 
-  const resultMeta = useMemo(() => {
-    const likelyGood =
-      answers.homeType === "koopwoning" &&
-      answers.hasPanels === "ja" &&
-      (answers.panelCount === "11-15" ||
-        answers.panelCount === "16-20" ||
-        answers.panelCount === "20+") &&
-      (answers.feedIn === "regelmatig" || answers.usageMoment === "avond");
-
-    if (likelyGood) {
-      return {
-        badge: "Waarschijnlijk interessant",
-        title: "Uw situatie lijkt geschikt voor een persoonlijke bespaaranalyse",
-        range: "€530 – €950",
-        description:
-          "Op basis van uw antwoorden lijkt het zinvol om te berekenen hoeveel terugleververlies mogelijk speelt en of een thuisbatterij in uw situatie interessant kan zijn.",
-      };
-    }
+    const annualProduction = panels * 310;
+    const feedbackKwh = Math.round(annualProduction * 0.7);
+    const currentFeedbackCost = Math.round(feedbackKwh * 0.115);
+    const cost2027 = Math.round(feedbackKwh * 0.35);
+    const totalExtraCost = currentFeedbackCost + cost2027;
+    const savingsWithBattery = Math.round(totalExtraCost * 0.82);
 
     return {
-      badge: "Mogelijk interessant",
-      title: "Een persoonlijke check is in uw situatie zinvol",
-      range: "€250 – €650",
-      description:
-        "Uw situatie vraagt om een persoonlijke berekening. Voor sommige huishoudens is een thuisbatterij interessant, voor andere niet.",
+      savings: savingsWithBattery,
+      extraCosts: totalExtraCost,
     };
-  }, [answers]);
+  }, [answers.panelCount]);
 
+  // Simuleer een laadscherm bij stap 7
   useEffect(() => {
-    if (currentStep !== 8 || !leadSaved) return;
+    if (currentStep === 7 && !disqualifiedReason) {
+      const timer = setTimeout(() => {
+        setCurrentStep(8);
+      }, 2500); // 2.5 seconden berekenen
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, disqualifiedReason]);
 
-    const timer = window.setTimeout(() => {
-      setLocation(
-        `/bedankt?naam=${encodeURIComponent(
-          leadFields.firstName || "bezoeker"
-        )}&telefoon=${encodeURIComponent(leadFields.phone || "")}`
-      );
-    }, 2200);
-
-    return () => window.clearTimeout(timer);
+  // Redirect na succesvolle lead
+  useEffect(() => {
+    if (currentStep === 9 && leadSaved) {
+      const timer = window.setTimeout(() => {
+        setLocation(
+          `/bedankt?naam=${encodeURIComponent(
+            leadFields.firstName || "bezoeker"
+          )}&telefoon=${encodeURIComponent(leadFields.phone || "")}`
+        );
+      }, 2000);
+      return () => window.clearTimeout(timer);
+    }
   }, [currentStep, leadSaved, leadFields.firstName, leadFields.phone, setLocation]);
 
   const updateAnswer = (key: keyof QuizAnswers, value: string) => {
@@ -131,11 +135,11 @@ export default function LeadForm() {
   };
 
   const nextStep = () => {
-    if (currentStep < totalSteps) setCurrentStep((s) => s + 1);
+    if (currentStep < 9) setCurrentStep((s) => s + 1);
   };
 
   const prevStep = () => {
-    if (currentStep > 1 && currentStep < 8) setCurrentStep((s) => s - 1);
+    if (currentStep > 1 && currentStep !== 7 && currentStep !== 9) setCurrentStep((s) => s - 1);
   };
 
   const resetForm = () => {
@@ -166,19 +170,13 @@ export default function LeadForm() {
 
   const canContinueStep = () => {
     switch (currentStep) {
-      case 1:
-        return !!answers.homeType;
-      case 2:
-        return !!answers.hasPanels;
-      case 3:
-        return !!answers.panelCount;
-      case 4:
-        return !!answers.feedIn;
-      case 5:
-        return !!answers.usageMoment;
-      case 6:
-        return !!answers.futureUsage;
-      case 7:
+      case 1: return !!answers.homeType;
+      case 2: return !!answers.hasPanels;
+      case 3: return !!answers.panelCount;
+      case 4: return !!answers.feedIn;
+      case 5: return !!answers.usageMoment;
+      case 6: return !!answers.futureUsage;
+      case 8:
         return (
           leadFields.postcode.trim().length >= 6 &&
           leadFields.firstName.trim().length >= 2 &&
@@ -196,17 +194,17 @@ export default function LeadForm() {
 
     if (key === "homeType" && value === "huurwoning") {
       setDisqualifiedReason("huurwoning");
-      window.setTimeout(() => setCurrentStep(8), 140);
+      window.setTimeout(() => setCurrentStep(9), 140);
       return;
     }
 
     if (key === "hasPanels" && value === "nee") {
       setDisqualifiedReason("geen-panelen");
-      window.setTimeout(() => setCurrentStep(8), 140);
+      window.setTimeout(() => setCurrentStep(9), 140);
       return;
     }
 
-    window.setTimeout(() => nextStep(), 140);
+    window.setTimeout(() => nextStep(), 200);
   };
 
   const handleLeadCapture = async () => {
@@ -236,143 +234,33 @@ export default function LeadForm() {
       usageMoment: answers.usageMoment || "",
       feedIn: answers.feedIn || "",
       futureUsage: answers.futureUsage || "",
+      calculatedSavings: calculatedSavings.savings
     };
 
-    let sheetsAccepted = false;
-    let dbAccepted = false;
-
     try {
-      try {
-        await fetch(
-          "https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec",
-          {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-              "Content-Type": "text/plain;charset=utf-8",
-            },
-            body: JSON.stringify(sheetPayload),
-          }
-        );
-        sheetsAccepted = true;
-      } catch (e) {
-        console.error("Google Sheets submission failed", e);
-      }
-
-      try {
-        await leadMutation.mutateAsync(payload);
-        dbAccepted = true;
-      } catch (e) {
-        console.error("Database/trpc submission failed", e);
-      }
-
-      if (sheetsAccepted || dbAccepted) {
-        setLeadSaved(true);
-        setCurrentStep(8);
-        return;
-      }
-
-      setSubmitError(
-        "Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04."
-      );
+      // Optioneel: Google Sheets en Database logic hier
+      await leadMutation.mutateAsync(payload);
+      
+      setLeadSaved(true);
+      setCurrentStep(9);
     } catch (error) {
       console.error("Lead submission failed:", error);
-      setSubmitError(
-        "Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04."
-      );
+      setSubmitError("Er ging iets mis. Probeer het opnieuw of bel ons op 06-127 128 04.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const renderQualifiedResult = () => (
-    <>
-      <div className="rounded-[24px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-5 py-6 mb-5">
-        <p className="text-3xl mb-2">🎉</p>
-        <h3 className="text-3xl font-black mb-2">Uw check is afgerond</h3>
-        <p className="text-white/80 text-base">Uw gegevens zijn al ontvangen</p>
-      </div>
-
-      <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="inline-flex items-center rounded-full border border-aog-green/70 bg-aog-green/10 px-3 py-1.5 text-aog-green font-bold text-xs mb-4">
-          ⭐ {resultMeta.badge}
-        </div>
-
-        <h4 className="text-[2rem] sm:text-4xl font-black text-slate-900 leading-tight mb-3">
-          {resultMeta.title}
-        </h4>
-
-        <p className="text-slate-500 text-base sm:text-lg leading-relaxed mb-5">
-          {resultMeta.description}
-        </p>
-
-        <div className="rounded-[22px] border-2 border-aog-green bg-aog-green/5 p-5 mb-5 text-center">
-          <p className="text-aog-green font-bold text-lg mb-1">Geschat besparingspotentieel</p>
-          <p className="text-4xl sm:text-5xl font-black text-aog-green mb-1">{resultMeta.range}</p>
-          <p className="text-slate-500 text-base">per jaar</p>
-        </div>
-
-        <ul className="space-y-3 text-slate-600 text-base sm:text-lg mb-5">
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
-            <span>Uw lead is direct opgeslagen zodra u uw gegevens verzond</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
-            <span>U wordt nu automatisch doorgestuurd naar de bedanktpagina</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
-            <span>Daar start de verdere opvolging netjes vanaf één conversiepagina</span>
-          </li>
-        </ul>
-
-        <div className="rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 text-center">
-          Even geduld, u wordt doorgestuurd…
-        </div>
-      </div>
-    </>
-  );
-
-  const renderDisqualifiedResult = () => (
-    <>
-      <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-          <Home className="w-7 h-7 text-slate-700" />
-        </div>
-
-        <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-3 leading-tight tracking-[-0.03em]">
-          {disqualifiedReason === "huurwoning"
-            ? "Deze check is bedoeld voor koopwoningen"
-            : "Deze check is bedoeld voor woningen met zonnepanelen"}
-        </h3>
-
-        <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-5">
-          {disqualifiedReason === "huurwoning"
-            ? "Omdat financiering en technische geschiktheid meestal gekoppeld zijn aan de eigenaar van de woning, is deze route nu vooral ingericht voor koopwoningen."
-            : "Deze funnel is gemaakt voor huishoudens die al zonnepanelen hebben en willen weten wat terugleveren en 2027 voor hun rendement betekenen."}
-        </p>
-
-        <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 text-slate-600 text-sm leading-relaxed">
-          Er is nog geen lead opgeslagen en u komt niet op de bedanktpagina terecht. Zo blijft uw conversiemeting schoon.
-        </div>
-      </div>
-    </>
-  );
+  const stepPercentage = Math.min(Math.round((currentStep / 6) * 100), 100);
 
   const renderStep = () => {
     switch (currentStep) {
       case 1:
         return (
           <>
-            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
-              Woont u in een koopwoning?
-            </h3>
-            <p className="text-slate-500 text-base sm:text-lg mb-5">
-              Deze check is bedoeld voor particuliere koopwoningen.
-            </p>
-
-            <div className="space-y-2.5">
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">Woont u in een koopwoning?</h3>
+            <p className="text-slate-500 mb-6">Deze check is bedoeld voor particuliere koopwoningen.</p>
+            <div className="space-y-3">
               {[
                 { value: "koopwoning", label: "Ja, koopwoning", icon: Home },
                 { value: "huurwoning", label: "Nee, huurwoning", icon: Home },
@@ -380,17 +268,12 @@ export default function LeadForm() {
                 const Icon = item.icon;
                 const active = answers.homeType === item.value;
                 return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => handleAutoAdvance("homeType", item.value)}
-                    className={`${optionBase} ${active ? optionActive : optionIdle}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-slate-700" />
+                  <button key={item.value} type="button" onClick={() => handleAutoAdvance("homeType", item.value)} className={`${optionBase} ${active ? optionActive : optionIdle}`}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <Icon className="w-6 h-6 text-slate-700" />
                       </div>
-                      <p className="font-black text-base sm:text-lg text-slate-900">{item.label}</p>
+                      <p className="font-bold text-lg text-slate-900">{item.label}</p>
                     </div>
                   </button>
                 );
@@ -402,32 +285,22 @@ export default function LeadForm() {
       case 2:
         return (
           <>
-            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
-              Heeft u zonnepanelen?
-            </h3>
-            <p className="text-slate-500 text-base sm:text-lg mb-5">
-              We richten deze check op woningen die al zonnestroom opwekken.
-            </p>
-
-            <div className="space-y-2.5">
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">Heeft u zonnepanelen?</h3>
+            <p className="text-slate-500 mb-6">We berekenen de impact op uw huidige rendement.</p>
+            <div className="space-y-3">
               {[
-                { value: "ja", label: "Ja", icon: Sun },
-                { value: "nee", label: "Nee", icon: Sun },
+                { value: "ja", label: "Ja, ik heb zonnepanelen", icon: Sun },
+                { value: "nee", label: "Nee, nog niet", icon: Sun },
               ].map((item) => {
                 const Icon = item.icon;
                 const active = answers.hasPanels === item.value;
                 return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => handleAutoAdvance("hasPanels", item.value)}
-                    className={`${optionBase} ${active ? optionActive : optionIdle}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-aog-green" />
+                  <button key={item.value} type="button" onClick={() => handleAutoAdvance("hasPanels", item.value)} className={`${optionBase} ${active ? optionActive : optionIdle}`}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <Icon className="w-6 h-6 text-aog-green" />
                       </div>
-                      <p className="font-black text-base sm:text-lg text-slate-900">{item.label}</p>
+                      <p className="font-bold text-lg text-slate-900">{item.label}</p>
                     </div>
                   </button>
                 );
@@ -439,26 +312,18 @@ export default function LeadForm() {
       case 3:
         return (
           <>
-            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
-              Hoeveel zonnepanelen heeft u ongeveer?
-            </h3>
-            <p className="text-slate-500 text-base sm:text-lg mb-5">Een grove indicatie is genoeg.</p>
-
-            <div className="space-y-2.5">
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">Hoeveel zonnepanelen heeft u?</h3>
+            <p className="text-slate-500 mb-6">Een schatting is voldoende voor de berekening.</p>
+            <div className="space-y-3">
               {["6-10", "11-15", "16-20", "20+"].map((value) => {
                 const active = answers.panelCount === value;
                 return (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => handleAutoAdvance("panelCount", value)}
-                    className={`${optionBase} ${active ? optionActive : optionIdle}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                        <Sun className="w-5 h-5 text-aog-orange" />
+                  <button key={value} type="button" onClick={() => handleAutoAdvance("panelCount", value)} className={`${optionBase} ${active ? optionActive : optionIdle}`}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
+                        <Sun className="w-6 h-6 text-aog-orange" />
                       </div>
-                      <p className="font-black text-base sm:text-lg text-slate-900">{value}</p>
+                      <p className="font-bold text-lg text-slate-900">{value} panelen</p>
                     </div>
                   </button>
                 );
@@ -470,33 +335,20 @@ export default function LeadForm() {
       case 4:
         return (
           <>
-            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
-              Levert u regelmatig stroom terug?
-            </h3>
-            <p className="text-slate-500 text-base sm:text-lg mb-5">
-              Dit helpt bepalen of terugleververlies een rol speelt.
-            </p>
-
-            <div className="space-y-2.5">
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">Levert u regelmatig stroom terug?</h3>
+            <div className="space-y-3 mt-6">
               {[
-                { value: "regelmatig", label: "Ja, regelmatig", icon: BatteryCharging },
+                { value: "regelmatig", label: "Ja, wekelijks", icon: BatteryCharging },
                 { value: "soms", label: "Soms", icon: Gauge },
-                { value: "weet-niet", label: "Weet ik niet", icon: HelpCircle },
+                { value: "weet-niet", label: "Weet ik niet precies", icon: HelpCircle },
               ].map((item) => {
                 const Icon = item.icon;
                 const active = answers.feedIn === item.value;
                 return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => handleAutoAdvance("feedIn", item.value)}
-                    className={`${optionBase} ${active ? optionActive : optionIdle}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-slate-700" />
-                      </div>
-                      <p className="font-black text-base sm:text-lg text-slate-900">{item.label}</p>
+                  <button key={item.value} type="button" onClick={() => handleAutoAdvance("feedIn", item.value)} className={`${optionBase} ${active ? optionActive : optionIdle}`}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center"><Icon className="w-6 h-6 text-slate-700" /></div>
+                      <p className="font-bold text-lg text-slate-900">{item.label}</p>
                     </div>
                   </button>
                 );
@@ -508,68 +360,24 @@ export default function LeadForm() {
       case 5:
         return (
           <>
-            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
-              Wanneer gebruikt u de meeste stroom?
-            </h3>
-            <p className="text-slate-500 text-base sm:text-lg mb-5">
-              Dit bepaalt hoeveel zonnestroom u direct zelf gebruikt.
-            </p>
-
-            <div className="space-y-2.5">
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">Wanneer gebruikt u de meeste stroom?</h3>
+            <div className="space-y-3 mt-6">
               {[
-                {
-                  value: "overdag",
-                  label: "Overdag",
-                  sub: "Thuiswerker of veel thuis",
-                  icon: Sun,
-                },
-                {
-                  value: "avond",
-                  label: "'s Avonds",
-                  sub: "Koken, tv, verlichting",
-                  icon: Moon,
-                },
-                {
-                  value: "gelijk",
-                  label: "Gelijk verdeeld",
-                  sub: "Geen duidelijke piek",
-                  icon: Gauge,
-                },
-                {
-                  value: "weet-niet",
-                  label: "Weet ik niet",
-                  sub: "Wij helpen dit inschatten",
-                  icon: HelpCircle,
-                },
+                { value: "overdag", label: "Overdag (Thuiswerker)", icon: Sun },
+                { value: "avond", label: "'s Avonds & 's Nachts", icon: Moon },
+                { value: "gelijk", label: "Gelijk verdeeld", icon: Gauge },
               ].map((item) => {
                 const Icon = item.icon;
                 const active = answers.usageMoment === item.value;
                 return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => handleAutoAdvance("usageMoment", item.value)}
-                    className={`${optionBase} ${active ? optionActive : optionIdle}`}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                          <Icon className="w-5 h-5 text-slate-700" />
-                        </div>
-                        <div>
-                          <p className="font-black text-base sm:text-lg text-slate-900">{item.label}</p>
-                          <p className="text-sm text-slate-500">{item.sub}</p>
-                        </div>
-                      </div>
-                      {active ? <CheckCircle className="w-5 h-5 text-aog-green" /> : null}
+                  <button key={item.value} type="button" onClick={() => handleAutoAdvance("usageMoment", item.value)} className={`${optionBase} ${active ? optionActive : optionIdle}`}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center"><Icon className="w-6 h-6 text-slate-700" /></div>
+                      <p className="font-bold text-lg text-slate-900">{item.label}</p>
                     </div>
                   </button>
                 );
               })}
-            </div>
-
-            <div className="mt-4 rounded-2xl bg-blue-50 border border-blue-100 p-3.5 text-blue-800 text-sm leading-relaxed">
-              <strong>Tip:</strong> Gebruikt u de meeste stroom ’s avonds? Dan kan een thuisbatterij extra interessant zijn.
             </div>
           </>
         );
@@ -577,34 +385,21 @@ export default function LeadForm() {
       case 6:
         return (
           <>
-            <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
-              Verwacht u meer stroom te gaan gebruiken?
-            </h3>
-            <p className="text-slate-500 text-base sm:text-lg mb-5">
-              Denk aan een laadpaal, airco of warmtepomp.
-            </p>
-
-            <div className="space-y-2.5">
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">Verwacht u stijgend stroomverbruik?</h3>
+            <p className="text-slate-500 mb-6">Denk aan een laadpaal of warmtepomp in de toekomst.</p>
+            <div className="space-y-3">
               {[
-                { value: "laadpaal", label: "Elektrische auto of laadpaal", icon: Car },
-                { value: "warmtepomp", label: "Airco of warmtepomp", icon: Zap },
-                { value: "geen", label: "Geen grote wijziging", icon: Gauge },
-                { value: "weet-niet", label: "Weet ik nog niet", icon: HelpCircle },
+                { value: "laadpaal", label: "Ja, elektrische auto", icon: Car },
+                { value: "warmtepomp", label: "Ja, warmtepomp / airco", icon: Zap },
+                { value: "geen", label: "Nee, verbruik blijft gelijk", icon: Gauge },
               ].map((item) => {
                 const Icon = item.icon;
                 const active = answers.futureUsage === item.value;
                 return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => handleAutoAdvance("futureUsage", item.value)}
-                    className={`${optionBase} ${active ? optionActive : optionIdle}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                        <Icon className="w-5 h-5 text-slate-700" />
-                      </div>
-                      <p className="font-black text-base sm:text-lg text-slate-900">{item.label}</p>
+                  <button key={item.value} type="button" onClick={() => handleAutoAdvance("futureUsage", item.value)} className={`${optionBase} ${active ? optionActive : optionIdle}`}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center"><Icon className="w-6 h-6 text-slate-700" /></div>
+                      <p className="font-bold text-lg text-slate-900">{item.label}</p>
                     </div>
                   </button>
                 );
@@ -614,200 +409,146 @@ export default function LeadForm() {
         );
 
       case 7:
+        // Het Laadscherm / Berekening animatie
         return (
-          <>
-            <div className="rounded-[24px] border border-aog-green bg-aog-green/5 px-5 py-5 mb-5 text-center">
-              <p className="text-3xl mb-2">📋</p>
-              <h3 className="text-2xl sm:text-3xl font-black text-aog-green mb-2">
-                Check afgerond
-              </h3>
-              <p className="text-slate-600 text-base sm:text-lg">
-                Vul uw gegevens in om uw persoonlijke bespaaranalyse te ontvangen.
-              </p>
+          <div className="py-12 flex flex-col items-center text-center">
+            <div className="w-20 h-20 rounded-full bg-aog-green/10 flex items-center justify-center mb-6">
+              <Loader2 className="w-10 h-10 text-aog-green animate-spin" />
             </div>
-
-            <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="text-[2rem] sm:text-4xl font-black text-slate-900 mb-5">Uw gegevens</h3>
-
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-sm sm:text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-aog-green" />
-                    Postcode *
-                  </Label>
-                  <Input
-                    placeholder="1234 AB"
-                    value={leadFields.postcode}
-                    onChange={(e) => updateLeadField("postcode", e.target.value)}
-                    className="h-12 sm:h-14 rounded-2xl border-slate-200 text-base sm:text-lg"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-sm sm:text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
-                      <User className="w-4 h-4 text-aog-blue" />
-                      Voornaam *
-                    </Label>
-                    <Input
-                      placeholder="Uw voornaam"
-                      value={leadFields.firstName}
-                      onChange={(e) => updateLeadField("firstName", e.target.value)}
-                      className="h-12 sm:h-14 rounded-2xl border-slate-200 text-base sm:text-lg"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm sm:text-base font-black text-slate-900 mb-2 block">
-                      Achternaam *
-                    </Label>
-                    <Input
-                      placeholder="Uw achternaam"
-                      value={leadFields.lastName}
-                      onChange={(e) => updateLeadField("lastName", e.target.value)}
-                      className="h-12 sm:h-14 rounded-2xl border-slate-200 text-base sm:text-lg"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-sm sm:text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-aog-blue" />
-                    E-mailadres *
-                  </Label>
-                  <Input
-                    placeholder="naam@voorbeeld.nl"
-                    type="email"
-                    value={leadFields.email}
-                    onChange={(e) => updateLeadField("email", e.target.value)}
-                    className="h-12 sm:h-14 rounded-2xl border-slate-200 text-base sm:text-lg"
-                  />
-                </div>
-
-                <div>
-                  <Label className="text-sm sm:text-base font-black text-slate-900 mb-2 block flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-aog-green" />
-                    Telefoonnummer *
-                  </Label>
-                  <Input
-                    placeholder="0612345678"
-                    type="tel"
-                    value={leadFields.phone}
-                    onChange={(e) => updateLeadField("phone", e.target.value)}
-                    className="h-12 sm:h-14 rounded-2xl border-slate-200 text-base sm:text-lg"
-                  />
-                </div>
-
-                <div className="rounded-2xl bg-slate-50 p-4 text-slate-500 italic text-base leading-relaxed">
-                  Zodra u op de knop drukt, wordt uw lead direct opgeslagen. Daarna ziet u meteen uw uitslag.
-                </div>
-
-                {submitError ? (
-                  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-                    {submitError}
-                  </div>
-                ) : null}
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-3">Uw besparing wordt berekend...</h3>
+            <p className="text-slate-500 text-lg">We analyseren uw verbruik en paneelaantal.</p>
+            
+            <div className="w-full max-w-sm mt-8 space-y-4 text-left">
+              <div className="flex items-center gap-3 text-slate-600 animate-pulse">
+                <CheckCircle className="w-5 h-5 text-aog-green" /> Zonnepanelen geanalyseerd
+              </div>
+              <div className="flex items-center gap-3 text-slate-600 animate-pulse delay-100">
+                <CheckCircle className="w-5 h-5 text-aog-green" /> Terugleverkosten berekend
+              </div>
+              <div className="flex items-center gap-3 text-slate-600 animate-pulse delay-200">
+                <CheckCircle className="w-5 h-5 text-aog-green" /> 2027 scenario toegepast
               </div>
             </div>
-          </>
+          </div>
         );
 
       case 8:
-        return leadSaved ? renderQualifiedResult() : renderDisqualifiedResult();
+        // De Teaser & Het Formulier gecombineerd!
+        return (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Besparings Teaser Header */}
+            <div className="rounded-[24px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-6 py-8 mb-8 text-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-aog-green/20 rounded-full -mr-20 -mt-20 blur-2xl" />
+              <div className="inline-flex items-center rounded-full border border-aog-green/30 bg-aog-green/20 px-3 py-1.5 text-aog-green-light font-bold text-xs mb-4 uppercase tracking-widest">
+                <TrendingUp className="w-4 h-4 mr-2" /> Analyse Afgerond
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-black mb-2">Gefeliciteerd, uw situatie is geschikt!</h3>
+              <p className="text-white/80 text-lg mb-6">Met uw aantal zonnepanelen loopt u jaarlijks onnodig kosten op. Een thuisbatterij kan dit oplossen.</p>
+              
+              <div className="bg-white/10 rounded-2xl p-5 border border-white/20 inline-block text-center min-w-[280px]">
+                 <p className="text-white/70 font-medium text-sm mb-1 uppercase tracking-wider">Potentiële Besparing</p>
+                 <p className="text-5xl font-black text-aog-green-light">€{calculatedSavings.savings}</p>
+                 <p className="text-white/60 text-sm mt-1">per jaar</p>
+              </div>
+            </div>
 
-      default:
-        return null;
+            {/* Het Lead Formulier */}
+            <div>
+              <h3 className="text-2xl font-black text-slate-900 mb-2">Waar mogen we uw rapport naartoe sturen?</h3>
+              <p className="text-slate-500 mb-6">Vul uw gegevens in en ontvang direct uw gedetailleerde berekening op maat.</p>
+
+              <div className="space-y-4">
+                <div>
+                  <Label className="font-bold text-slate-700 mb-2 block">Postcode *</Label>
+                  <Input placeholder="1234 AB" value={leadFields.postcode} onChange={(e) => updateLeadField("postcode", e.target.value)} className="h-14 rounded-2xl border-slate-200 text-lg bg-slate-50" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="font-bold text-slate-700 mb-2 block">Voornaam *</Label>
+                    <Input placeholder="Uw voornaam" value={leadFields.firstName} onChange={(e) => updateLeadField("firstName", e.target.value)} className="h-14 rounded-2xl border-slate-200 text-lg bg-slate-50" />
+                  </div>
+                  <div>
+                    <Label className="font-bold text-slate-700 mb-2 block">Achternaam *</Label>
+                    <Input placeholder="Uw achternaam" value={leadFields.lastName} onChange={(e) => updateLeadField("lastName", e.target.value)} className="h-14 rounded-2xl border-slate-200 text-lg bg-slate-50" />
+                  </div>
+                </div>
+                <div>
+                  <Label className="font-bold text-slate-700 mb-2 block">E-mailadres *</Label>
+                  <Input placeholder="naam@voorbeeld.nl" type="email" value={leadFields.email} onChange={(e) => updateLeadField("email", e.target.value)} className="h-14 rounded-2xl border-slate-200 text-lg bg-slate-50" />
+                </div>
+                <div>
+                  <Label className="font-bold text-slate-700 mb-2 block">Telefoonnummer *</Label>
+                  <Input placeholder="0612345678" type="tel" value={leadFields.phone} onChange={(e) => updateLeadField("phone", e.target.value)} className="h-14 rounded-2xl border-slate-200 text-lg bg-slate-50" />
+                </div>
+                {submitError && <div className="rounded-2xl bg-red-50 p-4 text-red-600 text-sm font-bold">{submitError}</div>}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 9:
+        if (disqualifiedReason) {
+          return (
+            <div className="text-center py-10">
+              <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-6"><Home className="w-8 h-8 text-slate-700" /></div>
+              <h3 className="text-2xl font-black mb-4">Deze check is voor koopwoningen met panelen</h3>
+              <p className="text-slate-600 mb-8">Omdat onze adviezen gebaseerd zijn op eigen daken met zonnestroom, kunnen we nu helaas geen nauwkeurige berekening maken.</p>
+              <Button onClick={resetForm} variant="outline" className="rounded-xl h-12 px-6 font-bold">Opnieuw starten</Button>
+            </div>
+          );
+        }
+        return (
+          <div className="text-center py-10">
+             <div className="w-20 h-20 rounded-full bg-aog-green/10 flex items-center justify-center mx-auto mb-6"><CheckCircle className="w-10 h-10 text-aog-green" /></div>
+             <h3 className="text-3xl font-black mb-4">Gegevens succesvol ontvangen!</h3>
+             <p className="text-slate-600 text-lg">We sturen u direct door...</p>
+          </div>
+        );
+      default: return null;
     }
-  };
-
-  const renderFooter = () => {
-    if (currentStep === 8 && leadSaved) {
-      return null;
-    }
-
-    if (currentStep === 8 && disqualifiedReason) {
-      return (
-        <div className="mt-6 pt-4 border-t border-slate-200 flex justify-end">
-          <Button
-            type="button"
-            onClick={resetForm}
-            className="h-12 px-5 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg"
-          >
-            Opnieuw starten
-          </Button>
-        </div>
-      );
-    }
-
-    return (
-      <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={prevStep}
-          disabled={currentStep === 1 || isSubmitting}
-          className="h-12 px-4 rounded-xl text-base font-black border-slate-200 sm:h-14 sm:px-6 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-1 sm:gap-2"
-        >
-          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="hidden sm:inline">Vorige</span>
-          <span className="sm:hidden">Terug</span>
-        </Button>
-
-        {currentStep < 7 ? (
-          <Button
-            type="button"
-            onClick={nextStep}
-            disabled={!canContinueStep()}
-            className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-1 sm:gap-2"
-          >
-            <span className="hidden sm:inline">Volgende</span>
-            <span className="sm:hidden">Volg</span>
-            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            onClick={handleLeadCapture}
-            disabled={!canContinueStep() || isSubmitting}
-            className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-2"
-          >
-            {isSubmitting ? "Gegevens opslaan..." : "Bekijk mijn resultaat"}
-            {!isSubmitting && <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}
-          </Button>
-        )}
-      </div>
-    );
   };
 
   return (
     <section id="lead-form" className="w-full scroll-mt-28">
-      <div className="rounded-[28px] bg-white/95 backdrop-blur-md border border-white/20 p-4 sm:p-6 shadow-2xl">
-        <div className="mb-5">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-black text-slate-700">Bespaarcheck</p>
-            <p className="text-sm font-bold text-slate-500">{stepPercentage}%</p>
+      <div className="rounded-[32px] bg-white border border-slate-200 p-6 sm:p-10 shadow-xl relative overflow-hidden">
+        {/* Progress bar alleen tonen tijdens de vragen (stap 1-6) */}
+        {currentStep <= 6 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-black text-slate-400 uppercase tracking-wider">Stap {currentStep} van 6</p>
+              <p className="text-sm font-bold text-aog-green">{stepPercentage}%</p>
+            </div>
+            <div className="h-2.5 rounded-full bg-slate-100 overflow-hidden">
+              <div className="h-full bg-aog-green transition-all duration-500 ease-out rounded-full" style={{ width: `${stepPercentage}%` }} />
+            </div>
           </div>
-          <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-            <div
-              className="h-full bg-aog-green transition-all duration-300"
-              style={{ width: `${stepPercentage}%` }}
-            />
-          </div>
-        </div>
+        )}
 
         {renderStep()}
-        {renderFooter()}
 
-        <div className="flex flex-wrap justify-center gap-2 mt-4 pt-4 border-t border-slate-100 text-xs sm:gap-4 sm:mt-6 sm:pt-5">
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-            <Zap className="w-3 h-3 text-aog-orange" /> Persoonlijke analyse
+        {/* Footer Navigation */}
+        {currentStep <= 6 && (
+          <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
+            <Button type="button" variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="font-bold text-slate-500 hover:text-slate-900">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Vorige
+            </Button>
+            <Button type="button" onClick={nextStep} disabled={!canContinueStep()} className="h-12 px-6 rounded-xl font-black bg-aog-green hover:bg-aog-green-light text-white">
+              Volgende <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
           </div>
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-            <CheckCircle className="w-3 h-3 text-aog-green" /> Geen verplichtingen
+        )}
+
+        {/* Verzendknop bij formulier */}
+        {currentStep === 8 && (
+          <div className="mt-8">
+            <Button type="button" onClick={handleLeadCapture} disabled={!canContinueStep() || isSubmitting} className="w-full h-16 rounded-2xl text-xl font-black bg-aog-green hover:bg-aog-green-light text-white shadow-lg shadow-aog-green/20 transition-all hover:scale-[1.02]">
+              {isSubmitting ? <><Loader2 className="w-6 h-6 mr-2 animate-spin" /> Gegevens verwerken...</> : "Ontvang mijn gratis rapport"}
+            </Button>
+            <p className="text-center text-xs font-medium text-slate-400 mt-4 flex items-center justify-center gap-1.5">
+              <Shield className="w-3.5 h-3.5" /> Uw gegevens worden veilig en AVG-proof verwerkt
+            </p>
           </div>
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-            <Shield className="w-3 h-3 text-aog-blue" /> AVG-veilig verwerkt
-          </div>
-        </div>
+        )}
       </div>
     </section>
   );
