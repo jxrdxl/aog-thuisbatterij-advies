@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { CheckCircle, Shield, Clock3, TrendingDown } from "lucide-react";
+import { CheckCircle, Clock3, Shield, TrendingDown } from "lucide-react";
 import Header from "@/components/Header";
 
 const LeadForm = lazy(() => import("@/components/LeadForm"));
@@ -12,78 +12,78 @@ export default function Home() {
   const scrollToForm = () => {
     const formElement = document.getElementById("lead-form");
     if (formElement) {
-      formElement.scrollIntoView({ behavior: "smooth" });
+      formElement.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-aog-green/30 font-sans text-slate-900 bg-slate-50">
+    <div className="min-h-screen flex flex-col selection:bg-aog-green/20 font-sans text-slate-900 bg-slate-50">
       <Header />
 
-      <section className="relative overflow-hidden pt-20 pb-14">
+      <section className="relative overflow-hidden pt-16 pb-10 sm:pt-20 sm:pb-12">
         <div className="absolute inset-0 bg-slate-950" aria-hidden="true">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.18),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.14),transparent_30%),linear-gradient(180deg,rgba(2,6,23,0.96),rgba(15,23,42,0.94),rgba(2,6,23,0.98))]" />
-          <div className="absolute top-16 left-1/2 -translate-x-1/2 h-48 w-48 rounded-full bg-aog-green/10 blur-3xl" />
-          <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-aog-blue/10 blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.16),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(59,130,246,0.10),transparent_30%),linear-gradient(180deg,rgba(2,6,23,0.96),rgba(15,23,42,0.94),rgba(2,6,23,0.98))]" />
+          <div className="absolute top-10 right-8 h-40 w-40 rounded-full bg-aog-green/10 blur-3xl" />
+          <div className="absolute bottom-0 left-0 h-52 w-52 rounded-full bg-aog-blue/10 blur-3xl" />
         </div>
 
         <div className="relative z-10 container px-4">
-          <div className="grid lg:grid-cols-2 gap-10 items-start">
-            <div className="pt-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-aog-green/30 bg-aog-green/10 px-4 py-2 text-aog-green font-black text-sm uppercase tracking-wider mb-6">
-                Gratis bespaarcheck
+          <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-6 lg:gap-8 items-start">
+            <div className="pt-4 lg:pt-8 max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-aog-green/30 bg-aog-green/10 px-3.5 py-2 text-aog-green font-black text-xs sm:text-sm uppercase tracking-wider mb-4">
+                Gratis bespaarcheck voor huiseigenaren met zonnepanelen
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-white leading-[1.04] mb-6">
-                Uw zonnepanelen leveren straks{" "}
-                <span className="text-aog-orange">minder op</span>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.02] tracking-[-0.04em] mb-4">
+                Uw zonnepanelen leveren straks
+                <span className="text-aog-orange"> minder op</span>
               </h1>
 
-              <p className="text-lg sm:text-xl text-white/85 leading-relaxed mb-8 max-w-2xl">
-                Einde saldering in 2027. Terugleverkosten stijgen. Ontdek wat dit voor u betekent en of een thuisbatterij interessant is.
+              <p className="text-base sm:text-lg lg:text-xl text-white/85 leading-relaxed mb-6 max-w-xl">
+                Door terugleverkosten en het afbouwen van salderen kan uw rendement flink dalen.
+                Ontdek in 2 minuten of een thuisbatterij in uw situatie interessant kan zijn.
               </p>
 
-              <div className="flex flex-wrap gap-4 text-white/90 text-base font-bold mb-8">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-aog-green" />
+              <div className="flex flex-wrap gap-3 text-white/90 text-sm sm:text-base font-bold mb-6">
+                <div className="flex items-center gap-2 rounded-full bg-white/5 px-3 py-2">
+                  <CheckCircle className="w-4 h-4 text-aog-green" />
                   <span>100% vrijblijvend</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock3 className="w-5 h-5 text-aog-green" />
-                  <span>~2 minuten</span>
+                <div className="flex items-center gap-2 rounded-full bg-white/5 px-3 py-2">
+                  <Clock3 className="w-4 h-4 text-aog-green" />
+                  <span>2 minuten</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-aog-green" />
-                  <span>Onafhankelijk advies</span>
+                <div className="flex items-center gap-2 rounded-full bg-white/5 px-3 py-2">
+                  <Shield className="w-4 h-4 text-aog-green" />
+                  <span>Alleen een check, geen verplichting</span>
                 </div>
               </div>
 
               <button
                 onClick={scrollToForm}
-                className="inline-flex items-center justify-center rounded-full bg-aog-green hover:bg-aog-green-light text-white font-black text-2xl px-10 py-5 shadow-[0_18px_60px_rgba(34,197,94,0.35)] transition-all"
+                className="inline-flex items-center justify-center rounded-full bg-aog-green hover:bg-aog-green-light text-white font-black text-lg sm:text-xl px-7 py-4 shadow-[0_18px_50px_rgba(34,197,94,0.28)] transition-all"
               >
-                Start de bespaarcheck (2 min)
+                Start de bespaarcheck
               </button>
 
-              <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl">
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
                 {[
-                  { value: "500+", label: "Huishoudens geholpen" },
-                  { value: "4.8/5", label: "Klantwaardering" },
-                  { value: "€400+", label: "Gem. besparing/jaar" },
+                  "Terugleverkosten lopen ongemerkt op",
+                  "Vanaf 2027 wordt terugleveren minder waard",
+                  "Niet elke woning is geschikt voor een thuisbatterij",
                 ].map((item) => (
                   <div
-                    key={item.label}
-                    className="rounded-3xl bg-white text-center p-6 shadow-xl"
+                    key={item}
+                    className="rounded-2xl border border-white/10 bg-white/8 backdrop-blur-sm p-4 text-white/90 text-sm leading-relaxed"
                   >
-                    <p className="text-4xl font-black text-aog-green">{item.value}</p>
-                    <p className="text-slate-500 font-medium mt-2">{item.label}</p>
+                    {item}
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="w-full max-w-2xl ml-auto animate-slide-up">
-              <Suspense fallback={<div className="h-[600px] bg-white/10 animate-pulse rounded-[32px]" />}>
+            <div className="w-full max-w-2xl ml-auto">
+              <Suspense fallback={<div className="h-[620px] rounded-[28px] bg-white/10 animate-pulse" />}>
                 <LeadForm />
               </Suspense>
             </div>
@@ -91,154 +91,120 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 bg-white border-t border-slate-200">
+      <section className="py-10 sm:py-12 bg-white border-t border-slate-200">
         <div className="container px-4">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 mb-4">
-              Waarom u <span className="text-aog-green">nu</span> actie moet ondernemen
+          <div className="max-w-3xl mx-auto text-center mb-8">
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-3 tracking-[-0.03em]">
+              Waarom huishoudens nu opnieuw naar hun panelen kijken
             </h2>
-            <p className="text-lg text-slate-600 font-medium">
-              De energiemarkt verandert snel. Zonder actie betaalt u straks extra voor uw eigen opgewekte stroom.
+            <p className="text-base sm:text-lg text-slate-600">
+              De klik komt al uit je advertenties. Deze sectie moet die pijn direct afmaken, niet verdunnen.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-4 max-w-6xl mx-auto">
             {[
               {
-                  title: "Stijgende terugleverkosten",
-                  text: "Energieleveranciers rekenen steeds hogere kosten voor het terugleveren van stroom. Uw rendement daalt.",
-                },
-                {
-                  title: "Einde salderingsregeling 2027",
-                  text: "Vanaf 1 januari 2027 kunt u opgewekte stroom niet meer wegstrepen tegen uw verbruik. U betaalt dan voor uw eigen stroom.",
-                },
-                {
-                  title: "Voorkom waardeverlies van uw zonnepanelen",
-                  text: "Zonder thuisbatterij verliest uw investering in zonnepanelen aanzienlijk aan waarde na 2027.",
-                },
+                title: "Terugleverkosten drukken uw rendement",
+                text: "Steeds meer huishoudens zien dat terugleveren minder oplevert en soms zelfs geld kost.",
+              },
+              {
+                title: "2027 wordt het echte kantelpunt",
+                text: "Vanaf 2027 wordt terugleveren nog minder interessant. Zelf gebruiken wordt belangrijker.",
+              },
+              {
+                title: "Niet iedere woning is hetzelfde",
+                text: "Aantal panelen, verbruik en gebruiksmoment bepalen of een thuisbatterij voor u logisch is.",
+              },
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-3xl border border-slate-200 bg-slate-50 p-8 shadow-sm"
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm"
               >
-                <h3 className="text-2xl font-black text-slate-900 mb-3">{item.title}</h3>
-                <p className="text-slate-600 text-lg leading-relaxed">{item.text}</p>
+                <div className="w-10 h-10 rounded-xl bg-aog-green/10 flex items-center justify-center mb-4">
+                  <TrendingDown className="w-5 h-5 text-aog-green" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 mb-2">{item.title}</h3>
+                <p className="text-slate-600 leading-relaxed">{item.text}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-slate-50">
+      <section id="how-it-works" className="py-10 sm:py-12 bg-slate-50">
         <div className="container px-4">
-          <div className="max-w-5xl mx-auto rounded-[32px] bg-[linear-gradient(135deg,#0f172a,#16385f)] p-8 sm:p-10 text-white shadow-2xl">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
-              <div>
-                <p className="text-aog-green font-black uppercase tracking-wider text-sm mb-3">
-                  De oplossing voor uw zonnepanelen
-                </p>
-                <h2 className="text-3xl sm:text-5xl font-black mb-4">
-                  Voorkom onnodige kosten en maximaliseer uw rendement.
-                </h2>
-                <p className="text-white/80 text-lg leading-relaxed">
-                  Onze bespaarcheck helpt u inzicht te krijgen in de impact van de nieuwe energieregels en toont hoe een thuisbatterij uw zonnepanelen weer rendabel maakt.
-                </p>
-              </div>
-
-              <div className="rounded-3xl border border-white/10 bg-white/10 backdrop-blur-sm p-6">
-                <ul className="space-y-4 text-lg">
-                  {[
-                    "Lagere weerstand bij eerste contact",
-                    "Betere match met pijn-hooks in advertenties",
-                    "Sterkere leadkwaliteit voor opvolging",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-3">
-                      <CheckCircle className="w-6 h-6 text-aog-green mt-0.5 flex-shrink-0" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 bg-white">
-        <div className="container px-4">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 mb-4">
-              Wat klanten zeggen
+          <div className="max-w-3xl mx-auto text-center mb-8">
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-3 tracking-[-0.03em]">
+              Zo werkt de check
             </h2>
-            <p className="text-lg text-slate-600 font-medium">
-              Duidelijk, laagdrempelig en zonder verkooppraat.
+            <p className="text-base sm:text-lg text-slate-600">
+              Kort, duidelijk en zonder extra franje.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
             {[
               {
-                quote:
-                  "Duidelijk inzicht gekregen in mijn besparingspotentieel. Precies wat ik nodig had.",
-                name: "Sanne K.",
-                city: "Amersfoort",
+                step: "1",
+                title: "Beantwoord een paar vragen",
+                text: "Over uw woning, zonnepanelen en stroomgebruik.",
               },
               {
-                quote:
-                  "Eerlijk en onafhankelijk advies. Geen verkooppraat, maar feiten.",
-                name: "Mark V.",
-                city: "Utrecht",
+                step: "2",
+                title: "Laat uw gegevens achter",
+                text: "Uw lead komt direct binnen zodra u uw gegevens verzendt.",
               },
               {
-                quote:
-                  "Binnen 2 minuten wist ik waar ik aan toe was. Top service.",
-                name: "Linda B.",
-                city: "Haarlem",
+                step: "3",
+                title: "Ontvang een terugkoppeling",
+                text: "U ziet direct uw uitslag en landt daarna op de bedanktpagina voor de opvolging.",
               },
             ].map((item) => (
               <div
-                key={item.name}
-                className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm"
+                key={item.step}
+                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
               >
-                <div className="text-yellow-400 text-2xl mb-4">★★★★★</div>
-                <p className="text-slate-600 text-xl leading-relaxed mb-6">“{item.quote}”</p>
-                <p className="font-black text-slate-900 text-2xl">{item.name}</p>
-                <p className="text-slate-500 text-lg">{item.city}</p>
+                <div className="w-10 h-10 rounded-full bg-aog-green text-white font-black flex items-center justify-center mb-4">
+                  {item.step}
+                </div>
+                <h3 className="text-xl font-black text-slate-900 mb-2">{item.title}</h3>
+                <p className="text-slate-600 leading-relaxed">{item.text}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-slate-50">
+      <section id="faq" className="py-10 sm:py-12 bg-white">
         <div className="container px-4">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 mb-4">
+          <div className="max-w-3xl mx-auto text-center mb-8">
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mb-3 tracking-[-0.03em]">
               Veelgestelde vragen
             </h2>
           </div>
 
-          <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
+          <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-4">
             {[
               {
                 title: "Is deze check vrijblijvend?",
-                text: "Ja. U vraagt geen aankoop aan, maar een terugkoppeling op basis van uw situatie.",
+                text: "Ja. U vraagt een persoonlijke terugkoppeling aan, geen aankoop of verplicht traject.",
               },
               {
-                title: "Is een thuisbatterij voor iedereen geschikt?",
-                text: "Nee. Voor sommige huishoudens wel, voor andere niet. Daarom starten we juist met een persoonlijke check.",
+                title: "Is een thuisbatterij altijd interessant?",
+                text: "Nee. Juist daarom begint het met een check op uw eigen situatie.",
               },
               {
                 title: "Wat gebeurt er na mijn aanvraag?",
-                text: "Uw gegevens worden bekeken en u kunt een telefoontje verwachten voor een korte, vrijblijvende terugkoppeling.",
+                text: "Uw gegevens zijn al binnen. Daarna volgt de terugkoppeling en eventuele opvolging.",
               },
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm"
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm"
               >
-                <h3 className="text-2xl font-black text-slate-900 mb-3">{item.title}</h3>
-                <p className="text-slate-600 text-lg leading-relaxed">{item.text}</p>
+                <h3 className="text-xl font-black text-slate-900 mb-2">{item.title}</h3>
+                <p className="text-slate-600 leading-relaxed">{item.text}</p>
               </div>
             ))}
           </div>
@@ -249,12 +215,12 @@ export default function Home() {
         <WhatsAppButton />
       </Suspense>
       <Suspense fallback={null}>
-        <StickyCta onClick={scrollToForm} />
+        <StickyCta />
       </Suspense>
       <Suspense fallback={null}>
         <ExitIntentPopup />
       </Suspense>
-      <Suspense fallback={<div className="h-32 bg-slate-100 animate-pulse" />}>
+      <Suspense fallback={<div className="h-24 bg-slate-100 animate-pulse" />}>
         <Footer />
       </Suspense>
     </div>
