@@ -6,11 +6,13 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Quiz from "./pages/Quiz"; // Voeg deze import toe
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/quiz"} component={Quiz} /> {/* Voeg de nieuwe quiz-route toe */}
       <Route path={"/bedankt"} component={Bedankt} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
