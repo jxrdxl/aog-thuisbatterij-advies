@@ -207,7 +207,8 @@ export default function LeadForm() {
     window.setTimeout(() => nextStep(), 200);
   };
 
-const handleLeadCapture = async () => {
+  // --- HIER IS DE OPGEFRISTE EN GECORRIGEERDE FUNCTIE ---
+  const handleLeadCapture = async () => {
     if (!canContinueStep() || isSubmitting) return;
 
     setIsSubmitting(true);
@@ -229,66 +230,6 @@ const handleLeadCapture = async () => {
       utmMedium: params.get("utm_medium") || undefined,
       utmCampaign: params.get("utm_campaign") || undefined,
     };
-
-    // Uitgebreidere data voor Google Sheets
-    const sheetPayload = {
-      ...payload,
-      usageMoment: answers.usageMoment || "",
-      feedIn: answers.feedIn || "",
-      futureUsage: answers.futureUsage || "",
-      calculatedSavings: calculatedSavings.savings
-    };
-
-    let sheetsAccepted = false;
-    let dbAccepted = false;
-
-    try {
-      // 1. Probeer naar Google Sheets te sturen (belangrijkste voor jou)
-      try {
-        await fetch(
-          "https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec",
-          {
-            method: "POST",
-            mode: "no-cors", // No-cors zorgt ervoor dat er geen CORS errors in de browser komen
-            headers: {
-              "Content-Type": "text/plain;charset=utf-8",
-            },
-            body: JSON.stringify(sheetPayload),
-          }
-        );
-        sheetsAccepted = true;
-      } catch (e) {
-        console.error("Google Sheets submission failed", e);
-      }
-
-      // 2. Probeer naar de interne database te sturen via tRPC
-      try {
-        await leadMutation.mutateAsync(payload);
-        dbAccepted = true;
-      } catch (e) {
-        console.error("Database/trpc submission failed", e);
-      }
-
-      // Als tenminste één van de twee is gelukt, gaan we door naar de bedanktpagina!
-      if (sheetsAccepted || dbAccepted) {
-        setLeadSaved(true);
-        setCurrentStep(9); // 9 is het succes/doorverwijs scherm
-        return;
-      }
-
-      // Als beide falen, toon de foutmelding
-      setSubmitError(
-        "Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04."
-      );
-    } catch (error) {
-      console.error("Lead submission failed:", error);
-      setSubmitError(
-        "Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04."
-      );
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
     // Uitgebreidere data voor Google Sheets
     const sheetPayload = {
@@ -349,28 +290,7 @@ const handleLeadCapture = async () => {
       setIsSubmitting(false);
     }
   };
-
-    const sheetPayload = {
-      ...payload,
-      usageMoment: answers.usageMoment || "",
-      feedIn: answers.feedIn || "",
-      futureUsage: answers.futureUsage || "",
-      calculatedSavings: calculatedSavings.savings
-    };
-
-    try {
-      // Optioneel: Google Sheets en Database logic hier
-      await leadMutation.mutateAsync(payload);
-      
-      setLeadSaved(true);
-      setCurrentStep(9);
-    } catch (error) {
-      console.error("Lead submission failed:", error);
-      setSubmitError("Er ging iets mis. Probeer het opnieuw of bel ons op 06-127 128 04.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // --- EINDE GECORRIGEERDE FUNCTIE ---
 
   const stepPercentage = Math.min(Math.round((currentStep / 6) * 100), 100);
 
