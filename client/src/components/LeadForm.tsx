@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useTracking } from "@/hooks/useTracking";
 
 type QuizAnswers = {
   homeType: string;
@@ -41,6 +40,8 @@ type LeadFields = {
   phone: string;
 };
 
+type DisqualifiedReason = "huurwoning" | "geen-panelen" | null;
+
 const totalSteps = 8;
 
 const optionBase =
@@ -50,13 +51,13 @@ const optionActive = "border-aog-green bg-aog-green/5 shadow-sm";
 
 export default function LeadForm() {
   const [, setLocation] = useLocation();
-  const { trackInitiateCheckout } = useTracking();
   const leadMutation = trpc.leads.submit.useMutation();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [formStarted, setFormStarted] = useState(false);
+  const [leadSaved, setLeadSaved] = useState(false);
+  const [disqualifiedReason, setDisqualifiedReason] = useState<DisqualifiedReason>(null);
 
   const [answers, setAnswers] = useState<QuizAnswers>({
     homeType: "",
@@ -75,7 +76,7 @@ export default function LeadForm() {
     phone: "",
   });
 
-  const stepPercentage = Math.round((currentStep / totalSteps) * 100);
+  const stepPercentage = currentStep === 8 ? 100 : Math.round((currentStep / totalSteps) * 100);
 
   const resultMeta = useMemo(() => {
     const likelyGood =
@@ -105,26 +106,26 @@ export default function LeadForm() {
     };
   }, [answers]);
 
-  const startTrackingOnce = () => {
-    if (!formStarted) {
-      setFormStarted(true);
-      trackInitiateCheckout({
-        content_name: "Bespaarcheck",
-        content_category: "Thuisbatterij Advies",
-        value: 240,
-        currency: "EUR",
-      });
-    }
-  };
+  useEffect(() => {
+    if (currentStep !== 8 || !leadSaved) return;
+
+    const timer = window.setTimeout(() => {
+      setLocation(
+        `/bedankt?naam=${encodeURIComponent(
+          leadFields.firstName || "bezoeker"
+        )}&telefoon=${encodeURIComponent(leadFields.phone || "")}`
+      );
+    }, 2200);
+
+    return () => window.clearTimeout(timer);
+  }, [currentStep, leadSaved, leadFields.firstName, leadFields.phone, setLocation]);
 
   const updateAnswer = (key: keyof QuizAnswers, value: string) => {
-    startTrackingOnce();
     setSubmitError("");
     setAnswers((prev) => ({ ...prev, [key]: value }));
   };
 
   const updateLeadField = (key: keyof LeadFields, value: string) => {
-    startTrackingOnce();
     setSubmitError("");
     setLeadFields((prev) => ({ ...prev, [key]: value }));
   };
@@ -134,7 +135,30 @@ export default function LeadForm() {
   };
 
   const prevStep = () => {
-    if (currentStep > 1) setCurrentStep((s) => s - 1);
+    if (currentStep > 1 && currentStep < 8) setCurrentStep((s) => s - 1);
+  };
+
+  const resetForm = () => {
+    setCurrentStep(1);
+    setIsSubmitting(false);
+    setSubmitError("");
+    setLeadSaved(false);
+    setDisqualifiedReason(null);
+    setAnswers({
+      homeType: "",
+      hasPanels: "",
+      panelCount: "",
+      feedIn: "",
+      usageMoment: "",
+      futureUsage: "",
+    });
+    setLeadFields({
+      postcode: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+    });
   };
 
   const isValidEmail = (email: string) =>
@@ -162,8 +186,6 @@ export default function LeadForm() {
           isValidEmail(leadFields.email) &&
           leadFields.phone.replace(/\D/g, "").length >= 10
         );
-      case 8:
-        return true;
       default:
         return false;
     }
@@ -172,20 +194,22 @@ export default function LeadForm() {
   const handleAutoAdvance = (key: keyof QuizAnswers, value: string) => {
     updateAnswer(key, value);
 
-    if (
-      (key === "homeType" && value === "huurwoning") ||
-      (key === "hasPanels" && value === "nee")
-    ) {
-      setTimeout(() => {
-        setLocation("/bedankt?naam=bezoeker&telefoon=");
-      }, 220);
+    if (key === "homeType" && value === "huurwoning") {
+      setDisqualifiedReason("huurwoning");
+      window.setTimeout(() => setCurrentStep(8), 140);
       return;
     }
 
-    setTimeout(() => nextStep(), 140);
+    if (key === "hasPanels" && value === "nee") {
+      setDisqualifiedReason("geen-panelen");
+      window.setTimeout(() => setCurrentStep(8), 140);
+      return;
+    }
+
+    window.setTimeout(() => nextStep(), 140);
   };
 
-  const handleSubmit = async () => {
+  const handleLeadCapture = async () => {
     if (!canContinueStep() || isSubmitting) return;
 
     setIsSubmitting(true);
@@ -243,11 +267,8 @@ export default function LeadForm() {
       }
 
       if (sheetsAccepted || dbAccepted) {
-        setLocation(
-          `/bedankt?naam=${encodeURIComponent(
-            leadFields.firstName
-          )}&telefoon=${encodeURIComponent(leadFields.phone)}`
-        );
+        setLeadSaved(true);
+        setCurrentStep(8);
         return;
       }
 
@@ -263,6 +284,81 @@ export default function LeadForm() {
       setIsSubmitting(false);
     }
   };
+
+  const renderQualifiedResult = () => (
+    <>
+      <div className="rounded-[24px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-5 py-6 mb-5">
+        <p className="text-3xl mb-2">🎉</p>
+        <h3 className="text-3xl font-black mb-2">Uw check is afgerond</h3>
+        <p className="text-white/80 text-base">Uw gegevens zijn al ontvangen</p>
+      </div>
+
+      <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="inline-flex items-center rounded-full border border-aog-green/70 bg-aog-green/10 px-3 py-1.5 text-aog-green font-bold text-xs mb-4">
+          ⭐ {resultMeta.badge}
+        </div>
+
+        <h4 className="text-[2rem] sm:text-4xl font-black text-slate-900 leading-tight mb-3">
+          {resultMeta.title}
+        </h4>
+
+        <p className="text-slate-500 text-base sm:text-lg leading-relaxed mb-5">
+          {resultMeta.description}
+        </p>
+
+        <div className="rounded-[22px] border-2 border-aog-green bg-aog-green/5 p-5 mb-5 text-center">
+          <p className="text-aog-green font-bold text-lg mb-1">Geschat besparingspotentieel</p>
+          <p className="text-4xl sm:text-5xl font-black text-aog-green mb-1">{resultMeta.range}</p>
+          <p className="text-slate-500 text-base">per jaar</p>
+        </div>
+
+        <ul className="space-y-3 text-slate-600 text-base sm:text-lg mb-5">
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
+            <span>Uw lead is direct opgeslagen zodra u uw gegevens verzond</span>
+          </li>
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
+            <span>U wordt nu automatisch doorgestuurd naar de bedanktpagina</span>
+          </li>
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
+            <span>Daar start de verdere opvolging netjes vanaf één conversiepagina</span>
+          </li>
+        </ul>
+
+        <div className="rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 text-center">
+          Even geduld, u wordt doorgestuurd…
+        </div>
+      </div>
+    </>
+  );
+
+  const renderDisqualifiedResult = () => (
+    <>
+      <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+          <Home className="w-7 h-7 text-slate-700" />
+        </div>
+
+        <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-3 leading-tight tracking-[-0.03em]">
+          {disqualifiedReason === "huurwoning"
+            ? "Deze check is bedoeld voor koopwoningen"
+            : "Deze check is bedoeld voor woningen met zonnepanelen"}
+        </h3>
+
+        <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-5">
+          {disqualifiedReason === "huurwoning"
+            ? "Omdat financiering en technische geschiktheid meestal gekoppeld zijn aan de eigenaar van de woning, is deze route nu vooral ingericht voor koopwoningen."
+            : "Deze funnel is gemaakt voor huishoudens die al zonnepanelen hebben en willen weten wat terugleveren en 2027 voor hun rendement betekenen."}
+        </p>
+
+        <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 text-slate-600 text-sm leading-relaxed">
+          Er is nog geen lead opgeslagen en u komt niet op de bedanktpagina terecht. Zo blijft uw conversiemeting schoon.
+        </div>
+      </div>
+    </>
+  );
 
   const renderStep = () => {
     switch (currentStep) {
@@ -294,9 +390,7 @@ export default function LeadForm() {
                       <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
                         <Icon className="w-5 h-5 text-slate-700" />
                       </div>
-                      <p className="font-black text-base sm:text-lg text-slate-900">
-                        {item.label}
-                      </p>
+                      <p className="font-black text-base sm:text-lg text-slate-900">{item.label}</p>
                     </div>
                   </button>
                 );
@@ -333,9 +427,7 @@ export default function LeadForm() {
                       <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
                         <Icon className="w-5 h-5 text-aog-green" />
                       </div>
-                      <p className="font-black text-base sm:text-lg text-slate-900">
-                        {item.label}
-                      </p>
+                      <p className="font-black text-base sm:text-lg text-slate-900">{item.label}</p>
                     </div>
                   </button>
                 );
@@ -350,9 +442,7 @@ export default function LeadForm() {
             <h3 className="text-[2rem] sm:text-3xl font-black text-slate-900 mb-2 leading-tight tracking-[-0.03em]">
               Hoeveel zonnepanelen heeft u ongeveer?
             </h3>
-            <p className="text-slate-500 text-base sm:text-lg mb-5">
-              Een grove indicatie is genoeg.
-            </p>
+            <p className="text-slate-500 text-base sm:text-lg mb-5">Een grove indicatie is genoeg.</p>
 
             <div className="space-y-2.5">
               {["6-10", "11-15", "16-20", "20+"].map((value) => {
@@ -368,9 +458,7 @@ export default function LeadForm() {
                       <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
                         <Sun className="w-5 h-5 text-aog-orange" />
                       </div>
-                      <p className="font-black text-base sm:text-lg text-slate-900">
-                        {value}
-                      </p>
+                      <p className="font-black text-base sm:text-lg text-slate-900">{value}</p>
                     </div>
                   </button>
                 );
@@ -408,9 +496,7 @@ export default function LeadForm() {
                       <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
                         <Icon className="w-5 h-5 text-slate-700" />
                       </div>
-                      <p className="font-black text-base sm:text-lg text-slate-900">
-                        {item.label}
-                      </p>
+                      <p className="font-black text-base sm:text-lg text-slate-900">{item.label}</p>
                     </div>
                   </button>
                 );
@@ -434,7 +520,7 @@ export default function LeadForm() {
                 {
                   value: "overdag",
                   label: "Overdag",
-                  sub: "Thuiswerker / huishouden",
+                  sub: "Thuiswerker of veel thuis",
                   icon: Sun,
                 },
                 {
@@ -471,9 +557,7 @@ export default function LeadForm() {
                           <Icon className="w-5 h-5 text-slate-700" />
                         </div>
                         <div>
-                          <p className="font-black text-base sm:text-lg text-slate-900">
-                            {item.label}
-                          </p>
+                          <p className="font-black text-base sm:text-lg text-slate-900">{item.label}</p>
                           <p className="text-sm text-slate-500">{item.sub}</p>
                         </div>
                       </div>
@@ -502,8 +586,8 @@ export default function LeadForm() {
 
             <div className="space-y-2.5">
               {[
-                { value: "laadpaal", label: "Elektrische auto / laadpaal", icon: Car },
-                { value: "warmtepomp", label: "Airco / warmtepomp", icon: Zap },
+                { value: "laadpaal", label: "Elektrische auto of laadpaal", icon: Car },
+                { value: "warmtepomp", label: "Airco of warmtepomp", icon: Zap },
                 { value: "geen", label: "Geen grote wijziging", icon: Gauge },
                 { value: "weet-niet", label: "Weet ik nog niet", icon: HelpCircle },
               ].map((item) => {
@@ -520,9 +604,7 @@ export default function LeadForm() {
                       <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
                         <Icon className="w-5 h-5 text-slate-700" />
                       </div>
-                      <p className="font-black text-base sm:text-lg text-slate-900">
-                        {item.label}
-                      </p>
+                      <p className="font-black text-base sm:text-lg text-slate-900">{item.label}</p>
                     </div>
                   </button>
                 );
@@ -537,17 +619,15 @@ export default function LeadForm() {
             <div className="rounded-[24px] border border-aog-green bg-aog-green/5 px-5 py-5 mb-5 text-center">
               <p className="text-3xl mb-2">📋</p>
               <h3 className="text-2xl sm:text-3xl font-black text-aog-green mb-2">
-                Vul uw gegevens in
+                Check afgerond
               </h3>
               <p className="text-slate-600 text-base sm:text-lg">
-                Daarna ziet u direct uw indicatieve besparing.
+                Vul uw gegevens in om uw persoonlijke bespaaranalyse te ontvangen.
               </p>
             </div>
 
             <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="text-[2rem] sm:text-4xl font-black text-slate-900 mb-5">
-                Uw gegevens
-              </h3>
+              <h3 className="text-[2rem] sm:text-4xl font-black text-slate-900 mb-5">Uw gegevens</h3>
 
               <div className="space-y-4">
                 <div>
@@ -618,7 +698,7 @@ export default function LeadForm() {
                 </div>
 
                 <div className="rounded-2xl bg-slate-50 p-4 text-slate-500 italic text-base leading-relaxed">
-                  Uw contactgegevens worden alleen gebruikt voor maatwerkadvies. De gegevens worden niet doorverkocht.
+                  Zodra u op de knop drukt, wordt uw lead direct opgeslagen. Daarna ziet u meteen uw uitslag.
                 </div>
 
                 {submitError ? (
@@ -632,67 +712,74 @@ export default function LeadForm() {
         );
 
       case 8:
-        return (
-          <>
-            <div className="rounded-[24px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-5 py-6 mb-5">
-              <p className="text-3xl mb-2">🎉</p>
-              <h3 className="text-3xl font-black mb-2">Uw bespaarresultaat</h3>
-              <p className="text-white/80 text-base">Op basis van uw antwoorden</p>
-            </div>
-
-            <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="inline-flex items-center rounded-full border border-aog-green/70 bg-aog-green/10 px-3 py-1.5 text-aog-green font-bold text-xs mb-4">
-                ⭐ {resultMeta.badge}
-              </div>
-
-              <h4 className="text-[2rem] sm:text-4xl font-black text-slate-900 leading-tight mb-3">
-                {resultMeta.title}
-              </h4>
-
-              <p className="text-slate-500 text-base sm:text-lg leading-relaxed mb-5">
-                {resultMeta.description}
-              </p>
-
-              <div className="rounded-[22px] border-2 border-aog-green bg-aog-green/5 p-5 mb-5 text-center">
-                <p className="text-aog-green font-bold text-lg mb-1">
-                  Geschat besparingspotentieel
-                </p>
-                <p className="text-4xl sm:text-5xl font-black text-aog-green mb-1">
-                  {resultMeta.range}
-                </p>
-                <p className="text-slate-500 text-base">per jaar</p>
-              </div>
-
-              <div>
-                <h5 className="text-xl sm:text-2xl font-black text-slate-900 mb-3">
-                  Onze aanbevelingen:
-                </h5>
-                <ul className="space-y-3 text-slate-600 text-base sm:text-lg">
-                  <li className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
-                    <span>Laat berekenen wat terugleveren u nu kost</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
-                    <span>Ontdek of een thuisbatterij in uw situatie zinvol is</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-aog-green mt-0.5 flex-shrink-0" />
-                    <span>Krijg inzicht in uw mogelijke besparing</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </>
-        );
+        return leadSaved ? renderQualifiedResult() : renderDisqualifiedResult();
 
       default:
         return null;
     }
   };
 
+  const renderFooter = () => {
+    if (currentStep === 8 && leadSaved) {
+      return null;
+    }
+
+    if (currentStep === 8 && disqualifiedReason) {
+      return (
+        <div className="mt-6 pt-4 border-t border-slate-200 flex justify-end">
+          <Button
+            type="button"
+            onClick={resetForm}
+            className="h-12 px-5 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg"
+          >
+            Opnieuw starten
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={prevStep}
+          disabled={currentStep === 1 || isSubmitting}
+          className="h-12 px-4 rounded-xl text-base font-black border-slate-200 sm:h-14 sm:px-6 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-1 sm:gap-2"
+        >
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Vorige</span>
+          <span className="sm:hidden">Terug</span>
+        </Button>
+
+        {currentStep < 7 ? (
+          <Button
+            type="button"
+            onClick={nextStep}
+            disabled={!canContinueStep()}
+            className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-1 sm:gap-2"
+          >
+            <span className="hidden sm:inline">Volgende</span>
+            <span className="sm:hidden">Volg</span>
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            onClick={handleLeadCapture}
+            disabled={!canContinueStep() || isSubmitting}
+            className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-2"
+          >
+            {isSubmitting ? "Gegevens opslaan..." : "Bekijk mijn resultaat"}
+            {!isSubmitting && <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}
+          </Button>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <section id="lead-form" className="w-full">
+    <section id="lead-form" className="w-full scroll-mt-28">
       <div className="rounded-[28px] bg-white/95 backdrop-blur-md border border-white/20 p-4 sm:p-6 shadow-2xl">
         <div className="mb-5">
           <div className="flex items-center justify-between mb-2">
@@ -708,43 +795,7 @@ export default function LeadForm() {
         </div>
 
         {renderStep()}
-
-        <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={prevStep}
-            disabled={currentStep === 1 || isSubmitting}
-            className="h-12 px-4 rounded-xl text-base font-black border-slate-200 sm:h-14 sm:px-6 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-1 sm:gap-2"
-          >
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="hidden sm:inline">Vorige</span>
-            <span className="sm:hidden">Terug</span>
-          </Button>
-
-          {currentStep < totalSteps ? (
-            <Button
-              type="button"
-              onClick={nextStep}
-              disabled={!canContinueStep()}
-              className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-1 sm:gap-2"
-            >
-              <span className="hidden sm:inline">Volgende</span>
-              <span className="sm:hidden">Volg</span>
-              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!canContinueStep() || isSubmitting}
-              className="h-12 px-4 rounded-xl text-base font-black bg-aog-green hover:bg-aog-green-light sm:h-14 sm:px-7 sm:rounded-2xl sm:text-lg flex items-center justify-center gap-2"
-            >
-              {isSubmitting ? "Verzenden..." : "Verzenden"}
-              {!isSubmitting && <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />}
-            </Button>
-          )}
-        </div>
+        {renderFooter()}
 
         <div className="flex flex-wrap justify-center gap-2 mt-4 pt-4 border-t border-slate-100 text-xs sm:gap-4 sm:mt-6 sm:pt-5">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
