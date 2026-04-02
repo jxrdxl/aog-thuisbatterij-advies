@@ -246,7 +246,7 @@ const handleLeadCapture = async () => {
       // 1. Probeer naar Google Sheets te sturen (belangrijkste voor jou)
       try {
         await fetch(
-          "https://script.google.com/macros/s/AKfycbzjGcAZ3MSZzyjJ7yosDdPW5KmiDgIiED4SSp41siZpGo_hp_X3P2QkfG9r0xh7G6AjXA/exec",
+          "https://script.google.com/macros/s/AKfycbzxa6ipDJoitBPgtIn8gxnES5TdHyFgeenM9Po1b4N1dUzIH_cYeb0HRngUkwU2Y-yl5Q/exec",
           {
             method: "POST",
             mode: "no-cors", // No-cors zorgt ervoor dat er geen CORS errors in de browser komen
