@@ -44,7 +44,6 @@ type LeadFields = {
 
 type DisqualifiedReason = "huurwoning" | "geen-panelen" | null;
 
-// We hebben nu 9 stappen (inclusief het laadscherm en de resultaat/formulier pagina)
 const totalSteps = 8; 
 
 const optionBase =
@@ -79,7 +78,6 @@ export default function LeadForm() {
     phone: "",
   });
 
-  // Dynamische berekening op basis van de ingevulde panelen
   const calculatedSavings = useMemo(() => {
     let panels = 12; // default
     if (answers.panelCount === "6-10") panels = 8;
@@ -100,29 +98,30 @@ export default function LeadForm() {
     };
   }, [answers.panelCount]);
 
-  // Simuleer een laadscherm bij stap 7
   useEffect(() => {
     if (currentStep === 7 && !disqualifiedReason) {
       const timer = setTimeout(() => {
         setCurrentStep(8);
-      }, 2500); // 2.5 seconden berekenen
+      }, 2500); 
       return () => clearTimeout(timer);
     }
   }, [currentStep, disqualifiedReason]);
 
-  // Redirect na succesvolle lead
+  // UPDATED: Verlengde timer (5 sec) & extra besparings parameter in de URL
   useEffect(() => {
     if (currentStep === 9 && leadSaved) {
       const timer = window.setTimeout(() => {
         setLocation(
           `/bedankt?naam=${encodeURIComponent(
             leadFields.firstName || "bezoeker"
-          )}&telefoon=${encodeURIComponent(leadFields.phone || "")}`
+          )}&telefoon=${encodeURIComponent(
+            leadFields.phone || ""
+          )}&besparing=${calculatedSavings.savings}`
         );
-      }, 2000);
+      }, 5000); // 5 seconden wachten zodat ze de score kunnen zien
       return () => window.clearTimeout(timer);
     }
-  }, [currentStep, leadSaved, leadFields.firstName, leadFields.phone, setLocation]);
+  }, [currentStep, leadSaved, leadFields.firstName, leadFields.phone, calculatedSavings.savings, setLocation]);
 
   const updateAnswer = (key: keyof QuizAnswers, value: string) => {
     setSubmitError("");
@@ -207,7 +206,6 @@ export default function LeadForm() {
     window.setTimeout(() => nextStep(), 200);
   };
 
-  // --- HIER IS DE OPGEFRISTE EN GECORRIGEERDE FUNCTIE ---
   const handleLeadCapture = async () => {
     if (!canContinueStep() || isSubmitting) return;
 
@@ -217,7 +215,6 @@ export default function LeadForm() {
     const params = new URLSearchParams(window.location.search);
     const fullName = `${leadFields.firstName} ${leadFields.lastName}`.trim();
 
-    // Data voor de database
     const payload = {
       name: fullName,
       phone: leadFields.phone.trim(),
@@ -231,7 +228,6 @@ export default function LeadForm() {
       utmCampaign: params.get("utm_campaign") || undefined,
     };
 
-    // Uitgebreidere data voor Google Sheets
     const sheetPayload = {
       ...payload,
       usageMoment: answers.usageMoment || "",
@@ -244,13 +240,12 @@ export default function LeadForm() {
     let dbAccepted = false;
 
     try {
-      // 1. Probeer naar Google Sheets te sturen (belangrijkste voor jou)
       try {
         await fetch(
           "https://script.google.com/macros/s/AKfycbzxa6ipDJoitBPgtIn8gxnES5TdHyFgeenM9Po1b4N1dUzIH_cYeb0HRngUkwU2Y-yl5Q/exec",
           {
             method: "POST",
-            mode: "no-cors", // No-cors zorgt ervoor dat er geen CORS errors in de browser komen
+            mode: "no-cors",
             headers: {
               "Content-Type": "text/plain;charset=utf-8",
             },
@@ -262,7 +257,6 @@ export default function LeadForm() {
         console.error("Google Sheets submission failed", e);
       }
 
-      // 2. Probeer naar de interne database te sturen via tRPC
       try {
         await leadMutation.mutateAsync(payload);
         dbAccepted = true;
@@ -270,14 +264,12 @@ export default function LeadForm() {
         console.error("Database/trpc submission failed", e);
       }
 
-      // Als tenminste één van de twee is gelukt, gaan we door naar de bedanktpagina!
       if (sheetsAccepted || dbAccepted) {
         setLeadSaved(true);
-        setCurrentStep(9); // 9 is het succes/doorverwijs scherm
+        setCurrentStep(9); 
         return;
       }
 
-      // Als beide falen, toon de foutmelding
       setSubmitError(
         "Er ging iets mis met het verzenden. Probeer het opnieuw of bel ons direct op 06-127 128 04."
       );
@@ -290,7 +282,6 @@ export default function LeadForm() {
       setIsSubmitting(false);
     }
   };
-  // --- EINDE GECORRIGEERDE FUNCTIE ---
 
   const stepPercentage = Math.min(Math.round((currentStep / 6) * 100), 100);
 
@@ -450,7 +441,6 @@ export default function LeadForm() {
         );
 
       case 7:
-        // Het Laadscherm / Berekening animatie
         return (
           <div className="py-12 flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full bg-aog-green/10 flex items-center justify-center mb-6">
@@ -474,29 +464,12 @@ export default function LeadForm() {
         );
 
       case 8:
-        // De Teaser & Het Formulier gecombineerd!
+        // UPDATED: Het Lead Formulier is nu gescheiden van het resultaat!
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Besparings Teaser Header */}
-            <div className="rounded-[24px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-6 py-8 mb-8 text-center relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-aog-green/20 rounded-full -mr-20 -mt-20 blur-2xl" />
-              <div className="inline-flex items-center rounded-full border border-aog-green/30 bg-aog-green/20 px-3 py-1.5 text-aog-green-light font-bold text-xs mb-4 uppercase tracking-widest">
-                <TrendingUp className="w-4 h-4 mr-2" /> Analyse Afgerond
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-black mb-2">Gefeliciteerd, uw situatie is geschikt!</h3>
-              <p className="text-white/80 text-lg mb-6">Met uw aantal zonnepanelen loopt u jaarlijks onnodig kosten op. Een thuisbatterij kan dit oplossen.</p>
-              
-              <div className="bg-white/10 rounded-2xl p-5 border border-white/20 inline-block text-center min-w-[280px]">
-                 <p className="text-white/70 font-medium text-sm mb-1 uppercase tracking-wider">Potentiële Besparing</p>
-                 <p className="text-5xl font-black text-aog-green-light">€{calculatedSavings.savings}</p>
-                 <p className="text-white/60 text-sm mt-1">per jaar</p>
-              </div>
-            </div>
-
-            {/* Het Lead Formulier */}
             <div>
-              <h3 className="text-2xl font-black text-slate-900 mb-2">Waar mogen we uw rapport naartoe sturen?</h3>
-              <p className="text-slate-500 mb-6">Vul uw gegevens in en ontvang direct uw gedetailleerde berekening op maat.</p>
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-900 mb-2">Uw besparing is berekend!</h3>
+              <p className="text-slate-500 mb-6">Vul uw gegevens in om direct uw resultaat te zien en het gedetailleerde rapport te ontvangen.</p>
 
               <div className="space-y-4">
                 <div>
@@ -538,11 +511,22 @@ export default function LeadForm() {
             </div>
           );
         }
+        // UPDATED: Succes scherm toont nu de teaser!
         return (
-          <div className="text-center py-10">
-             <div className="w-20 h-20 rounded-full bg-aog-green/10 flex items-center justify-center mx-auto mb-6"><CheckCircle className="w-10 h-10 text-aog-green" /></div>
+          <div className="animate-in fade-in zoom-in-95 duration-500 text-center py-6">
              <h3 className="text-3xl font-black mb-4">Gegevens succesvol ontvangen!</h3>
-             <p className="text-slate-600 text-lg">We sturen u direct door...</p>
+             <p className="text-slate-600 text-lg mb-6">Hier is uw persoonlijke resultaat:</p>
+             
+             <div className="rounded-[24px] bg-[linear-gradient(135deg,#0f172a,#16385f)] text-white px-6 py-8 mb-6 text-center relative overflow-hidden shadow-2xl inline-block w-full max-w-sm">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-aog-green/20 rounded-full -mr-20 -mt-20 blur-2xl" />
+              <div className="bg-white/10 rounded-2xl p-5 border border-white/20 inline-block text-center w-full">
+                 <p className="text-white/70 font-medium text-sm mb-1 uppercase tracking-wider">Potentiële Besparing</p>
+                 <p className="text-5xl font-black text-aog-green-light">€{calculatedSavings.savings}</p>
+                 <p className="text-white/60 text-sm mt-1">per jaar</p>
+              </div>
+            </div>
+            
+            <p className="text-slate-400 text-sm mt-4 animate-pulse">U wordt doorverwezen naar de bedanktpagina...</p>
           </div>
         );
       default: return null;
@@ -552,7 +536,6 @@ export default function LeadForm() {
   return (
     <section id="lead-form" className="w-full scroll-mt-28">
       <div className="rounded-[32px] bg-white border border-slate-200 p-6 sm:p-10 shadow-xl relative overflow-hidden">
-        {/* Progress bar alleen tonen tijdens de vragen (stap 1-6) */}
         {currentStep <= 6 && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-3">
@@ -567,7 +550,6 @@ export default function LeadForm() {
 
         {renderStep()}
 
-        {/* Footer Navigation */}
         {currentStep <= 6 && (
           <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
             <Button type="button" variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="font-bold text-slate-500 hover:text-slate-900">
@@ -579,11 +561,10 @@ export default function LeadForm() {
           </div>
         )}
 
-        {/* Verzendknop bij formulier */}
         {currentStep === 8 && (
           <div className="mt-8">
             <Button type="button" onClick={handleLeadCapture} disabled={!canContinueStep() || isSubmitting} className="w-full h-16 rounded-2xl text-xl font-black bg-aog-green hover:bg-aog-green-light text-white shadow-lg shadow-aog-green/20 transition-all hover:scale-[1.02]">
-              {isSubmitting ? <><Loader2 className="w-6 h-6 mr-2 animate-spin" /> Gegevens verwerken...</> : "Ontvang mijn gratis rapport"}
+              {isSubmitting ? <><Loader2 className="w-6 h-6 mr-2 animate-spin" /> Gegevens verwerken...</> : "Toon mijn resultaat"}
             </Button>
             <p className="text-center text-xs font-medium text-slate-400 mt-4 flex items-center justify-center gap-1.5">
               <Shield className="w-3.5 h-3.5" /> Uw gegevens worden veilig en AVG-proof verwerkt
