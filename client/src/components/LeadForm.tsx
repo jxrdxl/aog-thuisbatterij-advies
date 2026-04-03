@@ -467,15 +467,21 @@ export default function LeadForm() {
                   <h4 className="text-xl font-bold text-slate-900 mb-2 text-center">Klaar voor de volgende stap?</h4>
                   <p className="text-sm text-slate-500 text-center mb-6">Plan een gratis adviesgesprek of vergelijk direct thuisbatterijen.</p>
 
-                  <div className="space-y-3 mb-6">
-                    <Button className="w-full h-14 rounded-xl text-md font-bold bg-[#10b981] hover:bg-[#059669] text-white">
+                 <div className="space-y-3 mb-6">
+                    {/* Knop 1: WhatsApp met vooraf ingevuld bericht */}
+                    <Button 
+                      onClick={() => window.open("https://wa.me/31612712804?text=Ik%20zou%20graag%20meer%20willen%20weten%20over%20thuisbatterijen", "_blank")}
+                      className="w-full h-14 rounded-xl text-md font-bold bg-[#10b981] hover:bg-[#059669] text-white"
+                    >
                       <Phone className="w-5 h-5 mr-2" /> Plan een adviesgesprek
                     </Button>
-                    <Button className="w-full h-14 rounded-xl text-md font-bold bg-[#22c55e] hover:bg-[#16a34a] text-white">
+                    
+                    {/* Knop 2: Standaard WhatsApp chat zonder tekst */}
+                    <Button 
+                      onClick={() => window.open("https://wa.me/31612712804", "_blank")}
+                      className="w-full h-14 rounded-xl text-md font-bold bg-[#22c55e] hover:bg-[#16a34a] text-white"
+                    >
                       <MessageCircle className="w-5 h-5 mr-2" /> WhatsApp ons direct
-                    </Button>
-                    <Button variant="outline" className="w-full h-14 rounded-xl text-md font-bold border-slate-200 text-slate-700 hover:bg-slate-50">
-                      <MonitorSmartphone className="w-5 h-5 mr-2" /> Vergelijk thuisbatterijen
                     </Button>
                   </div>
 
