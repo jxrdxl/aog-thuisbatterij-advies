@@ -97,17 +97,14 @@ export default function LeadForm() {
     };
   }, [answers.panelCount]);
 
-useEffect(() => {
+  useEffect(() => {
     if (currentStep === 7 && !disqualifiedReason) {
       const timer = setTimeout(() => {
         setCurrentStep(8);
-      }, 800); // 💡 We hebben dit verlaagd van 2500ms naar 800ms
+      }, 800); 
       return () => clearTimeout(timer);
     }
   }, [currentStep, disqualifiedReason]);
-
-  // Let op: De automatische redirect naar /bedankt is verwijderd, 
-  // zodat de bezoeker rustig de mooie resultaatpagina (stap 9) kan bekijken!
 
   const updateAnswer = (key: keyof QuizAnswers, value: string) => {
     setSubmitError("");
@@ -279,10 +276,6 @@ useEffect(() => {
       case 4:
       case 5:
       case 6:
-        // Bestaande vragen (verkort weergegeven in deze code-uitleg voor overzicht, 
-        // maar in je uiteindelijke bestand blijven ze exact hetzelfde als voorheen).
-        // Om het simpel te houden, gebruik ik hier de code voor de eerste vraag als voorbeeld, 
-        // vul de andere vragen zelf weer in zoals ze waren.
         const questionData = [
           { step: 1, title: "Woont u in een koopwoning?", desc: "Deze check is bedoeld voor particuliere koopwoningen.", key: "homeType", options: [{ value: "koopwoning", label: "Ja, koopwoning", icon: Home }, { value: "huurwoning", label: "Nee, huurwoning", icon: Home }] },
           { step: 2, title: "Heeft u zonnepanelen?", desc: "We berekenen de impact op uw huidige rendement.", key: "hasPanels", options: [{ value: "ja", label: "Ja, ik heb zonnepanelen", icon: Sun }, { value: "nee", label: "Nee, nog niet", icon: Sun }] },
@@ -342,7 +335,6 @@ useEffect(() => {
         );
 
       case 8:
-        // NIEUW ONTWERP: Exact gebaseerd op je eerste schermafbeelding (Het Formulier)
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="text-center mb-8">
@@ -368,7 +360,7 @@ useEffect(() => {
                     <Input placeholder="Je achternaam" value={leadFields.lastName} onChange={(e) => updateLeadField("lastName", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />
                   </div>
                 </div>
-               <div>
+                <div>
                   <Label className="font-semibold text-slate-700 mb-1.5 block text-sm">E-mailadres *</Label>
                   <Input placeholder="naam@voorbeeld.nl" type="email" value={leadFields.email} onChange={(e) => updateLeadField("email", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />                  
                   <p className="text-[12px] text-slate-500 mt-1.5 flex items-center gap-1 font-medium">
@@ -379,8 +371,6 @@ useEffect(() => {
                   <Label className="font-semibold text-slate-700 mb-1.5 block text-sm">Telefoonnummer *</Label>
                   <Input placeholder="0612345678" type="tel" value={leadFields.phone} onChange={(e) => updateLeadField("phone", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />
                 </div>
-                {submitError && <div className="rounded-xl bg-red-50 p-4 text-red-600 text-sm font-bold">{submitError}</div>}
-              </div>
                 {submitError && <div className="rounded-xl bg-red-50 p-4 text-red-600 text-sm font-bold">{submitError}</div>}
               </div>
 
@@ -402,12 +392,12 @@ useEffect(() => {
                 </div>
               </div>
 
-         <div className="flex items-center justify-center gap-6 text-xs text-slate-500 mb-6 font-medium">
+              <div className="flex items-center justify-center gap-6 text-xs text-slate-500 mb-6 font-medium">
                 <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Veilig verstuurd</span>
                 <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Privacy gewaarborgd</span>
               </div>
 
-             <Button type="button" onClick={handleLeadCapture} disabled={!canContinueStep() || isSubmitting} className="w-full h-14 rounded-full text-lg font-bold bg-[#10b981] hover:bg-[#059669] text-white transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+              <Button type="button" onClick={handleLeadCapture} disabled={!canContinueStep() || isSubmitting} className="w-full h-14 rounded-full text-lg font-bold bg-[#10b981] hover:bg-[#059669] text-white transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
                 {isSubmitting ? (
                   <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Verwerken...</>
                 ) : (
@@ -420,7 +410,6 @@ useEffect(() => {
 
       case 9:
         if (disqualifiedReason) {
-          // Voor huurwoningen of geen zonnepanelen blijft dit netjes.
           return (
             <div className="text-center py-10">
               <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-6"><Home className="w-8 h-8 text-slate-700" /></div>
@@ -431,10 +420,8 @@ useEffect(() => {
           );
         }
 
-        // NIEUW ONTWERP: De bedanktpagina / Resultaten (gebaseerd op je 2e en 3e scherm)
         return (
           <div className="animate-in fade-in zoom-in-95 duration-500">
-            {/* De donkere header bovenaan */}
             <div className="bg-[#111827] text-white rounded-t-[32px] sm:rounded-t-[40px] px-6 py-10 -mt-6 sm:-mt-10 -mx-6 sm:-mx-10 mb-8 text-center">
               <div className="flex justify-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
@@ -445,10 +432,7 @@ useEffect(() => {
               <p className="text-slate-400 text-sm">Op basis van jouw antwoorden</p>
             </div>
 
-            {/* De Twee Kolommen Layout */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 text-left">
-              
-              {/* Linker Kolom: Bedankt & Potentieel */}
               <div>
                 <div className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold mb-4">
                   <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> Analyse Voltooid
@@ -478,7 +462,6 @@ useEffect(() => {
                 </div>
               </div>
 
-              {/* Rechter Kolom: Volgende stappen */}
               <div>
                 <div className="border border-slate-200 rounded-2xl p-6 bg-white shadow-sm">
                   <h4 className="text-xl font-bold text-slate-900 mb-2 text-center">Klaar voor de volgende stap?</h4>
@@ -502,7 +485,6 @@ useEffect(() => {
                   </div>
                 </div>
               </div>
-              
             </div>
           </div>
         );
@@ -512,10 +494,8 @@ useEffect(() => {
 
   return (
     <section id="lead-form" className="w-full scroll-mt-28">
-      {/* Op stap 9 maken we de container wat breder en verwijderen we de padding voor de donkere header */}
       <div className={`rounded-[32px] sm:rounded-[40px] bg-white border border-slate-200 shadow-xl relative overflow-hidden transition-all duration-500 ${currentStep === 9 ? 'p-6 sm:p-10 max-w-4xl mx-auto' : 'p-6 sm:p-10 max-w-2xl mx-auto'}`}>
         
-        {/* Progress bar alleen tonen tijdens de vragen (stap 1-6) */}
         {currentStep <= 6 && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-3">
@@ -530,7 +510,6 @@ useEffect(() => {
 
         {renderStep()}
 
-        {/* Footer Navigation alleen tijdens vragen (stap 1-6) */}
         {currentStep <= 6 && (
           <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
             <Button type="button" variant="ghost" onClick={prevStep} disabled={currentStep === 1} className="font-bold text-slate-500 hover:text-slate-900">
