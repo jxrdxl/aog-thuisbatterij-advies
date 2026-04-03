@@ -97,11 +97,11 @@ export default function LeadForm() {
     };
   }, [answers.panelCount]);
 
-  useEffect(() => {
+useEffect(() => {
     if (currentStep === 7 && !disqualifiedReason) {
       const timer = setTimeout(() => {
         setCurrentStep(8);
-      }, 2500); 
+      }, 800); // 💡 We hebben dit verlaagd van 2500ms naar 800ms
       return () => clearTimeout(timer);
     }
   }, [currentStep, disqualifiedReason]);
@@ -368,14 +368,19 @@ export default function LeadForm() {
                     <Input placeholder="Je achternaam" value={leadFields.lastName} onChange={(e) => updateLeadField("lastName", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />
                   </div>
                 </div>
-                <div>
+               <div>
                   <Label className="font-semibold text-slate-700 mb-1.5 block text-sm">E-mailadres *</Label>
-                  <Input placeholder="naam@voorbeeld.nl" type="email" value={leadFields.email} onChange={(e) => updateLeadField("email", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />
-                </div>
+                  <Input placeholder="naam@voorbeeld.nl" type="email" value={leadFields.email} onChange={(e) => updateLeadField("email", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />                  
+                  <p className="text-[12px] text-slate-500 mt-1.5 flex items-center gap-1 font-medium">
+                    <Shield className="w-3.5 h-3.5 text-aog-green" /> Uw gegevens zijn veilig en we sturen geen spam.
+                  </p>
+                </div>        
                 <div>
                   <Label className="font-semibold text-slate-700 mb-1.5 block text-sm">Telefoonnummer *</Label>
                   <Input placeholder="0612345678" type="tel" value={leadFields.phone} onChange={(e) => updateLeadField("phone", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />
                 </div>
+                {submitError && <div className="rounded-xl bg-red-50 p-4 text-red-600 text-sm font-bold">{submitError}</div>}
+              </div>
                 {submitError && <div className="rounded-xl bg-red-50 p-4 text-red-600 text-sm font-bold">{submitError}</div>}
               </div>
 
@@ -397,13 +402,17 @@ export default function LeadForm() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-center gap-6 text-xs text-slate-500 mb-6 font-medium">
+         <div className="flex items-center justify-center gap-6 text-xs text-slate-500 mb-6 font-medium">
                 <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Veilig verstuurd</span>
                 <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Privacy gewaarborgd</span>
               </div>
 
-              <Button type="button" onClick={handleLeadCapture} disabled={!canContinueStep() || isSubmitting} className="w-full h-14 rounded-full text-lg font-bold bg-[#10b981] hover:bg-[#059669] text-white transition-all">
-                {isSubmitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Verwerken...</> : "Mijn bespaaranalyse bekijken >"}
+             <Button type="button" onClick={handleLeadCapture} disabled={!canContinueStep() || isSubmitting} className="w-full h-14 rounded-full text-lg font-bold bg-[#10b981] hover:bg-[#059669] text-white transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                {isSubmitting ? (
+                  <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Verwerken...</>
+                ) : (
+                  `Toon mijn €${calculatedSavings.savings} besparing >`
+                )}
               </Button>
             </div>
           </div>
