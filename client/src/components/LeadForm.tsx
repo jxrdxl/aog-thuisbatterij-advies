@@ -160,10 +160,7 @@ export default function LeadForm() {
       case 6: return !!answers.futureUsage;
       case 8:
         return (
-          leadFields.postcode.trim().length >= 6 &&
           leadFields.firstName.trim().length >= 2 &&
-          leadFields.lastName.trim().length >= 2 &&
-          isValidEmail(leadFields.email) &&
           leadFields.phone.replace(/\D/g, "").length >= 10
         );
       default:
@@ -199,10 +196,10 @@ export default function LeadForm() {
     const fullName = `${leadFields.firstName} ${leadFields.lastName}`.trim();
 
     const payload = {
-      name: fullName,
+      name: leadFields.firstName.trim(),
       phone: leadFields.phone.trim(),
-      email: leadFields.email.trim(),
-      postalCode: leadFields.postcode.trim(),
+      email: leadFields.email.trim() || undefined,
+      postalCode: leadFields.postcode.trim() || undefined,
       solarPanelCount: answers.panelCount || "unknown",
       homeOwner: answers.homeType === "koopwoning",
       source: "website-quiz-funnel-v3",
@@ -337,71 +334,70 @@ export default function LeadForm() {
       case 8:
         return (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="text-center mb-8">
-              <div className="inline-block text-3xl mb-2">🎉</div>
-              <h2 className="text-xl font-bold text-aog-green">Check afgerond!</h2>
+            {/* Savings teaser - zichtbaar BOVEN het formulier */}
+            <div className="border-2 border-aog-green rounded-2xl p-5 mb-6 text-center bg-aog-green/5 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-aog-green" />
+              <p className="text-sm font-bold text-slate-600 mb-1">Jouw geschatte besparing</p>
+              <p className="text-4xl font-black text-aog-green">€{calculatedSavings.savings}<span className="text-lg font-bold text-slate-500">/jaar</span></p>
+              <p className="text-xs text-slate-500 mt-2">Vul je gegevens in om je persoonlijke rapport te ontvangen →</p>
             </div>
-            
+
             <div className="border border-slate-200 rounded-2xl p-6 sm:p-8 bg-white shadow-sm">
-              <h3 className="text-2xl font-bold text-slate-900 mb-6">Jouw gegevens</h3>
+              <h3 className="text-xl font-bold text-slate-900 mb-1">Waar sturen we het rapport naartoe?</h3>
+              <p className="text-sm text-slate-500 mb-6">Onze specialist belt je op voor een gratis adviesgesprek.</p>
 
               <div className="space-y-4 mb-6">
                 <div>
-                  <Label className="font-semibold text-slate-700 mb-1.5 block text-sm">Postcode *</Label>
-                  <Input placeholder="1234 AB" value={leadFields.postcode} onChange={(e) => updateLeadField("postcode", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />
+                  <Label className="font-semibold text-slate-700 mb-1.5 block text-sm">Voornaam *</Label>
+                  <Input
+                    autoFocus
+                    placeholder="Je voornaam"
+                    value={leadFields.firstName}
+                    onChange={(e) => updateLeadField("firstName", e.target.value)}
+                    className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400"
+                  />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="font-semibold text-slate-700 mb-1.5 block text-sm">Voornaam *</Label>
-                    <Input placeholder="Je voornaam" value={leadFields.firstName} onChange={(e) => updateLeadField("firstName", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />
-                  </div>
-                  <div>
-                    <Label className="font-semibold text-slate-700 mb-1.5 block text-sm">Achternaam *</Label>
-                    <Input placeholder="Je achternaam" value={leadFields.lastName} onChange={(e) => updateLeadField("lastName", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />
-                  </div>
-                </div>
-                <div>
-                  <Label className="font-semibold text-slate-700 mb-1.5 block text-sm">E-mailadres *</Label>
-                  <Input placeholder="naam@voorbeeld.nl" type="email" value={leadFields.email} onChange={(e) => updateLeadField("email", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />                  
-                  <p className="text-[12px] text-slate-500 mt-1.5 flex items-center gap-1 font-medium">
-                    <Shield className="w-3.5 h-3.5 text-aog-green" /> Uw gegevens zijn veilig en we sturen geen spam.
-                  </p>
-                </div>        
                 <div>
                   <Label className="font-semibold text-slate-700 mb-1.5 block text-sm">Telefoonnummer *</Label>
-                  <Input placeholder="0612345678" type="tel" value={leadFields.phone} onChange={(e) => updateLeadField("phone", e.target.value)} className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400" />
+                  <Input
+                    placeholder="0612345678"
+                    type="tel"
+                    inputMode="tel"
+                    value={leadFields.phone}
+                    onChange={(e) => updateLeadField("phone", e.target.value)}
+                    className="h-12 rounded-xl border-slate-200 bg-slate-50 placeholder:text-slate-400"
+                  />
                 </div>
                 {submitError && <div className="rounded-xl bg-red-50 p-4 text-red-600 text-sm font-bold">{submitError}</div>}
               </div>
 
-              <div className="bg-slate-50 rounded-xl p-4 mb-6">
-                <p className="text-sm text-slate-500 text-center italic">
-                  Uw contactgegevens worden alleen gebruikt voor maatwerkadvies. De gegevens worden niet doorverkocht.
-                </p>
-              </div>
-
-              <div className="space-y-2 mb-6">
+              <div className="space-y-2 mb-5">
                 <div className="flex items-center text-sm text-slate-600">
-                  <Check className="w-4 h-4 text-aog-green mr-2" /> Persoonlijke bespaaranalyse op maat
+                  <Check className="w-4 h-4 text-aog-green mr-2 shrink-0" /> Gratis en vrijblijvend adviesgesprek aan huis
                 </div>
                 <div className="flex items-center text-sm text-slate-600">
-                  <Check className="w-4 h-4 text-aog-green mr-2" /> Onafhankelijk en vrijblijvend advies
+                  <Check className="w-4 h-4 text-aog-green mr-2 shrink-0" /> Persoonlijk bespaarrapport op maat
                 </div>
                 <div className="flex items-center text-sm text-slate-600">
-                  <Check className="w-4 h-4 text-aog-green mr-2" /> Vergelijking van de beste opties
+                  <Check className="w-4 h-4 text-aog-green mr-2 shrink-0" /> Geen gedoe — wij bellen jou
                 </div>
               </div>
 
-              <div className="flex items-center justify-center gap-6 text-xs text-slate-500 mb-6 font-medium">
+              <div className="flex items-center justify-center gap-6 text-xs text-slate-500 mb-5 font-medium">
                 <span className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5" /> Veilig verstuurd</span>
-                <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Privacy gewaarborgd</span>
+                <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> Niet doorverkocht</span>
               </div>
 
-              <Button type="button" onClick={handleLeadCapture} disabled={!canContinueStep() || isSubmitting} className="w-full h-14 rounded-full text-lg font-bold bg-[#10b981] hover:bg-[#059669] text-white transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+              <Button
+                type="button"
+                onClick={handleLeadCapture}
+                disabled={!canContinueStep() || isSubmitting}
+                className="w-full h-14 rounded-full text-lg font-bold bg-[#10b981] hover:bg-[#059669] text-white transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+              >
                 {isSubmitting ? (
                   <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Verwerken...</>
                 ) : (
-                  `Toon mijn €${calculatedSavings.savings} besparing >`
+                  `Stuur mijn gratis rapport >`
                 )}
               </Button>
             </div>
